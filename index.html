@@ -30,6 +30,9 @@ main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
 .kurs{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute)}
 .kurs input{width:84px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
 .kurs a{color:var(--acc)}
+.kz{font-size:12px;color:var(--mute);margin-top:4px;line-height:1.5}
+.kz .up{color:var(--ok)}.kz .dn{color:var(--bad)}
+.topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
 .kurs.live{font-variant-numeric:tabular-nums}
 .kurs .px{color:var(--ink);font-weight:700;font-size:15px}
 .kurs .up{color:var(--ok);font-weight:500}
@@ -204,11 +207,21 @@ var F={s:"",f:-1,sort:0};var fav={};try{fav=JSON.parse(localStorage.getItem("pp-
 function pf(t){return F.f===-1||F.f===9||t.p===F.f}
 // Live-Kurse: werden von einem GitHub-Ablauf alle 30 Minuten (Mo–Fr) in den Branch "kurse" geschrieben
 var KURS_URL="https://raw.githubusercontent.com/adelbecirovic-glitch/Pharma-/kurse/prices.json";
-var LIVE={},LOADED=false;
+var LIVE={},LOADED=false,LIVE_FUND=false;
+function pct(x){return (x>0?"+":x<0?"−":"")+Math.abs(x).toLocaleString("de-AT",{maximumFractionDigits:1})+" %"}
+function mcap(m){return m>=1000?(m/1000).toLocaleString("de-AT",{maximumFractionDigits:2})+" Bio. USD":m.toLocaleString("de-AT",{maximumFractionDigits:m<10?1:0})+" Mrd. USD"}
+function kz(lv){if(!lv)return "";var a=[];
+if(typeof lv.m==="number")a.push("Börsenwert "+mcap(lv.m));
+if(typeof lv.pe==="number")a.push("KGV "+lv.pe.toLocaleString("de-AT",{maximumFractionDigits:1})+(typeof lv.fpe==="number"?" (erw. "+lv.fpe.toLocaleString("de-AT",{maximumFractionDigits:1})+")":""));
+else if(typeof lv.fpe==="number")a.push("KGV erw. "+lv.fpe.toLocaleString("de-AT",{maximumFractionDigits:1}));
+else if(LIVE_FUND)a.push("kein KGV (Verlust oder keine Daten)");
+if(typeof lv.yc==="number")a.push('1 Jahr <span class="'+(lv.yc>0?"up":lv.yc<0?"dn":"")+'">'+pct(lv.yc)+'</span>');
+if(typeof lv.yh==="number")a.push(lv.yh>-0.5?"nahe 52W-Hoch":pct(lv.yh)+" zum 52W-Hoch");
+return a.join(" · ")}
 function nf(x){return Number(x).toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function ladeKurse(){
 fetch(KURS_URL+"?t="+Math.floor(Date.now()/300000),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
-LIVE=j.kurse||{};LOADED=true;
+LIVE=j.kurse||{};LOADED=true;LIVE_FUND=!!j.fund_stand;
 var d=new Date(j.stand);document.getElementById("kst").textContent=isNaN(d)?"":"Kurse: Stand "+d.toLocaleString("de-AT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" Uhr (bis zu 15 Min. verzögert).";
 render()}).catch(function(){LOADED=true;document.getElementById("kst").textContent="Live-Kurse gerade nicht verfügbar.";render()})}
 var prices={};
@@ -237,7 +250,7 @@ return '<div class="tr"><b>'+esc(t.d)+'</b> <span class="ind">'+esc(t.i)+'</span
 }).join("");
 var pv=prices[c.t]||"",lv=LIVE[c.t],kh;
 if(lv){var ch=typeof lv.c==="number"?' <span class="'+(lv.c>0?"up":lv.c<0?"dn":"")+'">'+(lv.c>0?"+":"")+nf(lv.c)+' %</span>':'';
-kh='<div class="kurs live"><span class="px">'+nf(lv.p)+' '+esc(lv.w)+'</span>'+ch+'</div>';}
+kh='<div class="kurs live"><span class="px">'+nf(lv.p)+' '+esc(lv.w)+'</span>'+ch+'</div>'+(kz(lv)?'<div class="kz">'+kz(lv)+'</div>':'');}
 else kh='<label class="kurs">Kurs <input type="number" step="0.01" inputmode="decimal" data-t="'+esc(c.t)+'" value="'+esc(pv)+'" placeholder="'+(LOADED?"nicht verfügbar":"wird geladen")+'"></label>';
 return '<section class="co"><div><div class="nm"><button class="star" data-s="'+esc(c.t)+'" aria-label="Zur Merkliste">'+(fav[c.t]?"★":"☆")+'</button>'+esc(c.n)+'</div><div class="tk">'+esc(c.t)+' · '+esc(c.l)+'</div>'+kh+'<div class="kurs"><a href="https://finance.yahoo.com/quote/'+encodeURIComponent(YS[c.t]||c.t)+'" target="_blank" rel="noopener">Kurs auf Yahoo Finance</a></div></div><div>'+trs+'</div></section>';
 }).join("");
@@ -280,16 +293,21 @@ s+=Math.min(gut,2)*0.5-Math.min(schlecht,2)*0.5+(bald?0.5:0);
 return{c:c,s:Math.round(s*10)/10,st:st,gut:gut,schlecht:schlecht,bald:bald}}
 var SN={5:"zugelassen",4:"beantragt",3:"Phase 3",2:"Phase 2",1:"Phase 1",0:"gestoppt"};
 function renderTop(){
-var r=D.map(score).sort(function(a,b){return b.s-a.s||(b.st[5]||0)-(a.st[5]||0)||a.c.n.localeCompare(b.c.n)}).slice(0,20);
+var gr=TOPMODE==="1"?function(x){var m=(LIVE[x.c.t]||{}).m;return typeof m==="number"&&m<20}:TOPMODE==="2"?function(x){var m=(LIVE[x.c.t]||{}).m;return typeof m==="number"&&m>=20}:function(){return true};
+var r=D.map(score).filter(gr).sort(function(a,b){return b.s-a.s||(b.st[5]||0)-(a.st[5]||0)||a.c.n.localeCompare(b.c.n)}).slice(0,20);
 var h='<div class="note"><b>So entsteht die Rangliste:</b> Jede der drei Studien bringt Punkte nach ihrem Stand (zugelassen 3, beantragt 2,5, Phase 3: 2, Phase 2: 1, Phase 1: 0,5, gestoppt −1). Dazu +0,5 je positivem Ereignis im letzten Jahr (max. 2), −0,5 je Rückschlag und +0,5, wenn in den nächsten sechs Monaten ein wichtiger Termin ansteht. Die Liste berechnet sich automatisch neu, wenn die Daten freitags aktualisiert werden.</div>'+
-'<div class="note"><b>Wichtig:</b> Das ist eine Einordnung der Pipeline, <b>keine Kaufempfehlung</b> und keine Anlageberatung. Unternehmensbewertung, Umsatz, Schulden, Patentabläufe, Konkurrenz und Kursentwicklung fließen nicht ein – eine starke Pipeline kann im Kurs längst eingepreist sein. Vor einer Investition bitte selbst prüfen oder unabhängig beraten lassen.</div>';
+'<div class="note"><b>Wichtig:</b> Das ist eine Einordnung der Pipeline, <b>keine Kaufempfehlung</b> und keine Anlageberatung. Bewertung (Börsenwert, KGV) und Kursentwicklung werden nur angezeigt, fließen aber nicht in die Punkte ein; Umsatz, Schulden, Patentabläufe und Konkurrenz fehlen ganz – eine starke Pipeline kann im Kurs längst eingepreist sein. Vor einer Investition bitte selbst prüfen oder unabhängig beraten lassen.</div>';
+h+='<div class="topbar"><select id="topmode" aria-label="Auswahl"><option value="0">Alle 100 Firmen</option><option value="1">Nur unter 20 Mrd. USD Börsenwert</option><option value="2">Nur ab 20 Mrd. USD Börsenwert</option></select>'+(TOPMODE!=="0"&&!LOADED?'<span class="px2">Börsenwerte werden geladen …</span>':'')+'</div>';
+if(TOPMODE!=="0"&&LOADED&&!r.length)h+='<div class="empty">Keine Börsenwerte verfügbar.</div>';
 h+=r.map(function(x,i){
 var c=x.c,lv=LIVE[c.t],st=[5,4,3,2,1,0].filter(function(k){return x.st[k]}).map(function(k){return x.st[k]+"× "+SN[k]}).join(", ");
 var px=lv?' · '+nf(lv.p)+' '+esc(lv.w)+(typeof lv.c==="number"?' <span class="'+(lv.c>0?"up":lv.c<0?"dn":"")+'">'+(lv.c>0?"+":"")+nf(lv.c)+' %</span>':''):'';
 var why=esc(st)+(x.gut?' · '+x.gut+' positive'+(x.gut>1?'':'s')+' Ereignis'+(x.gut>1?'se':''):'')+(x.schlecht?' · '+x.schlecht+' Rückschlag'+(x.schlecht>1?'e':''):'');
+var k2=kz(lv);if(k2)why+='<br>'+k2;
 if(x.bald)why+='<br>Als Nächstes: <span class="nx">'+esc(x.bald.t.next.w)+'</span> · '+esc(x.bald.t.d)+': '+esc(x.bald.t.next.e);
 return '<div class="rk" data-g="'+esc(c.t)+'" role="button" tabindex="0"><div class="n">'+(i+1)+'</div><div><b>'+esc(c.n)+'</b><div class="px2">'+esc(c.t)+' · '+esc(c.l)+px+'</div></div><div class="sc"><b>'+Number(x.s).toLocaleString("de-AT",{maximumFractionDigits:1})+'</b><span>Punkte</span></div><div class="why">'+why+'</div></div>'}).join("");
-document.getElementById("top").innerHTML=h}
+document.getElementById("top").innerHTML=h;var sel=document.getElementById("topmode");sel.value=TOPMODE;sel.onchange=function(){TOPMODE=sel.value;renderTop()}}
+var TOPMODE="0";
 function zeige(top){
 document.getElementById("tabAll").setAttribute("aria-selected",!top);document.getElementById("tabTop").setAttribute("aria-selected",top);
 document.getElementById("top").hidden=!top;document.querySelector(".bar").hidden=top;document.getElementById("list").hidden=top;
