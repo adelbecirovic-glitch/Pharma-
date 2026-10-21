@@ -6,9 +6,9 @@
 <title>Pharma-Pipeline: 50 Aktien</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;700&display=swap">
 <style>
-:root{--bg:#eef2f1;--panel:#fff;--ink:#14282b;--mute:#5b6f72;--line:#d3dddc;--acc:#0b6e6e;--z:#2b4acb;--off:#d9e2e1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1c;--panel:#162427;--ink:#e6efee;--mute:#8fa5a8;--line:#27393c;--acc:#3fb6b0;--z:#7d94ff;--off:#2a3c3f}}
-:root[data-theme="dark"]{--bg:#0f1a1c;--panel:#162427;--ink:#e6efee;--mute:#8fa5a8;--line:#27393c;--acc:#3fb6b0;--z:#7d94ff;--off:#2a3c3f}
+:root{--bg:#eef2f1;--panel:#fff;--ink:#14282b;--mute:#5b6f72;--line:#d3dddc;--acc:#0b6e6e;--z:#2b4acb;--ok:#1f7a3a;--bad:#b3261e;--off:#d9e2e1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1c;--panel:#162427;--ink:#e6efee;--mute:#8fa5a8;--line:#27393c;--acc:#3fb6b0;--z:#7d94ff;--ok:#5cc97a;--bad:#ff8a80;--off:#2a3c3f}}
+:root[data-theme="dark"]{--bg:#0f1a1c;--panel:#162427;--ink:#e6efee;--mute:#8fa5a8;--line:#27393c;--acc:#3fb6b0;--z:#7d94ff;--ok:#5cc97a;--bad:#ff8a80;--off:#2a3c3f}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.45 "Instrument Sans",system-ui,sans-serif}
@@ -17,10 +17,11 @@ h1{margin:0;font-size:24px;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--mute);margin:4px 0 0;font-size:13px}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 16px;max-width:960px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line)}
 input[type=search]{flex:1 1 180px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit}
+select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit;font-size:13px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 button.c{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
 button.c[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
-button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button:focus-visible,input:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
 .co{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:10px 0;padding:14px;display:grid;grid-template-columns:200px 1fr;gap:14px}
 @media(max-width:640px){.co{grid-template-columns:1fr}}
@@ -29,7 +30,7 @@ main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
 .kurs{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute)}
 .kurs input{width:84px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
 .kurs a{color:var(--acc)}
-.tr{padding:8px 0;border-top:1px solid var(--line)}
+.tr{padding:10px 0;border-top:1px solid var(--line)}
 .tr:first-child{border-top:0;padding-top:0}
 .tr b{font-weight:500}
 .ind{color:var(--mute);font-size:13px}
@@ -37,8 +38,16 @@ main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
 .trk i{flex:1;height:6px;border-radius:3px;background:var(--off)}
 .trk i.on{background:var(--acc)}
 .trk i.on.z{background:var(--z)}
+.trk i.on.a{background:var(--ok)}
 .ph{font-size:12px;color:var(--mute);margin-top:3px}
 .ph.z{color:var(--z);font-weight:700}
+.ph.a{color:var(--ok);font-weight:700}
+.ph.x{color:var(--bad);font-weight:700}
+.ev{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;margin-top:6px;font-size:13px}
+.ev dt{color:var(--mute);white-space:nowrap}
+.ev dd{margin:0}
+.ev .d{font-weight:500;font-variant-numeric:tabular-nums}
+.ev .nx .d{color:var(--acc)}
 .empty{padding:40px 0;text-align:center;color:var(--mute)}
 .star{border:0;background:none;color:var(--acc);font-size:20px;line-height:1;padding:0 8px 0 0;cursor:pointer;vertical-align:-2px}
 footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-size:12px}
@@ -47,90 +56,102 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-
 <body>
 <header>
 <h1>Pharma-Pipeline: 50 Aktien</h1>
-<p class="sub">Wichtige Studien je Unternehmen und ihre aktuelle Phase. <span id="cnt"></span></p>
+<p class="sub">Wichtige Studien je Unternehmen, ihre Phase und die Termine: was zuletzt passiert ist und was als Nächstes ansteht. <span id="cnt"></span></p>
 </header>
 <div class="bar">
 <input type="search" id="q" placeholder="Firma, Kürzel oder Indikation suchen" aria-label="Suche">
+<select id="sort" aria-label="Sortierung"><option value="0">Sortierung: Standard</option><option value="1">Nächster Termin zuerst</option></select>
 <div class="chips" id="chips"></div>
 </div>
 <main id="list"></main>
-<footer>Datenstand: Wissensstand Mitte 2026, ohne Live-Abgleich. Kurse und Studienphasen ändern sich laufend; bitte vor Entscheidungen auf ClinicalTrials.gov, bei den Unternehmen und beim Broker prüfen. Keine Anlageberatung. Eigene Kurse werden nur in diesem Browser gespeichert.</footer>
+<footer>Datenstand: Web-Recherche Oktober 2026. Termine als Quartal oder Halbjahr, wie von den Firmen kommuniziert; konkrete FDA-Termine (PDUFA) in Klammern. Pläne verschieben sich oft, bitte vor Entscheidungen bei den Unternehmen, auf ClinicalTrials.gov und beim Broker prüfen. Keine Anlageberatung. Eigene Kurse und die Merkliste werden nur in diesem Browser gespeichert.</footer>
 <script>
-// Format: Kürzel|Name|Land|Wirkstoff;Indikation;Phase/... (Phase 1-3, 4 = Zulassung beantragt)
+// Format: Kürzel|Name|Land|Studie^Studie...
+// Studie: Wirkstoff;Indikation;Phase;Zuletzt;Als Nächstes
+// Phase: 1-3 = Phase, 4 = Zulassung beantragt, 5 = zugelassen, 0 = gestoppt/Rückschlag
+// Termin: "Zeitraum=Ereignis", "-" = nichts bekannt
 var D=[
-"LLY|Eli Lilly|USA|Orforglipron;Adipositas;4/Retatrutide;Adipositas;3",
-"NVO|Novo Nordisk|DK|CagriSema;Adipositas;3/Amycretin;Adipositas;2",
-"JNJ|Johnson & Johnson|USA|Icotrokinra;Psoriasis;4/Nipocalimab;Autoimmun;3",
-"PFE|Pfizer|USA|MET-097i;Adipositas;3/Sigvotatug Vedotin;Lungenkrebs;3",
-"MRK|Merck & Co.|USA|Enlicitide (oral);Cholesterin;3/Sacituzumab Tirumotecan;Tumore;3",
-"ABBV|AbbVie|USA|Tavapadon;Parkinson;4/Telisotuzumab Adizutecan;Darmkrebs;3",
-"AZN|AstraZeneca|UK|Baxdrostat;Bluthochdruck;4/Camizestrant;Brustkrebs;4",
-"NOVN|Novartis|CH|Ianalumab;Sjögren-Syndrom;4/Remibrutinib;Multiple Sklerose;3",
-"ROG|Roche|CH|Giredestrant;Brustkrebs;4/Trontinemab;Alzheimer;3",
-"GSK|GSK|UK|Bepirovirsen;Hepatitis B;4/Camlipixant;Chronischer Husten;3",
-"SAN|Sanofi|FR|Tolebrutinib;Multiple Sklerose;4/Amlitelimab;Neurodermitis;3",
-"BMY|Bristol Myers Squibb|USA|Milvexian;Schlaganfall, Vorhofflimmern;3/Cobenfy;Alzheimer-Psychose;3",
-"AMGN|Amgen|USA|MariTide;Adipositas;3/Olpasiran;Lipoprotein(a);3",
-"GILD|Gilead|USA|Anitocabtagen Autoleucel;Multiples Myelom;4/Trodelvy;Dreifach-neg. Brustkrebs;3",
-"REGN|Regeneron|USA|Odronextamab;Lymphome;3/Fianlimab;Melanom;3",
-"VRTX|Vertex|USA|Zimislecel;Typ-1-Diabetes;3/Povetacicept;IgA-Nephropathie;3",
-"BIIB|Biogen|USA|Felzartamab;Nierenerkrankungen;3/BIIB080;Alzheimer (Tau);2",
-"MRNA|Moderna|USA|mRNA-1010;Grippe-Impfstoff;4/Intismeran;Melanom;3",
-"BAYN|Bayer|DE|Asundexian;Schlaganfall;4/Bemdaneprocel;Parkinson;3",
-"MRK.DE|Merck KGaA|DE|Pimicotinib;Sehnenscheidentumor;4/Xevinapant-Folgeprogramme;Onkologie;2",
-"UCB|UCB|BE|Dapirolizumab Pegol;Lupus;3/Fenfluramin;CDKL5-Epilepsie;3",
-"ARGX|argenx|NL|Efgartigimod;Myositis;3/Empasiprubart;Multifokale Neuropathie;3",
-"GMAB|Genmab|DK|Rinatabart Sesutecan;Eierstockkrebs;3/Epcoritamab;Lymphome;3",
-"4502|Takeda|JP|Oveporexton;Narkolepsie Typ 1;4/Zasocitinib;Psoriasis;4",
-"4503|Astellas|JP|ASP3082;Pankreaskrebs (KRAS);2/Zolbetuximab;Pankreaskrebs;2",
-"4568|Daiichi Sankyo|JP|Datopotamab Deruxtecan;Brustkrebs;3/Ifinatamab Deruxtecan;Kleinzelliger Lungenkrebs;3",
-"4523|Eisai|JP|E2814;Alzheimer (Tau);2/Lecanemab;Frühe Alzheimer-Prävention;3",
-"4578|Otsuka|JP|Centanafadine;ADHS;4/Ulotaront-Nachfolger;Psychiatrie;2",
-"4519|Chugai|JP|NXT007;Hämophilie A;3/Orforglipron (Lizenz);Adipositas;4",
-"4507|Shionogi|JP|Ensitrelvir;COVID-19-Prophylaxe;4/S-309309;Adipositas;2",
-"TEVA|Teva|IL|Duvakitug;Colitis, Crohn;3/Olanzapin-Depot;Schizophrenie;4",
-"ALNY|Alnylam|USA|Nucresiran;ATTR-Amyloidose;3/Zilebesiran;Bluthochdruck;3",
-"NBIX|Neurocrine|USA|Osavampator;Depression;3/Direclidin;Schizophrenie;2",
-"INSM|Insmed|USA|Brensocatib;Rhinosinusitis;2/TPIP;Pulmonale Hypertonie;2",
-"MDGL|Madrigal|USA|Resmetirom;MASH-Zirrhose;3/Kombinationstherapien;MASH;2",
-"VKTX|Viking Therapeutics|USA|VK2735 (Spritze);Adipositas;3/VK2735 (oral);Adipositas;2",
-"SMMT|Summit Therapeutics|USA|Ivonescimab;Lungenkrebs (EGFR);3/Ivonescimab;Darmkrebs;2",
-"CYTK|Cytokinetics|USA|Omecamtiv Mecarbil;Herzinsuffizienz;3/Aficamten;Nicht-obstruktive HCM;3",
-"IONS|Ionis|USA|Olezarsen;Schwere Hypertriglyzeridämie;4/Zilganersen;Alexander-Krankheit;3",
-"ASND|Ascendis Pharma|DK|TransCon CNP;Achondroplasie;4/TransCon PTH;Hypoparathyreoidismus;3",
-"BGNE|BeOne Medicines|CH|Sonrotoclax;Chronische Leukämie;3/BGB-16673;B-Zell-Lymphome;3",
-"BNTX|BioNTech|DE|BNT327;Lungenkrebs;3/BNT323;Gebärmutterkrebs;4",
-"CSL|CSL|AU|Clazakizumab;Dialyse, Herz-Kreislauf;3/Garadacimab-Erweiterung;Angioödem;3",
-"ZEAL|Zealand Pharma|DK|Petrelintide;Adipositas;2/Dasiglucagon;Angeborener Hyperinsulinismus;4",
-"INCY|Incyte|USA|Povorcitinib;Hidradenitis suppurativa;4/Retifanlimab;Analkrebs;3",
-"EXEL|Exelixis|USA|Zanzalintinib;Darmkrebs;4/Zanzalintinib;Nierenkrebs;3",
-"PRAX|Praxis Precision|USA|Ulixacaltamid;Essentieller Tremor;4/Vormatrigin;Epilepsie;3",
-"JAZZ|Jazz Pharmaceuticals|IE|Zanidatamab;Magen-/Speiseröhrenkrebs;4/Dordaviprone;Gliom;3",
-"ABVX|Abivax|FR|Obefazimod;Colitis ulcerosa;3/Obefazimod;Morbus Crohn;2",
-"BBIO|BridgeBio|USA|Encaleret;Hypocalcämie (ADH1);4/Infigratinib;Achondroplasie;3"
-].map(function(s){var p=s.split("|");return{t:p[0],n:p[1],l:p[2],tr:p[3].split("/").map(function(x){var a=x.split(";");return{d:a[0],i:a[1],p:+a[2]}})}});
+"LLY|Eli Lilly|USA|Orforglipron;Adipositas;5;Q2 2026=FDA-Zulassung (Foundayo);-^Retatrutide;Adipositas;3;Q3 2026=Phase 3 TRIUMPH-2 und -3 positiv;Q1 2027=FDA-Antrag geplant",
+"NVO|Novo Nordisk|DK|CagriSema;Adipositas;4;Q4 2025=FDA-Antrag eingereicht;Q4 2026=FDA-Entscheidung erwartet^Amycretin;Adipositas;3;Q1 2026=Start Phase-3-Programm geplant;-",
+"JNJ|Johnson & Johnson|USA|Icotrokinra;Psoriasis;5;Q1 2026=FDA-Zulassung (Icotyde);-^Nipocalimab;Myasthenie und weitere Autoimmun-Indikationen;3;Q2 2026=2-Jahres-Daten Myasthenie;-",
+"PFE|Pfizer|USA|MET-097i;Adipositas;3;Q1 2026=Phase 2b positiv, Phase 3 gestartet;2026=bis zu 10 Phase-3-Studien starten^Sigvotatug Vedotin;Lungenkrebs;3;Q2 2026=Phase 3 (Zweitlinie) Endpunkt verfehlt;offen=Erstlinien-Studie läuft weiter",
+"MRK|Merck & Co.|USA|Enlicitide (oral);Cholesterin;5;Q3 2026=FDA-Zulassung;-^Sacituzumab Tirumotecan;Endometriumkrebs und weitere Tumore;3;Q2 2026=Phase 3 TroFuse-005 positiv;-",
+"ABBV|AbbVie|USA|Tavapadon;Parkinson;5;Q3 2026=FDA-Zulassung (Juvmo);-^Telisotuzumab Adizutecan;Darmkrebs;3;2026=weitere Phase-3-Studie gestartet;-",
+"AZN|AstraZeneca|UK|Baxdrostat;Bluthochdruck;5;Q2 2026=FDA-Zulassung (Baxfendy);-^Camizestrant;Brustkrebs (ESR1);5;Q3 2026=FDA-Zulassung;-",
+"NOVN|Novartis|CH|Ianalumab;Sjögren-Syndrom;3;Q1 2026=FDA-Breakthrough-Status;offen=FDA-Antrag in Vorbereitung^Remibrutinib;Multiple Sklerose;3;Q3 2026=Phase 3 positiv;-",
+"ROG|Roche|CH|Giredestrant;Brustkrebs;4;Q2 2026=FDA-Antrag (adjuvant) angenommen;Q4 2026=FDA-Entscheidung (30.11. und Dez.)^Trontinemab;Alzheimer;3;Q3 2026=zusätzliche Präventionsstudie angekündigt;-",
+"GSK|GSK|UK|Bepirovirsen;Hepatitis B;4;Q3 2026=Zulassung in Japan (Hibsago);Q4 2026=FDA-Entscheidung (26.10.)^Camlipixant;Chronischer Husten;0;Q3 2026=Entwicklung nach gemischten Phase-3-Daten gestoppt;-",
+"SAN|Sanofi|FR|Tolebrutinib;Multiple Sklerose;0;Q4 2025=FDA lehnt ab, PPMS-Studie gescheitert;-^Amlitelimab;Neurodermitis;0;Q3 2026=kein Zulassungsantrag, Entwicklung beendet;-",
+"BMY|Bristol Myers Squibb|USA|Milvexian;Schlaganfall, Vorhofflimmern;3;Q3 2026=LIBREXIA-ACS Endpunkt verfehlt;Q1 2027=Daten LIBREXIA-AF^Cobenfy;Alzheimer-Psychose;3;Q3 2026=Daten verschoben;2027=ADEPT-Daten über das Jahr verteilt",
+"AMGN|Amgen|USA|MariTide;Adipositas;3;2026=MARITIME-Studien laufen und rekrutieren;-^Olpasiran;Lipoprotein(a);3;Q3 2026=Konkurrent Pelacarsen (Novartis) scheitert;2028=Daten OCEAN(a)-Outcomes",
+"GILD|Gilead|USA|Anitocabtagen Autoleucel;Multiples Myelom;4;Q1 2026=Übernahme von Partner Arcellx;Q4 2026=FDA-Entscheidung (Dez.)^Trodelvy;Dreifach-neg. Brustkrebs;5;Q2 2026=FDA-Zulassung Erstlinie;-",
+"REGN|Regeneron|USA|Odronextamab;Lymphome;4;Q1 2025=FDA-Antrag (FL) erneut eingereicht;offen=Status FDA prüfen^Fianlimab;Melanom;3;Q2 2026=Phase 3 Endpunkt verfehlt;-",
+"VRTX|Vertex|USA|Zimislecel;Typ-1-Diabetes;3;2025=Dosierung Phase 3 abgeschlossen;2026=Zulassungsanträge geplant^Povetacicept;IgA-Nephropathie;4;Q2 2026=FDA-Antrag angenommen;Q4 2026=FDA-Entscheidung (30.11.)",
+"BIIB|Biogen|USA|Felzartamab;Abstoßung nach Nierentransplantation;3;2026=Phase 3 rekrutiert;-^BIIB080 (Diranersen);Alzheimer (Tau);2;Q2 2026=Phase 2 Hauptendpunkt verfehlt;-",
+"MRNA|Moderna|USA|mRNA-1010;Grippe-Impfstoff;5;Q3 2026=FDA-Zulassung (mFlusiva);-^Intismeran;Melanom;3;Q3 2026=Phase 3 INTerpath-001 positiv;-",
+"BAYN|Bayer|DE|Asundexian;Schlaganfall;4;Q2 2026=FDA-Antrag mit Priority Review;Q4 2026=FDA-Entscheidung (geschätzt)^Bemdaneprocel;Parkinson;3;2025=Phase 3 exPDite-2 gestartet;-",
+"MRK.DE|Merck KGaA|DE|Pimicotinib;Sehnenscheidentumor;4;Q1 2026=FDA-Antrag angenommen;offen=FDA-Entscheidung ausstehend^Xevinapant;Kopf-Hals-Krebs;0;2024=Entwicklung gestoppt;-",
+"UCB|UCB|BE|Dapirolizumab Pegol;Lupus;3;Q2 2026=Phase 3 PHOENYCS GO veröffentlicht;offen=Bestätigungsstudie PHOENYCS FLY läuft^Fenfluramin;CDKL5-Epilepsie;3;Q4 2025=Phase 3 GEMZ positiv;-",
+"ARGX|argenx|NL|Efgartigimod;Myositis;3;Q3 2026=Phase 3 ALKIVIA positiv;-^Empasiprubart;Multifokale Neuropathie;3;2026=Phase 3 rekrutiert;-",
+"GMAB|Genmab|DK|Rinatabart Sesutecan;Eierstockkrebs;3;2026=dritte Phase-3-Studie gestartet;-^Epcoritamab;Lymphome;5;Q4 2026=Phase 3 Erstlinie DLBCL zeigt PFS-Vorteil;-",
+"4502|Takeda|JP|Oveporexton;Narkolepsie Typ 1;5;Q3 2026=FDA-Zulassung (Orzeyful);-^Zasocitinib;Psoriasis;4;Q3 2026=FDA-Antrag mit Priority Review;Q1 2027=FDA-Entscheidung",
+"4503|Astellas|JP|ASP3082;Pankreaskrebs (KRAS);3;2025=Phase 3 gestartet;-^Zolbetuximab;Pankreaskrebs;0;Q4 2025=Phase 2 GLEAM verfehlt;-",
+"4568|Daiichi Sankyo|JP|Datopotamab Deruxtecan;Dreifach-neg. Brustkrebs;5;Q2 2026=FDA-Zulassung Erstlinie;-^Ifinatamab Deruxtecan;Kleinzelliger Lungenkrebs;3;offen=Phase 3 IDeate-Lung02 läuft;-",
+"4523|Eisai|JP|E2814;Alzheimer (Tau);2;Q4 2025=neue Daten auf CTAD-Kongress;-^Lecanemab;Frühe Alzheimer-Prävention;3;offen=Phase 3 AHEAD 3-45 läuft;-",
+"4578|Otsuka|JP|Centanafadine;ADHS;5;Q3 2026=FDA-Zulassung;-^Ulotaront-Nachfolger;Psychiatrie;2;-;-",
+"4519|Chugai|JP|NXT007;Hämophilie A;3;2026=Phase-3-Studien gestartet;-^Orforglipron (Lizenz);Adipositas;5;Q2 2026=FDA-Zulassung (Partner Lilly);-",
+"4507|Shionogi|JP|Ensitrelvir;COVID-19-Prophylaxe;5;Q2 2026=FDA-Zulassung (Xocova);-^S-309309;Adipositas;2;offen=Phase-2-Daten schwach;-",
+"TEVA|Teva|IL|Duvakitug;Colitis, Crohn;3;Q1 2026=Phase 3 mit Blackstone-Finanzierung;-^Olanzapin-Depot;Schizophrenie;5;Q4 2026=FDA-Zulassung (Weltruza);-",
+"ALNY|Alnylam|USA|Nucresiran;ATTR-Amyloidose;3;offen=Phase 3 TRITON-CM läuft;-^Zilebesiran;Bluthochdruck;3;offen=Phase-3-Outcomes-Studie mit Roche;-",
+"NBIX|Neurocrine|USA|Osavampator;Depression;3;Q1 2025=Phase 3 gestartet;-^Direclidin;Schizophrenie;3;2025=Phase 3 gestartet;-",
+"INSM|Insmed|USA|Brensocatib;Rhinosinusitis;0;Q4 2025=Phase 2b verfehlt, Programm gestoppt;-^TPIP;Pulmonale Hypertonie;3;Q2 2026=Phase 3 PALM-PAH gestartet;Q4 2026=Phase-3-Start bei Lungenfibrose",
+"MDGL|Madrigal|USA|Resmetirom;MASH-Zirrhose;3;offen=Outcomes-Studie voll rekrutiert;-^Kombinationstherapien;MASH;2;-;-",
+"VKTX|Viking Therapeutics|USA|VK2735 (Spritze);Adipositas;3;Q1 2026=VANQUISH-Studien voll rekrutiert;-^VK2735 (oral);Adipositas;2;Q3 2026=Phase-3-Plan vorgestellt;Q4 2026=Phase-3-Start",
+"SMMT|Summit Therapeutics|USA|Ivonescimab;Lungenkrebs (EGFR);4;Q1 2026=FDA-Antrag angenommen;Q4 2026=FDA-Entscheidung (14.11.)^Ivonescimab;Darmkrebs;2;-;-",
+"CYTK|Cytokinetics|USA|Omecamtiv Mecarbil;Herzinsuffizienz;3;offen=Phase 3 COMET-HF läuft;-^Aficamten;Nicht-obstruktive HCM;3;Q2 2026=Phase 3 ACACIA-HCM positiv;-",
+"IONS|Ionis|USA|Olezarsen;Schwere Hypertriglyzeridämie;5;Q2 2026=FDA-Zulassung;-^Zilganersen;Alexander-Krankheit;5;Q3 2026=FDA-Zulassung;-",
+"ASND|Ascendis Pharma|DK|TransCon CNP;Achondroplasie;5;Q1 2026=FDA-Zulassung (Yuviwel);-^TransCon PTH;Hypoparathyreoidismus;5;2024=FDA-Zulassung (Yorvipath);-",
+"BGNE|BeOne Medicines|CH|Sonrotoclax;Chronische Leukämie;3;offen=Phase 3 CELESTIAL läuft;-^BGB-16673;B-Zell-Lymphome;3;offen=Phase 3 läuft;-",
+"BNTX|BioNTech|DE|BNT327;Lungenkrebs;3;-;-^BNT323;Gebärmutterkrebs;3;Q2 2026=positive Daten vorgestellt;2026=FDA-Antrag geplant",
+"CSL|CSL|AU|Clazakizumab;Dialyse, Herz-Kreislauf;3;Q1 2026=Lizenzdeal mit Eli Lilly;-^Garadacimab;Angioödem (Kinder);5;Q3 2026=Phase 3b bei Kindern positiv;offen=Antrag für Kinder geplant",
+"ZEAL|Zealand Pharma|DK|Petrelintide;Adipositas;2;Q1 2026=Phase 2 positiv (mit Roche);-^Dasiglucagon;Angeborener Hyperinsulinismus;4;Q4 2024=FDA lehnt ab (Herstellerwerk);-",
+"INCY|Incyte|USA|Povorcitinib;Hidradenitis suppurativa;4;Q1 2026=FDA-Antrag angenommen;Q1 2027=US-Markteinführung erwartet^Retifanlimab;Analkrebs;5;Q2 2025=FDA-Zulassung (Zynyz);-",
+"EXEL|Exelixis|USA|Zanzalintinib;Darmkrebs;4;Q3 2026=FDA verlängert Prüfung;Q1 2027=FDA-Entscheidung (3.3.)^Zanzalintinib;Nierenkrebs;3;offen=Phase 3 STELLAR-304 läuft;-",
+"PRAX|Praxis Precision|USA|Ulixacaltamid;Essentieller Tremor;4;Q2 2026=FDA-Antrag angenommen;Q1 2027=FDA-Entscheidung (29.1.)^Vormatrigin;Epilepsie;0;Q2 2026=Studie POWER1 verfehlt;-",
+"JAZZ|Jazz Pharmaceuticals|IE|Zanidatamab;Magen- und Speiseröhrenkrebs;5;Q3 2026=FDA-Zulassung Erstlinie;-^Dordaviprone;Gliom;5;Q3 2025=beschleunigte FDA-Zulassung (Modeyso);offen=Bestätigungsstudie ACTION läuft",
+"ABVX|Abivax|FR|Obefazimod;Colitis ulcerosa;3;Q2 2026=Phase 3 Erhaltungstherapie positiv;Q4 2026=FDA-Antrag geplant^Obefazimod;Morbus Crohn;2;-;Mitte 2027=Phase-2b-Daten",
+"BBIO|BridgeBio|USA|Encaleret;Hypocalcämie (ADH1);4;Q3 2026=FDA-Antrag angenommen;Q2 2027=FDA-Entscheidung (8.5.)^Infigratinib;Achondroplasie;3;Q1 2026=Phase 3 PROPEL 3 positiv;2026=FDA-Antrag geplant"
+].map(function(s){var p=s.split("|");return{t:p[0],n:p[1],l:p[2],tr:p[3].split("^").map(function(x){var a=x.split(";");return{d:a[0],i:a[1],p:+a[2],last:ev(a[3]),next:ev(a[4])}})}});
+function ev(s){if(!s||s==="-")return null;var k=s.indexOf("=");return k<0?{w:"",e:s}:{w:s.slice(0,k),e:s.slice(k+1)}}
+// Sortierschlüssel aus "Q1 2027", "H1 2027" oder "2027"; offen = ans Ende
+function key(e){if(!e)return 99999;var m=/(Q([1-4])|H([12]))?\s*(\d{4})/.exec(e.w);if(!m)return 99998;var q=m[2]?+m[2]:m[3]?(+m[3]===1?2:4):4;return +m[4]*10+q}
 var YS={NVO:"NOVO-B.CO",AZN:"AZN.L",NOVN:"NOVN.SW",ROG:"ROG.SW",GSK:"GSK.L",SAN:"SAN.PA",BAYN:"BAYN.DE",UCB:"UCB.BR",ARGX:"ARGX.BR",GMAB:"GMAB.CO","4502":"4502.T","4503":"4503.T","4568":"4568.T","4523":"4523.T","4578":"4578.T","4519":"4519.T","4507":"4507.T",BGNE:"ONC",CSL:"CSL.AX",ZEAL:"ZEAL.CO",ABVX:"ABVX.PA"};
-var LB=["","Phase 1","Phase 2","Phase 3","Zulassung beantragt"];
-var F={s:"",f:0};var fav={};try{fav=JSON.parse(localStorage.getItem("pp-fav")||"{}")}catch(e){}
-function pf(t){return !F.f||F.f===5||t.p===F.f}
+var LB=["Gestoppt / Rückschlag","Phase 1","Phase 2","Phase 3","Zulassung beantragt","Zugelassen"];
+var F={s:"",f:-1,sort:0};var fav={};try{fav=JSON.parse(localStorage.getItem("pp-fav")||"{}")}catch(e){}
+function pf(t){return F.f===-1||F.f===9||t.p===F.f}
 var prices={};
 try{prices=JSON.parse(localStorage.getItem("pp-kurse")||"{}")}catch(e){}
 function esc(x){return String(x).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function evh(lbl,e,cls){if(!e)return '<dt>'+lbl+'</dt><dd class="'+cls+'">–</dd>';return '<dt>'+lbl+'</dt><dd class="'+cls+'">'+(e.w&&e.w!=="offen"?'<span class="d">'+esc(e.w)+'</span> · ':'')+esc(e.e)+'</dd>'}
 function render(){
 var q=F.s.toLowerCase(),out=[];
 D.forEach(function(c){
 var trs=c.tr.filter(pf);
-if(!trs.length||(F.f===5&&!fav[c.t]))return;
+if(!trs.length||(F.f===9&&!fav[c.t]))return;
 var hay=(c.n+" "+c.t+" "+c.tr.map(function(t){return t.d+" "+t.i}).join(" ")).toLowerCase();
 if(q&&hay.indexOf(q)<0)return;
 out.push(c);
 });
+if(F.sort===1){out=out.slice().sort(function(a,b){
+var ka=Math.min.apply(null,a.tr.filter(pf).map(function(t){return key(t.next)})),kb=Math.min.apply(null,b.tr.filter(pf).map(function(t){return key(t.next)}));return ka-kb})}
 document.getElementById("cnt").textContent=out.length+" von "+D.length+" Unternehmen angezeigt.";
 var h=out.map(function(c){
-var trs=c.tr.filter(pf).map(function(t){
-var z=t.p===4,bars="";
-for(var k=1;k<=4;k++)bars+='<i class="'+(k<=t.p?"on":"")+(k<=t.p&&z?" z":"")+'"></i>';
-return '<div class="tr"><b>'+esc(t.d)+'</b> <span class="ind">'+esc(t.i)+'</span><div class="trk" role="img" aria-label="'+LB[t.p]+'">'+bars+'</div><div class="ph'+(z?" z":"")+'">'+LB[t.p]+'</div></div>';
+var trs=c.tr.filter(pf);
+if(F.sort===1)trs=trs.slice().sort(function(a,b){return key(a.next)-key(b.next)});
+trs=trs.map(function(t){
+var z=t.p===4,ok=t.p===5,x=t.p===0,bars="";
+for(var k=1;k<=5;k++)bars+='<i class="'+(k<=t.p?"on":"")+(k<=t.p&&z?" z":"")+(k<=t.p&&ok?" a":"")+'"></i>';
+return '<div class="tr"><b>'+esc(t.d)+'</b> <span class="ind">'+esc(t.i)+'</span><div class="trk" role="img" aria-label="'+LB[t.p]+'">'+bars+'</div><div class="ph'+(z?" z":ok?" a":x?" x":"")+'">'+LB[t.p]+'</div><dl class="ev">'+evh("Zuletzt",t.last,"")+evh("Als Nächstes",t.next,"nx")+'</dl></div>';
 }).join("");
 var pv=prices[c.t]||"";
 return '<section class="co"><div><div class="nm"><button class="star" data-s="'+esc(c.t)+'" aria-label="Zur Merkliste">'+(fav[c.t]?"★":"☆")+'</button>'+esc(c.n)+'</div><div class="tk">'+esc(c.t)+' · '+esc(c.l)+'</div><label class="kurs">Kurs <input type="number" step="0.01" inputmode="decimal" data-t="'+esc(c.t)+'" value="'+esc(pv)+'" placeholder="eintragen"></label><div class="kurs"><a href="https://finance.yahoo.com/quote/'+encodeURIComponent(YS[c.t]||c.t)+'" target="_blank" rel="noopener">Kurs auf Yahoo Finance</a></div></div><div>'+trs+'</div></section>';
@@ -138,12 +159,13 @@ return '<section class="co"><div><div class="nm"><button class="star" data-s="'+
 document.getElementById("list").innerHTML=h||'<div class="empty">Keine Treffer. Suche ändern oder Filter zurücksetzen.</div>';
 }
 var chips=document.getElementById("chips");
-[["Alle",0],["Phase 1",1],["Phase 2",2],["Phase 3",3],["Zulassung",4],["★ Merkliste",5]].forEach(function(a){
-var b=document.createElement("button");b.className="c";b.textContent=a[0];b.setAttribute("aria-pressed",a[1]===0);
+[["Alle",-1],["Phase 1",1],["Phase 2",2],["Phase 3",3],["Beantragt",4],["Zugelassen",5],["Gestoppt",0],["★ Merkliste",9]].forEach(function(a){
+var b=document.createElement("button");b.className="c";b.textContent=a[0];b.setAttribute("aria-pressed",a[1]===-1);
 b.onclick=function(){F.f=a[1];[].forEach.call(chips.children,function(x){x.setAttribute("aria-pressed","false")});b.setAttribute("aria-pressed","true");render()};
 chips.appendChild(b);
 });
 document.getElementById("q").addEventListener("input",function(e){F.s=e.target.value;render()});
+document.getElementById("sort").addEventListener("change",function(e){F.sort=+e.target.value;render()});
 document.getElementById("list").addEventListener("change",function(e){
 var t=e.target.getAttribute&&e.target.getAttribute("data-t");if(!t)return;
 prices[t]=e.target.value;

@@ -4,4 +4,4 @@
 
 Öffnen: `index.html` im Browser, oder über GitHub Pages veröffentlichen.
 
-Datenstand Mitte 2026, keine Anlageberatung.
+Jede Studie zeigt das letzte und das nächste Ereignis (Quartal/Halbjahr). Datenstand: Web-Recherche Oktober 2026, keine Anlageberatung.
