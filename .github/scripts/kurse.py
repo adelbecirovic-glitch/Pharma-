@@ -13,15 +13,28 @@ import yfinance as yf
 with open("tickers.json", encoding="utf-8") as f:
     tickers = json.load(f)
 
+# Ersatzsymbole, falls das Hauptsymbol bei Yahoo gerade nichts liefert
+ERSATZ = {"ROG.SW": ["RO.SW", "RHHBY"], "HLUN-B.CO": ["HLUN-A.CO", "HLBBF"]}
+
+
+def hole(symbol):
+    for s in [symbol] + ERSATZ.get(symbol, []):
+        try:
+            fi = yf.Ticker(s).fast_info
+            preis = fi.get("lastPrice")
+            if preis is not None and preis == preis:  # nicht None/NaN
+                return s, fi, preis
+        except Exception:
+            pass
+    raise ValueError("kein Kurs")
+
+
 kurse = {}
 fehler = []
 for kuerzel, symbol in tickers.items():
     try:
-        fi = yf.Ticker(symbol).fast_info
-        preis = fi.get("lastPrice")
+        symbol, fi, preis = hole(symbol)
         vortag = fi.get("previousClose")
-        if preis is None or preis != preis:  # None oder NaN
-            raise ValueError("kein Kurs")
         eintrag = {"p": round(float(preis), 2), "w": fi.get("currency") or "", "s": symbol}
         if vortag:
             eintrag["c"] = round((float(preis) / float(vortag) - 1) * 100, 2)
