@@ -30,6 +30,10 @@ main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
 .kurs{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute)}
 .kurs input{width:84px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
 .kurs a{color:var(--acc)}
+.kurs.live{font-variant-numeric:tabular-nums}
+.kurs .px{color:var(--ink);font-weight:700;font-size:15px}
+.kurs .up{color:var(--ok);font-weight:500}
+.kurs .dn{color:var(--bad);font-weight:500}
 .tr{padding:10px 0;border-top:1px solid var(--line)}
 .tr:first-child{border-top:0;padding-top:0}
 .tr b{font-weight:500}
@@ -56,7 +60,7 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-
 <body>
 <header>
 <h1>Pharma-Pipeline: 100 Aktien</h1>
-<p class="sub">Wichtige Studien je Unternehmen, ihre Phase und die Termine: was zuletzt passiert ist und was als Nächstes ansteht. <span id="cnt"></span></p>
+<p class="sub">Wichtige Studien je Unternehmen, ihre Phase und die Termine: was zuletzt passiert ist und was als Nächstes ansteht. <span id="cnt"></span> <span id="kst"></span></p>
 </header>
 <div class="bar">
 <input type="search" id="q" placeholder="Firma, Kürzel oder Indikation suchen" aria-label="Suche">
@@ -64,7 +68,7 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-
 <div class="chips" id="chips"></div>
 </div>
 <main id="list"></main>
-<footer>Datenstand: Web-Recherche Oktober 2026. Termine als Quartal oder Halbjahr, wie von den Firmen kommuniziert; konkrete FDA-Termine (PDUFA) in Klammern. Pläne verschieben sich oft, bitte vor Entscheidungen bei den Unternehmen, auf ClinicalTrials.gov und beim Broker prüfen. Keine Anlageberatung. Eigene Kurse und die Merkliste werden nur in diesem Browser gespeichert.</footer>
+<footer>Datenstand: Web-Recherche Oktober 2026. Termine als Quartal oder Halbjahr, wie von den Firmen kommuniziert; konkrete FDA-Termine (PDUFA) in Klammern. Pläne verschieben sich oft, bitte vor Entscheidungen bei den Unternehmen, auf ClinicalTrials.gov und beim Broker prüfen. Keine Anlageberatung. Kurse über Yahoo Finance, alle 30 Minuten an Börsentagen aktualisiert und ohne Gewähr. Die Merkliste wird nur in diesem Browser gespeichert.</footer>
 <script>
 // Format: Kürzel|Name|Land|Studie^Studie...
 // Studie: Wirkstoff;Indikation;Phase;Zuletzt;Als Nächstes
@@ -179,6 +183,15 @@ var YS={NVO:"NOVO-B.CO",AZN:"AZN.L",NOVN:"NOVN.SW",ROG:"ROG.SW",GSK:"GSK.L",SAN:
 var LB=["Gestoppt / Rückschlag","Phase 1","Phase 2","Phase 3","Zulassung beantragt","Zugelassen"];
 var F={s:"",f:-1,sort:0};var fav={};try{fav=JSON.parse(localStorage.getItem("pp-fav")||"{}")}catch(e){}
 function pf(t){return F.f===-1||F.f===9||t.p===F.f}
+// Live-Kurse: werden von einem GitHub-Ablauf alle 30 Minuten (Mo–Fr) in den Branch "kurse" geschrieben
+var KURS_URL="https://raw.githubusercontent.com/adelbecirovic-glitch/Pharma-/kurse/prices.json";
+var LIVE={},LOADED=false;
+function nf(x){return Number(x).toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function ladeKurse(){
+fetch(KURS_URL+"?t="+Math.floor(Date.now()/300000),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+LIVE=j.kurse||{};LOADED=true;
+var d=new Date(j.stand);document.getElementById("kst").textContent=isNaN(d)?"":"Kurse: Stand "+d.toLocaleString("de-AT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" Uhr (bis zu 15 Min. verzögert).";
+render()}).catch(function(){LOADED=true;document.getElementById("kst").textContent="Live-Kurse gerade nicht verfügbar.";render()})}
 var prices={};
 try{prices=JSON.parse(localStorage.getItem("pp-kurse")||"{}")}catch(e){}
 function esc(x){return String(x).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -203,8 +216,11 @@ var z=t.p===4,ok=t.p===5,x=t.p===0,bars="";
 for(var k=1;k<=5;k++)bars+='<i class="'+(k<=t.p?"on":"")+(k<=t.p&&z?" z":"")+(k<=t.p&&ok?" a":"")+'"></i>';
 return '<div class="tr"><b>'+esc(t.d)+'</b> <span class="ind">'+esc(t.i)+'</span><div class="trk" role="img" aria-label="'+LB[t.p]+'">'+bars+'</div><div class="ph'+(z?" z":ok?" a":x?" x":"")+'">'+LB[t.p]+'</div><dl class="ev">'+evh("Zuletzt",t.last,"")+evh("Als Nächstes",t.next,"nx")+'</dl></div>';
 }).join("");
-var pv=prices[c.t]||"";
-return '<section class="co"><div><div class="nm"><button class="star" data-s="'+esc(c.t)+'" aria-label="Zur Merkliste">'+(fav[c.t]?"★":"☆")+'</button>'+esc(c.n)+'</div><div class="tk">'+esc(c.t)+' · '+esc(c.l)+'</div><label class="kurs">Kurs <input type="number" step="0.01" inputmode="decimal" data-t="'+esc(c.t)+'" value="'+esc(pv)+'" placeholder="eintragen"></label><div class="kurs"><a href="https://finance.yahoo.com/quote/'+encodeURIComponent(YS[c.t]||c.t)+'" target="_blank" rel="noopener">Kurs auf Yahoo Finance</a></div></div><div>'+trs+'</div></section>';
+var pv=prices[c.t]||"",lv=LIVE[c.t],kh;
+if(lv){var ch=typeof lv.c==="number"?' <span class="'+(lv.c>0?"up":lv.c<0?"dn":"")+'">'+(lv.c>0?"+":"")+nf(lv.c)+' %</span>':'';
+kh='<div class="kurs live"><span class="px">'+nf(lv.p)+' '+esc(lv.w)+'</span>'+ch+'</div>';}
+else kh='<label class="kurs">Kurs <input type="number" step="0.01" inputmode="decimal" data-t="'+esc(c.t)+'" value="'+esc(pv)+'" placeholder="'+(LOADED?"nicht verfügbar":"wird geladen")+'"></label>';
+return '<section class="co"><div><div class="nm"><button class="star" data-s="'+esc(c.t)+'" aria-label="Zur Merkliste">'+(fav[c.t]?"★":"☆")+'</button>'+esc(c.n)+'</div><div class="tk">'+esc(c.t)+' · '+esc(c.l)+'</div>'+kh+'<div class="kurs"><a href="https://finance.yahoo.com/quote/'+encodeURIComponent(YS[c.t]||c.t)+'" target="_blank" rel="noopener">Kurs auf Yahoo Finance</a></div></div><div>'+trs+'</div></section>';
 }).join("");
 document.getElementById("list").innerHTML=h||'<div class="empty">Keine Treffer. Suche ändern oder Filter zurücksetzen.</div>';
 }
@@ -228,6 +244,7 @@ try{localStorage.setItem("pp-fav",JSON.stringify(fav))}catch(x){}
 render();
 });
 render();
+ladeKurse();setInterval(ladeKurse,5*60*1000);
 </script>
 </body>
 </html>
