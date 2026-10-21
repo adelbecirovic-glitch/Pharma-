@@ -1,6 +1,6 @@
-# Pharma-Pipeline: 50 Aktien
+# Pharma-Pipeline: 100 Aktien
 
-Übersicht über 50 Pharma-Unternehmen mit ihren wichtigsten Studien und der jeweiligen Phase. Suche, Phasenfilter, Merkliste und eigene Kurse (im Browser gespeichert).
+Übersicht über 100 Pharma-Unternehmen mit ihren wichtigsten Studien und der jeweiligen Phase. Suche, Phasenfilter, Merkliste und eigene Kurse (im Browser gespeichert).
 
 Öffnen: `index.html` im Browser, oder über GitHub Pages veröffentlichen.
 

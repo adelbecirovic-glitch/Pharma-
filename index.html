@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pharma-Pipeline: 50 Aktien</title>
+<title>Pharma-Pipeline: 100 Aktien</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;700&display=swap">
 <style>
 :root{--bg:#eef2f1;--panel:#fff;--ink:#14282b;--mute:#5b6f72;--line:#d3dddc;--acc:#0b6e6e;--z:#2b4acb;--ok:#1f7a3a;--bad:#b3261e;--off:#d9e2e1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -55,7 +55,7 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-
 </head>
 <body>
 <header>
-<h1>Pharma-Pipeline: 50 Aktien</h1>
+<h1>Pharma-Pipeline: 100 Aktien</h1>
 <p class="sub">Wichtige Studien je Unternehmen, ihre Phase und die Termine: was zuletzt passiert ist und was als Nächstes ansteht. <span id="cnt"></span></p>
 </header>
 <div class="bar">
@@ -120,12 +120,62 @@ var D=[
 "PRAX|Praxis Precision|USA|Ulixacaltamid;Essentieller Tremor;4;Q2 2026=FDA-Antrag angenommen;Q1 2027=FDA-Entscheidung (29.1.)^Vormatrigin;Epilepsie;0;Q2 2026=Studie POWER1 verfehlt;-",
 "JAZZ|Jazz Pharmaceuticals|IE|Zanidatamab;Magen- und Speiseröhrenkrebs;5;Q3 2026=FDA-Zulassung Erstlinie;-^Dordaviprone;Gliom;5;Q3 2025=beschleunigte FDA-Zulassung (Modeyso);offen=Bestätigungsstudie ACTION läuft",
 "ABVX|Abivax|FR|Obefazimod;Colitis ulcerosa;3;Q2 2026=Phase 3 Erhaltungstherapie positiv;Q4 2026=FDA-Antrag geplant^Obefazimod;Morbus Crohn;2;-;Mitte 2027=Phase-2b-Daten",
-"BBIO|BridgeBio|USA|Encaleret;Hypocalcämie (ADH1);4;Q3 2026=FDA-Antrag angenommen;Q2 2027=FDA-Entscheidung (8.5.)^Infigratinib;Achondroplasie;3;Q1 2026=Phase 3 PROPEL 3 positiv;2026=FDA-Antrag geplant"
+"BBIO|BridgeBio|USA|Encaleret;Hypocalcämie (ADH1);4;Q3 2026=FDA-Antrag angenommen;Q2 2027=FDA-Entscheidung (8.5.)^Infigratinib;Achondroplasie;3;Q1 2026=Phase 3 PROPEL 3 positiv;2026=FDA-Antrag geplant",
+"SRPT|Sarepta|USA|Elevidys;Duchenne-Muskeldystrophie;5;2025=nach Todesfällen auf gehfähige Patienten beschränkt;Q1 2027=Daten Kohorte 8 (nicht gehfähig)^Vyondys 53 und Amondys 45;Duchenne-Muskeldystrophie;5;offen=Antrag auf Vollzulassung;Q1 2027=FDA-Entscheidung (28.2.)",
+"BMRN|BioMarin|USA|Voxzogo;Hypochondroplasie;3;Q2 2026=3-Jahres-Daten (ENDO);-^BMN 333;Kleinwuchs (langwirksames CNP);1;Q2 2026=erste Daten (ENDO);-",
+"RARE|Ultragenyx|USA|GTX-102;Angelman-Syndrom;3;2025=Phase 3 Aspire voll rekrutiert;H2 2026=Phase-3-Daten^DTX401;Glykogenspeicherkrankheit Ia;5;Q3 2026=FDA-Zulassung (Genglycos);-",
+"ARWR|Arrowhead|USA|Plozasiran;Schwere Hypertriglyzeridämie;3;Q3 2026=Phase 3 SHASTA-3 und -4 positiv;Q4 2026=FDA-Antrag geplant^Plozasiran;Familiäres Chylomikronämie-Syndrom;5;Q4 2025=FDA-Zulassung (Redemplo);-",
+"RVMD|Revolution Medicines|USA|Daraxonrasib;Pankreaskrebs;3;Q2 2026=Phase 3 RASolute 302 positiv (ASCO-Plenum);offen=FDA-Antrag mit Prioritätsgutschein^Zoldonrasib;Lungenkrebs (KRAS G12D);1;-;-",
+"NUVL|Nuvalent|USA|Zidesamtinib;Lungenkrebs (ROS1);5;Q3 2026=FDA-Zulassung;-^Neladalkib;Lungenkrebs (ALK);4;Q2 2026=FDA-Antrag eingereicht;offen=Phase 3 ALKAZAR läuft",
+"AXSM|Axsome|USA|Auvelity (AXS-05);Alzheimer-Agitation;5;Q2 2026=FDA-Zulassung;-^AXS-12;Narkolepsie;4;Q3 2026=FDA-Antrag angenommen;Q2 2027=FDA-Entscheidung (1.5.)",
+"BHVN|Biohaven|USA|Troriluzol;Spinozerebelläre Ataxie;0;Q4 2025=FDA lehnt ab;offen=Neueinreichung mit FDA abzustimmen^BHV-7000;Fokale Epilepsie;3;offen=Phase-3-Studien laufen;-",
+"NTLA|Intellia|USA|Lonvo-z;Hereditäres Angioödem;4;Q2 2026=rollierender FDA-Antrag gestartet;-^Nex-z;ATTR-Amyloidose;3;2026=FDA hebt Studienstopp für MAGNITUDE-2 auf;-",
+"CRSP|CRISPR Therapeutics|CH|Casgevy;Sichelzellkrankheit, Thalassämie;5;Q3 2026=FDA-Zulassung ab 2 Jahren;-^CTX310;Erhöhte Blutfette (ANGPTL3);1;Q3 2026=1-Jahres-Daten Phase 1;-",
+"LEGN|Legend Biotech|USA|Carvykti;Multiples Myelom;5;Q2 2026=Langzeitdaten (ASCO);-^LB2501 (In-vivo-CAR-T);B-Zell-Lymphome;1;Q2 2026=erste Daten (EHA);-",
+"IMVT|Immunovant|USA|IMVT-1402;Morbus Basedow;3;offen=Phase-3-Studien laufen;-^Batoclimab;Endokrine Orbitopathie;0;H1 2026=Phase 3 Endpunkt verfehlt;-",
+"VERA|Vera Therapeutics|USA|Atacicept;IgA-Nephropathie;5;Q3 2026=beschleunigte FDA-Zulassung (Trutakna);-^Atacicept (Vollzulassung);IgA-Nephropathie;3;offen=frühere ORIGIN-3-Auswertung mit FDA vereinbart;-",
+"UTHR|United Therapeutics|USA|Tyvaso;Idiopathische Lungenfibrose;4;Q3 2026=FDA-Antrag angenommen;-^Ralinepag;Pulmonale arterielle Hypertonie;3;Q1 2026=Phase 3 ADVANCE OUTCOMES positiv;-",
+"CORT|Corcept|USA|Relacorilant;Eierstockkrebs;5;Q1 2026=FDA-Zulassung;-^Relacorilant;Cushing-Syndrom;0;Q4 2025=FDA lehnt ab;-",
+"ACAD|Acadia|USA|Remlifanserin (ACP-204);Alzheimer-Psychose;2;Q3 2026=Phase 2 knapp verfehlt, Phase 3 geplant;-^Carbetocin (ACP-101);Prader-Willi-Syndrom;0;Q3 2025=Phase 3 Endpunkt verfehlt;-",
+"XENE|Xenon|CA|Azetukalner;Fokale Epilepsie;3;Q1 2026=Phase 3 X-TOLE2 positiv;Q3 2026=FDA-Antrag geplant^Azetukalner;Depression;3;offen=Phase 3 X-NOVA2 rekrutiert;H1 2027=Phase-3-Daten",
+"RYTM|Rhythm|USA|Setmelanotid (Imcivree);Hypothalamische Adipositas;5;Q1 2026=FDA-Zulassung;-^Bivamelagon;Hypothalamische Adipositas;2;-;-",
+"CRNX|Crinetics|USA|Paltusotin (Palsonify);Akromegalie;5;Q3 2025=FDA-Zulassung;offen=EU-Entscheidung nach positivem CHMP-Votum^Atumelnant;Kongenitale Nebennierenhyperplasie;3;offen=Phase 3 CALM-CAH läuft;-",
+"SRRK|Scholar Rock|USA|Apitegromab;Spinale Muskelatrophie;5;Q3 2026=FDA-Zulassung (Isembyld);offen=EMA-Entscheidung erwartet^SRK-439;Adipositas (Muskelerhalt);1;-;-",
+"GPCR|Structure Therapeutics|USA|Aleniglipron;Adipositas;3;Q1 2026=Phase 2b ACCESS II Daten;Q3 2026=Phase-3-Start geplant^ACCG-2671 (orales Amylin);Adipositas;1;-;Q3 2026=erste Phase-1-Daten",
+"MLYS|Mineralys|USA|Lorundrostat;Bluthochdruck;4;Q1 2026=FDA-Antrag angenommen;Q4 2026=FDA-Entscheidung (22.12.)^Lorundrostat;Chronische Nierenerkrankung;2;-;-",
+"IRON|Disc Medicine|USA|Bitopertin;Erythropoetische Protoporphyrie;3;Q1 2026=FDA lehnt beschleunigte Zulassung ab;Q4 2026=Phase-3-Daten APOLLO^DISC-0974;Anämie bei Myelofibrose;2;-;-",
+"CLDX|Celldex|USA|Barzolvolimab;Chronische spontane Urtikaria;3;Q3 2026=Phase 3 EMBARQ positiv;-^Barzolvolimab;Induzierbare Urtikaria;3;offen=Phase 3 läuft;-",
+"DNLI|Denali|USA|Tividenofusp alfa (Avlayah);Hunter-Syndrom;5;Q1 2026=beschleunigte FDA-Zulassung;-^DNL126;Sanfilippo-Syndrom A;2;Q2 2026=Phase 3 in Vorbereitung;2027=FDA-Antrag geplant",
+"ARVN|Arvinas|USA|Vepdegestrant (Veppanu);Brustkrebs (ESR1);5;Q2 2026=FDA-Zulassung;-^ARV-102;Parkinson (LRRK2);1;Q4 2026=Phase-1-Daten;-",
+"APGE|Apogee|USA|APG777;Neurodermitis;2;Q2 2026=Daten Phase 2 Teil B erwartet;H2 2026=Phase-3-Start geplant^APG279 (Kombination);Neurodermitis;1;-;H2 2026=Zwischendaten im Vergleich mit Dupixent",
+"DYN|Dyne|USA|Zeleciment Rostudirsen (DYNE-251);Duchenne-Muskeldystrophie;4;2026=FDA-Antrag mit Priority Review;Q1 2027=FDA-Entscheidung (21.1.)^DYNE-101;Myotone Dystrophie Typ 1;3;2026=Daten der Zulassungskohorte;Q4 2026=FDA-Antrag geplant",
+"VRDN|Viridian|USA|Veligrotug (Lumvoa);Endokrine Orbitopathie;5;Q2 2026=FDA-Zulassung;-^VRDN-003;Endokrine Orbitopathie;3;offen=Phase 3 REVEAL läuft;-",
+"COGT|Cogent Biosciences|USA|Bezuclastinib;Systemische Mastozytose;4;Q3 2026=FDA-Antrag (fortgeschrittene Form) angenommen;offen=FDA-Entscheidungen ausstehend^Bezuclastinib;GIST;3;Q4 2025=Phase 3 PEAK positiv;-",
+"LUN|Lundbeck|DK|Bexicaserin;Epileptische Enzephalopathien;3;2026=Randomisierung Phase 3 DEEp abgeschlossen;-^Amlenetug;Multisystematrophie;3;Q1 2026=Randomisierung vorzeitig abgeschlossen;-",
+"IPN|Ipsen|FR|Elafibranor (Iqirvo);Primär sklerosierende Cholangitis;3;2026=Phase 3 ELASCOPE gestartet;-^Dysport;Migräne;3;H1 2026=Phase 3 C-BEOND und E-BEOND positiv;-",
+"SOBI|Sobi|SE|Pozdeutinurad;Gicht;3;2026=Phase 3 REDUCE 2 positiv;H2 2026=Daten REDUCE 1^Gamifant;Sepsis (Interferon-gamma);2;-;H2 2026=Start Phase 2b/3 EMBRACE II",
+"CAMX|Camurus|SE|Oclaiz (CAM2029);Akromegalie;4;Q2 2026=FDA lehnt ab (Herstellerwerk);offen=Neueinreichung geplant^CAM2029;Neuroendokrine Tumore;3;offen=Phase 3 läuft;-",
+"IDIA|Idorsia|CH|Aprocitentan (Tryvio);Bluthochdruck;5;2026=US-Markteinführung in Vorbereitung;-^Cenerimod;Lupus;3;offen=Phase 3 mit Viatris;H1 2027=Phase-3-Daten",
+"ORNBV|Orion|FI|Opevesostat (mit MSD);Prostatakrebs;3;offen=Phase-3-Programm OMAHA läuft;-^Darolutamid (Nubeqa);Prostatakrebs (frühe Stadien);3;offen=Studien ARASTEP und DASL-HiCaP laufen;-",
+"ALM|Almirall|ES|Lebrikizumab (Ebglyss);Neurodermitis bei Kindern;3;2026=Phase 3 ADorable-1 positiv;-^Anti-IL-21-Antikörper;Hidradenitis suppurativa;1;-;2026=Start Phase 2 geplant",
+"REC|Recordati|IT|Pasireotid (Signifor);Hypoglykämie nach Magen-OP;2;H1 2026=Phase 2 positiv;Q4 2026=Phase-3-Plan^Sutimlimab (Enjaymo);Immunthrombozytopenie;2;-;Q1 2027=Start Phase 3",
+"ALK-B|ALK-Abelló|DK|Erdnuss-Tablette;Erdnussallergie;2;offen=Phase 2 positiv;Q4 2026=Phase-3-Start geplant^neffy (Nasenspray);Anaphylaxie;5;2026=Markteinführung in 10 Ländern;-",
+"BAVA|Bavarian Nordic|DK|Vimkunya;Chikungunya-Impfstoff;5;Q2 2026=Zulassungen Schweiz und Kanada;H2 2026=weitere Markteinführungen^MVA-BN;Mpox-Impfstoff für Kinder;5;Q3 2026=EU-Zulassung ab 2 Jahren;-",
+"600276|Jiangsu Hengrui|CN|HRS-9531;Adipositas;4;Q3 2025=Zulassungsantrag in China;offen=Entscheidung China, globale Studien mit Kailera^HRS-9531;Kniearthrose bei Adipositas;3;Q3 2026=Phase-3-Start angekündigt;-",
+"9926|Akeso|CN|Ivonescimab;Lungenkrebs;5;Q3 2026=China-Zulassung Erstlinie (Plattenepithel);Q4 2026=FDA-Entscheidung über Partner Summit (14.11.)^Cadonilimab;Magenkrebs;3;offen=internationale Phase 3 läuft;-",
+"1801|Innovent|CN|IBI363;Lungenkrebs (nach Immuntherapie);3;offen=globale Phase 3 MarsLight-11 läuft;Q4 2026=Zulassungsantrag Melanom (bis Anfang 2027)^IBI343;Magenkrebs;4;2026=Antrag in China mit Priority Review;-",
+"HCM|Hutchmed|CN|Savolitinib;Lungenkrebs (MET);3;H1 2026=Zulassungserweiterung Magenkrebs China;H2 2026=Daten SAFFRON und SANOVO^Sovleplenib;Immunthrombozytopenie, wAIHA;4;2026=Antrag in China mit Priority Review;2027=Markteinführung China",
+"4528|Ono Pharmaceutical|JP|Vimseltinib (Romvimza);Sehnenscheidentumor;5;Q1 2025=FDA-Zulassung;offen=Studien bei chronischer GvHD^Sapablursen;Polycythaemia vera;2;-;-",
+"4506|Sumitomo Pharma|JP|Raguneprocel (Amchepry);Parkinson;5;Q1 2026=bedingte Zulassung in Japan;-^Enzomenib;Akute myeloische Leukämie;2;-;-",
+"4151|Kyowa Kirin|JP|Rocatinlimab;Neurodermitis;0;Q1 2026=alle Studien aus Sicherheitsgründen gestoppt;-^Ziftomenib (mit Kura);Akute myeloische Leukämie;5;Q4 2025=FDA-Zulassung (Komzifti);-",
+"128940|Hanmi Pharm|KR|Efpeglenatid;Adipositas;5;Q4 2026=Zulassung in Korea;-^HM15275;Adipositas;2;-;-",
+"000100|Yuhan|KR|Lazertinib (Lazcluze);Lungenkrebs (EGFR);5;Q1 2025=MARIPOSA zeigt Überlebensvorteil;-",
+"ZLAB|Zai Lab|CN|Zocilurtatug Pelitecan (ZL-1310);Kleinzelliger Lungenkrebs;3;Q4 2025=globale Phase 3 gestartet;-^KarXT;Schizophrenie (China);4;Q1 2025=Antrag in China angenommen;offen=Entscheidung in China"
 ].map(function(s){var p=s.split("|");return{t:p[0],n:p[1],l:p[2],tr:p[3].split("^").map(function(x){var a=x.split(";");return{d:a[0],i:a[1],p:+a[2],last:ev(a[3]),next:ev(a[4])}})}});
 function ev(s){if(!s||s==="-")return null;var k=s.indexOf("=");return k<0?{w:"",e:s}:{w:s.slice(0,k),e:s.slice(k+1)}}
 // Sortierschlüssel aus "Q1 2027", "H1 2027" oder "2027"; offen = ans Ende
 function key(e){if(!e)return 99999;var m=/(Q([1-4])|H([12]))?\s*(\d{4})/.exec(e.w);if(!m)return 99998;var q=m[2]?+m[2]:m[3]?(+m[3]===1?2:4):4;return +m[4]*10+q}
-var YS={NVO:"NOVO-B.CO",AZN:"AZN.L",NOVN:"NOVN.SW",ROG:"ROG.SW",GSK:"GSK.L",SAN:"SAN.PA",BAYN:"BAYN.DE",UCB:"UCB.BR",ARGX:"ARGX.BR",GMAB:"GMAB.CO","4502":"4502.T","4503":"4503.T","4568":"4568.T","4523":"4523.T","4578":"4578.T","4519":"4519.T","4507":"4507.T",BGNE:"ONC",CSL:"CSL.AX",ZEAL:"ZEAL.CO",ABVX:"ABVX.PA"};
+var YS={NVO:"NOVO-B.CO",AZN:"AZN.L",NOVN:"NOVN.SW",ROG:"ROG.SW",GSK:"GSK.L",SAN:"SAN.PA",BAYN:"BAYN.DE",UCB:"UCB.BR",ARGX:"ARGX.BR",GMAB:"GMAB.CO","4502":"4502.T","4503":"4503.T","4568":"4568.T","4523":"4523.T","4578":"4578.T","4519":"4519.T","4507":"4507.T",BGNE:"ONC",CSL:"CSL.AX",ZEAL:"ZEAL.CO",ABVX:"ABVX.PA",LUN:"LUN.CO",IPN:"IPN.PA",SOBI:"SOBI.ST",CAMX:"CAMX.ST",IDIA:"IDIA.SW",ORNBV:"ORNBV.HE",ALM:"ALM.MC",REC:"REC.MI","ALK-B":"ALK-B.CO",BAVA:"BAVA.CO","600276":"600276.SS","9926":"9926.HK","1801":"1801.HK","4528":"4528.T","4506":"4506.T","4151":"4151.T","128940":"128940.KS","000100":"000100.KS"};
 var LB=["Gestoppt / Rückschlag","Phase 1","Phase 2","Phase 3","Zulassung beantragt","Zugelassen"];
 var F={s:"",f:-1,sort:0};var fav={};try{fav=JSON.parse(localStorage.getItem("pp-fav")||"{}")}catch(e){}
 function pf(t){return F.f===-1||F.f===9||t.p===F.f}
