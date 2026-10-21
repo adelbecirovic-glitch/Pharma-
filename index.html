@@ -201,7 +201,7 @@ var D=[
 function ev(s){if(!s||s==="-")return null;var k=s.indexOf("=");return k<0?{w:"",e:s}:{w:s.slice(0,k),e:s.slice(k+1)}}
 // Sortierschlüssel aus "Q1 2027", "H1 2027" oder "2027"; offen = ans Ende
 function key(e){if(!e)return 99999;var m=/(Q([1-4])|H([12]))?\s*(\d{4})/.exec(e.w);if(!m)return 99998;var q=m[2]?+m[2]:m[3]?(+m[3]===1?2:4):4;return +m[4]*10+q}
-var YS={NVO:"NOVO-B.CO",AZN:"AZN.L",NOVN:"NOVN.SW",ROG:"ROG.SW",GSK:"GSK.L",SAN:"SAN.PA",BAYN:"BAYN.DE",UCB:"UCB.BR",ARGX:"ARGX.BR",GMAB:"GMAB.CO","4502":"4502.T","4503":"4503.T","4568":"4568.T","4523":"4523.T","4578":"4578.T","4519":"4519.T","4507":"4507.T",BGNE:"ONC",CSL:"CSL.AX",ZEAL:"ZEAL.CO",ABVX:"ABVX.PA",LUN:"HLUN-B.CO",IPN:"IPN.PA",SOBI:"SOBI.ST",CAMX:"CAMX.ST",IDIA:"IDIA.SW",ORNBV:"ORNBV.HE",ALM:"ALM.MC",REC:"REC.MI","ALK-B":"ALK-B.CO",BAVA:"BAVA.CO","600276":"600276.SS","9926":"9926.HK","1801":"1801.HK","4528":"4528.T","4506":"4506.T","4151":"4151.T","128940":"128940.KS","000100":"000100.KS"};
+var YS={NVO:"NOVO-B.CO",AZN:"AZN.L",NOVN:"NOVN.SW",ROG:"RO.SW",GSK:"GSK.L",SAN:"SAN.PA",BAYN:"BAYN.DE",UCB:"UCB.BR",ARGX:"ARGX.BR",GMAB:"GMAB.CO","4502":"4502.T","4503":"4503.T","4568":"4568.T","4523":"4523.T","4578":"4578.T","4519":"4519.T","4507":"4507.T",BGNE:"ONC",CSL:"CSL.AX",ZEAL:"ZEAL.CO",ABVX:"ABVX.PA",LUN:"HLUN-B.CO",IPN:"IPN.PA",SOBI:"SOBI.ST",CAMX:"CAMX.ST",IDIA:"IDIA.SW",ORNBV:"ORNBV.HE",ALM:"ALM.MC",REC:"REC.MI","ALK-B":"ALK-B.CO",BAVA:"BAVA.CO","600276":"600276.SS","9926":"9926.HK","1801":"1801.HK","4528":"4528.T","4506":"4506.T","4151":"4151.T","128940":"128940.KS","000100":"000100.KS"};
 var LB=["Gestoppt / Rückschlag","Phase 1","Phase 2","Phase 3","Zulassung beantragt","Zugelassen"];
 var F={s:"",f:-1,sort:0};var fav={};try{fav=JSON.parse(localStorage.getItem("pp-fav")||"{}")}catch(e){}
 function pf(t){return F.f===-1||F.f===9||t.p===F.f}
@@ -252,7 +252,7 @@ var pv=prices[c.t]||"",lv=LIVE[c.t],kh;
 if(lv){var ch=typeof lv.c==="number"?' <span class="'+(lv.c>0?"up":lv.c<0?"dn":"")+'">'+(lv.c>0?"+":"")+nf(lv.c)+' %</span>':'';
 kh='<div class="kurs live"><span class="px">'+nf(lv.p)+' '+esc(lv.w)+'</span>'+ch+'</div>'+(kz(lv)?'<div class="kz">'+kz(lv)+'</div>':'');}
 else kh='<label class="kurs">Kurs <input type="number" step="0.01" inputmode="decimal" data-t="'+esc(c.t)+'" value="'+esc(pv)+'" placeholder="'+(LOADED?"nicht verfügbar":"wird geladen")+'"></label>';
-return '<section class="co"><div><div class="nm"><button class="star" data-s="'+esc(c.t)+'" aria-label="Zur Merkliste">'+(fav[c.t]?"★":"☆")+'</button>'+esc(c.n)+'</div><div class="tk">'+esc(c.t)+' · '+esc(c.l)+'</div>'+kh+'<div class="kurs"><a href="https://finance.yahoo.com/quote/'+encodeURIComponent(YS[c.t]||c.t)+'" target="_blank" rel="noopener">Kurs auf Yahoo Finance</a></div></div><div>'+trs+'</div></section>';
+return '<section class="co"><div><div class="nm"><button class="star" data-s="'+esc(c.t)+'" aria-label="Zur Merkliste">'+(fav[c.t]?"★":"☆")+'</button>'+esc(c.n)+'</div><div class="tk">'+esc(c.t)+' · '+esc(c.l)+'</div>'+kh+'<div class="kurs"><a href="https://finance.yahoo.com/quote/'+encodeURIComponent((LIVE[c.t]&&LIVE[c.t].s)||YS[c.t]||c.t)+'" target="_blank" rel="noopener">Kurs auf Yahoo Finance</a></div></div><div>'+trs+'</div></section>';
 }).join("");
 document.getElementById("list").innerHTML=h||'<div class="empty">Keine Treffer. Suche ändern oder Filter zurücksetzen.</div>';
 }

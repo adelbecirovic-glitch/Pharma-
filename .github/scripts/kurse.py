@@ -7,7 +7,7 @@ Felder je Firma:
   w   Währung                   s   verwendetes Yahoo-Symbol
   m   Börsenwert in Mrd. USD    yc  Kursveränderung über 1 Jahr in %
   yh  Abstand zum 52-Wochen-Hoch in % (0 = am Hoch, negativ = darunter)
-  pe  KGV (letzte 12 Monate)    fpe KGV (erwartet)        (beide 1x täglich)
+  pe  KGV (letzte 12 Monate)    fpe KGV (erwartet)    n  Name bei Yahoo   (1x täglich)
 """
 import json
 import sys
@@ -22,7 +22,7 @@ with open("tickers.json", encoding="utf-8") as f:
     tickers = json.load(f)
 
 # Ersatzsymbole, falls das Hauptsymbol bei Yahoo gerade nichts liefert
-ERSATZ = {"ROG.SW": ["RO.SW", "RHHBY"], "HLUN-B.CO": ["HLUN-A.CO", "HLBBF"]}
+ERSATZ = {"RO.SW": ["ROG.SW", "RHHBY"], "HLUN-B.CO": ["HLUN-A.CO", "HLBBF"]}
 
 jetzt = datetime.now(timezone.utc)
 
@@ -43,6 +43,9 @@ if fund_alt:
         fund_neu = jetzt - datetime.fromisoformat(fund_alt) > timedelta(hours=20)
     except Exception:
         pass
+# Firmennamen fehlen noch -> Kennzahlen einmalig sofort neu laden
+if any("n" not in v for v in (alt.get("kurse") or {}).values()):
+    fund_neu = True
 print("KGV werden neu geladen" if fund_neu else "KGV aus vorheriger Datei übernommen")
 
 
@@ -117,13 +120,16 @@ for kuerzel, symbol in tickers.items():
                     e["pe"] = round(pe, 1)
                 if fpe and 0 < fpe < 1000:
                     e["fpe"] = round(fpe, 1)
+                name = info.get("shortName") or info.get("longName")
+                if name:
+                    e["n"] = name
             except Exception as ex:
                 fehler.append(f"{kuerzel}: KGV nicht geladen ({ex})")
-                for k in ("pe", "fpe"):
+                for k in ("pe", "fpe", "n"):
                     if k in vorher:
                         e[k] = vorher[k]
         else:
-            for k in ("pe", "fpe"):
+            for k in ("pe", "fpe", "n"):
                 if k in vorher:
                     e[k] = vorher[k]
         kurse[kuerzel] = e
