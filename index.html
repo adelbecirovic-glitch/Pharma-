@@ -54,6 +54,23 @@ main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
 .ev .nx .d{color:var(--acc)}
 .empty{padding:40px 0;text-align:center;color:var(--mute)}
 .star{border:0;background:none;color:var(--acc);font-size:20px;line-height:1;padding:0 8px 0 0;cursor:pointer;vertical-align:-2px}
+.tabs{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:none;color:var(--mute);font:inherit;font-weight:500;padding:8px 12px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--acc)}
+#top{max-width:960px;margin:0 auto;padding:8px 16px 40px}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--mute);margin:10px 0}
+.note b{color:var(--ink)}
+.rk{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:12px 14px;display:grid;grid-template-columns:40px 1fr auto;gap:4px 12px;align-items:start;cursor:pointer}
+.rk:hover{border-color:var(--acc)}
+.rk .n{font-size:22px;font-weight:700;color:var(--acc);font-variant-numeric:tabular-nums;line-height:1.1}
+.rk .sc{text-align:right;font-variant-numeric:tabular-nums}
+.rk .sc b{font-size:18px;display:block}
+.rk .sc span{font-size:12px;color:var(--mute)}
+.rk .why{grid-column:2/4;font-size:13px;color:var(--mute)}
+.rk .why .nx{color:var(--acc);font-weight:500}
+.rk .px2{font-size:13px;color:var(--mute)}
+.rk .up{color:var(--ok)}.rk .dn{color:var(--bad)}
+@media(max-width:480px){.rk{grid-template-columns:32px 1fr auto}.rk .n{font-size:18px}}
 footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-size:12px}
 </style>
 </head>
@@ -61,7 +78,9 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-
 <header>
 <h1>Pharma-Pipeline: 100 Aktien</h1>
 <p class="sub">Wichtige Studien je Unternehmen, ihre Phase und die Termine: was zuletzt passiert ist und was als Nächstes ansteht. <span id="cnt"></span> <span id="kst"></span></p>
+<nav class="tabs" role="tablist"><button role="tab" id="tabAll" aria-selected="true">Alle Firmen</button><button role="tab" id="tabTop" aria-selected="false">Top 20 Pipeline</button></nav>
 </header>
+<section id="top" hidden></section>
 <div class="bar">
 <input type="search" id="q" placeholder="Firma, Kürzel oder Indikation suchen" aria-label="Suche">
 <select id="sort" aria-label="Sortierung"><option value="0">Sortierung: Standard</option><option value="1">Nächster Termin zuerst</option></select>
@@ -243,7 +262,46 @@ if(fav[t])delete fav[t];else fav[t]=1;
 try{localStorage.setItem("pp-fav",JSON.stringify(fav))}catch(x){}
 render();
 });
+// ---------- Top 20: Pipeline-Score ----------
+// Punkte je Studie nach Stufe, plus/minus für jüngste Ereignisse und nahe Termine.
+var PKT={5:3,4:2.5,3:2,2:1,1:0.5,0:-1};
+function qIdx(e){if(!e)return null;var m=/(Q([1-4])|H([12]))?\s*(\d{4})/.exec(e.w);if(!m)return null;var q=m[2]?+m[2]:m[3]?(+m[3]===1?2:4):4;return +m[4]*4+q-1}
+var JETZT=(function(d){return d.getFullYear()*4+Math.floor(d.getMonth()/3)})(new Date());
+var POS=/positiv|Zulassung|erreicht|Vorteil|angenommen/i,NEG=/verfehlt|lehnt ab|gestoppt|scheitert|beendet|Rückschlag/i;
+function score(c){
+var s=0,gut=0,schlecht=0,bald=null,st={};
+c.tr.forEach(function(t){
+s+=PKT[t.p];st[t.p]=(st[t.p]||0)+1;
+if(t.last&&t.p!==0&&POS.test(t.last.e)&&!NEG.test(t.last.e)){var li=qIdx(t.last);if(li!==null&&JETZT-li<=3)gut++}
+if(t.last&&NEG.test(t.last.e)){var lj=qIdx(t.last);if(lj===null||JETZT-lj<=3)schlecht++}
+var ni=qIdx(t.next);if(ni!==null&&ni>=JETZT&&ni-JETZT<=2&&t.p!==0){if(!bald||ni<bald.i)bald={i:ni,t:t}}
+});
+s+=Math.min(gut,2)*0.5-Math.min(schlecht,2)*0.5+(bald?0.5:0);
+return{c:c,s:Math.round(s*10)/10,st:st,gut:gut,schlecht:schlecht,bald:bald}}
+var SN={5:"zugelassen",4:"beantragt",3:"Phase 3",2:"Phase 2",1:"Phase 1",0:"gestoppt"};
+function renderTop(){
+var r=D.map(score).sort(function(a,b){return b.s-a.s||(b.st[5]||0)-(a.st[5]||0)||a.c.n.localeCompare(b.c.n)}).slice(0,20);
+var h='<div class="note"><b>So entsteht die Rangliste:</b> Jede der drei Studien bringt Punkte nach ihrem Stand (zugelassen 3, beantragt 2,5, Phase 3: 2, Phase 2: 1, Phase 1: 0,5, gestoppt −1). Dazu +0,5 je positivem Ereignis im letzten Jahr (max. 2), −0,5 je Rückschlag und +0,5, wenn in den nächsten sechs Monaten ein wichtiger Termin ansteht. Die Liste berechnet sich automatisch neu, wenn die Daten freitags aktualisiert werden.</div>'+
+'<div class="note"><b>Wichtig:</b> Das ist eine Einordnung der Pipeline, <b>keine Kaufempfehlung</b> und keine Anlageberatung. Unternehmensbewertung, Umsatz, Schulden, Patentabläufe, Konkurrenz und Kursentwicklung fließen nicht ein – eine starke Pipeline kann im Kurs längst eingepreist sein. Vor einer Investition bitte selbst prüfen oder unabhängig beraten lassen.</div>';
+h+=r.map(function(x,i){
+var c=x.c,lv=LIVE[c.t],st=[5,4,3,2,1,0].filter(function(k){return x.st[k]}).map(function(k){return x.st[k]+"× "+SN[k]}).join(", ");
+var px=lv?' · '+nf(lv.p)+' '+esc(lv.w)+(typeof lv.c==="number"?' <span class="'+(lv.c>0?"up":lv.c<0?"dn":"")+'">'+(lv.c>0?"+":"")+nf(lv.c)+' %</span>':''):'';
+var why=esc(st)+(x.gut?' · '+x.gut+' positive'+(x.gut>1?'':'s')+' Ereignis'+(x.gut>1?'se':''):'')+(x.schlecht?' · '+x.schlecht+' Rückschlag'+(x.schlecht>1?'e':''):'');
+if(x.bald)why+='<br>Als Nächstes: <span class="nx">'+esc(x.bald.t.next.w)+'</span> · '+esc(x.bald.t.d)+': '+esc(x.bald.t.next.e);
+return '<div class="rk" data-g="'+esc(c.t)+'" role="button" tabindex="0"><div class="n">'+(i+1)+'</div><div><b>'+esc(c.n)+'</b><div class="px2">'+esc(c.t)+' · '+esc(c.l)+px+'</div></div><div class="sc"><b>'+Number(x.s).toLocaleString("de-AT",{maximumFractionDigits:1})+'</b><span>Punkte</span></div><div class="why">'+why+'</div></div>'}).join("");
+document.getElementById("top").innerHTML=h}
+function zeige(top){
+document.getElementById("tabAll").setAttribute("aria-selected",!top);document.getElementById("tabTop").setAttribute("aria-selected",top);
+document.getElementById("top").hidden=!top;document.querySelector(".bar").hidden=top;document.getElementById("list").hidden=top;
+if(top)renderTop();try{localStorage.setItem("pp-tab",top?"top":"all")}catch(x){}}
+document.getElementById("tabAll").onclick=function(){zeige(false)};
+document.getElementById("tabTop").onclick=function(){zeige(true)};
+function oeffne(t){var c=D.filter(function(x){return x.t===t})[0];if(!c)return;zeige(false);var q=document.getElementById("q");q.value=c.t;F.s=c.t;render();window.scrollTo(0,0)}
+document.getElementById("top").addEventListener("click",function(e){var el=e.target.closest&&e.target.closest(".rk");if(el)oeffne(el.getAttribute("data-g"))});
+document.getElementById("top").addEventListener("keydown",function(e){if(e.key==="Enter"){var el=e.target.closest&&e.target.closest(".rk");if(el)oeffne(el.getAttribute("data-g"))}});
+var _render=render;render=function(){_render();if(!document.getElementById("top").hidden)renderTop()};
 render();
+try{if(localStorage.getItem("pp-tab")==="top")zeige(true)}catch(x){}
 ladeKurse();setInterval(ladeKurse,5*60*1000);
 </script>
 </body>
