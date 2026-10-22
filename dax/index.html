@@ -242,6 +242,20 @@ table.ana tr.few td{color:var(--muted)}
 .review{display:grid;gap:10px}
 .review p{margin:0;max-width:80ch}
 .review ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+
+/* Volumen */
+.quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.quad{grid-template-columns:minmax(0,1fr)}}
+.quad div{border-radius:8px;padding:12px;font-size:14px;display:grid;gap:4px}
+.quad b{font-size:15px}
+.quad .g{background:color-mix(in srgb,var(--long) 10%,transparent)}
+.quad .r{background:color-mix(in srgb,var(--short) 10%,transparent)}
+.quad .y{background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.quad small{color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.volsvg{overflow-x:auto}
+.volsvg svg{display:block;width:100%;min-width:600px;height:auto}
+.volsvg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.volsvg text.lb{font-family:var(--body);font-size:12px;font-weight:600;fill:var(--ink)}
 /* Wirtschaftskalender */
 .cal{display:grid;gap:14px}
 .day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
@@ -283,6 +297,7 @@ table.ana tr.few td{color:var(--muted)}
     <button role="tab" id="tb-plan" aria-selected="false" aria-controls="plan">Mein Plan</button>
     <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
     <button role="tab" id="tb-wyckoff" aria-selected="false" aria-controls="wyckoff">Wyckoff</button>
+    <button role="tab" id="tb-vol" aria-selected="false" aria-controls="vol">Volumen</button>
     <button role="tab" id="tb-tipps" aria-selected="false" aria-controls="tipps">DAX Tipps</button>
     <button role="tab" id="tb-psy" aria-selected="false" aria-controls="psy">Marktpsychologie</button>
   </nav>
@@ -675,6 +690,136 @@ table.ana tr.few td{color:var(--muted)}
         <li>Phase B zu früh für beendet halten. Sie dauert oft länger als erwartet.</li>
         <li>Volumen ignorieren. Ohne Volumen ist Wyckoff nur Linien zeichnen.</li>
         <li>Den Stop zu eng direkt am Spring-Tief setzen. Ein kleiner Puffer verhindert unnötige Ausstopper.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="tabpane" id="vol" role="tabpanel" aria-labelledby="tb-vol" hidden>
+    <div class="rule">
+      <h3>Volumen zeigt, wie viel hinter einer Bewegung steckt</h3>
+      <p>Der Preis sagt dir, wohin sich der Markt bewegt. Das Volumen sagt dir, wie viele Kontrakte oder Aktien dabei gehandelt wurden und wie ernst die Bewegung gemeint ist. Eine Bewegung mit viel Volumen hat viele Teilnehmer hinter sich, eine Bewegung mit wenig Volumen ist leicht umzukehren.</p>
+    </div>
+
+    <section class="panel">
+      <h2>Welches Volumen beim DAX? <span>wichtig vor allem anderen</span></h2>
+      <p class="why">Der DAX ist ein Index und hat selbst kein Volumen. Welche Volumenzahlen du siehst, hängt davon ab, was du im Chart geladen hast:</p>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Instrument</th><th>Was das Volumen ist</th><th>Aussagekraft</th></tr></thead><tbody>
+        <tr><td>FDAX, Mini-DAX (FDXM), Micro-DAX (FDXS)</td><td>Echte gehandelte Kontrakte an der Eurex. Auf TradingView zum Beispiel als FDAX1! (fortlaufender Kontrakt).</td><td>Hoch. Das ist das Volumen der Profis.</td></tr>
+        <tr><td>DAX-Index (Xetra)</td><td>Je nach Datenanbieter der Umsatz der 40 DAX-Aktien oder gar kein Volumen.</td><td>Mittel. Nur zur Xetra-Zeit von 9:00 bis 17:30.</td></tr>
+        <tr><td>DAX-CFD (DE40, GER40)</td><td>Meist Tick-Volumen: die Anzahl der Kursänderungen beim Broker, nicht die gehandelte Menge.</td><td>Gering bis mittel. Folgt grob dem echten Volumen, ist aber je nach Broker verschieden.</td></tr>
+        <tr><td>DAX-ETFs</td><td>Gehandelte Anteile des ETFs.</td><td>Gering für Intraday, da die echte Liquidität beim Market Maker liegt.</td></tr>
+      </tbody></table></div>
+      <p class="src">Faustregel: Handelst du den CFD, schau dir das Volumen trotzdem im FDAX-Chart an. Die Kurse unterscheiden sich leicht, die Volumenmuster sind aber deutlich verlässlicher.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Preis und Volumen zusammen lesen <span>die vier Grundfälle</span></h2>
+      <div class="quad">
+        <div class="g"><small>Preis steigt, Volumen steigt</small><b>Bestätigter Anstieg</b><span>Echte Nachfrage. Der Trend hat Rückenwind.</span></div>
+        <div class="y"><small>Preis steigt, Volumen fällt</small><b>Schwacher Anstieg</b><span>Wenig Interesse. Der Anstieg kann schnell auslaufen, besonders an Widerständen.</span></div>
+        <div class="r"><small>Preis fällt, Volumen steigt</small><b>Bestätigter Rückgang</b><span>Echter Verkaufsdruck. Nicht dagegen kaufen.</span></div>
+        <div class="y"><small>Preis fällt, Volumen fällt</small><b>Schwacher Rückgang</b><span>Kaum Verkäufer. Im Aufwärtstrend oft ein gesunder Rücksetzer.</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Volumen-Muster <span>erkennen und deuten</span></h2>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Muster</th><th>Wie es aussieht</th><th>Was es bedeutet</th></tr></thead><tbody>
+        <tr><td>Klimax-Volumen</td><td>Extremer Volumenbalken nach einem langen Trend, oft mit langer Kerze oder Docht.</td><td>Erschöpfung. Am Tief Panikverkauf (Selling Climax), am Hoch Kaufrausch (Buying Climax). Häufig ein Wendepunkt.</td></tr>
+        <tr><td>Absorption</td><td>Hohes Volumen, aber die Kerze bewegt sich kaum.</td><td>Ein großer Teilnehmer fängt alle Orders auf. Am Tief wird gekauft, am Hoch verkauft.</td></tr>
+        <tr><td>Stopping Volume</td><td>Fallende Kerze mit hohem Volumen und Schluss nahe dem Hoch der Kerze.</td><td>Die Verkäufer wurden gestoppt. Ein Boden kann sich bilden.</td></tr>
+        <tr><td>No Demand</td><td>Steigende Kerze mit kleinem Körper und dem niedrigsten Volumen der letzten Kerzen.</td><td>Keine Käufer da. Im Abwärtstrend ein Short-Signal.</td></tr>
+        <tr><td>No Supply</td><td>Fallende Kerze mit kleinem Körper und sehr niedrigem Volumen.</td><td>Keine Verkäufer da. Im Aufwärtstrend ein Long-Signal.</td></tr>
+        <tr><td>Ausbruch mit Volumen</td><td>Kurs bricht aus einer Spanne aus, das Volumen ist deutlich über dem Durchschnitt.</td><td>Echter Ausbruch mit hoher Wahrscheinlichkeit.</td></tr>
+        <tr><td>Ausbruch ohne Volumen</td><td>Kurs bricht aus, aber das Volumen bleibt niedrig.</td><td>Gefahr eines Fehlausbruchs (Spring oder Upthrust).</td></tr>
+        <tr><td>Volumen trocknet aus</td><td>Volumen wird in einer Spanne immer kleiner.</td><td>Ruhe vor dem Sturm. Ein Ausbruch steht oft bevor, die Richtung zeigt der Ausbruch selbst.</td></tr>
+        <tr><td>Divergenz</td><td>Neue Hochs, aber jedes mit weniger Volumen als das vorige.</td><td>Der Trend verliert Kraft. Noch kein Verkaufssignal, aber ein Grund für engere Stops.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>Das Tagesprofil des DAX <span>schematisch</span></h2>
+      <div class="volsvg" id="volDay"></div>
+      <p class="why">Das Volumen verteilt sich nicht gleichmäßig über den Tag. Es ist zur Eröffnung hoch, flacht über Mittag ab und steigt am Nachmittag mit den US-Daten und der Wall-Street-Eröffnung wieder an. Die Schlussauktion um 17:30 bringt noch einmal eine Spitze. Die Grafik zeigt dieses typische Muster, keine echten Daten.</p>
+      <ul class="warnlist">
+        <li><b>Vergleiche immer mit derselben Uhrzeit.</b> Eine Kerze um 12:30 mit „wenig“ Volumen kann für diese Uhrzeit überdurchschnittlich sein. Nutze dafür den Rechner „Relatives Volumen“ unten.</li>
+        <li><b>US-Zeit verschiebt sich.</b> In den Wochen mit unterschiedlicher Zeitumstellung kommen die US-Daten und die US-Eröffnung eine Stunde früher. Die Uhr im Cockpit zeigt dir das.</li>
+        <li><b>Verfallstage:</b> Am dritten Freitag im März, Juni, September und Dezember verfallen Futures und Optionen. Der Abrechnungspreis entsteht in einer Xetra-Auktion zur Mittagszeit, das Volumen ist dann ungewöhnlich hoch. Der nächste große Verfall ist am 18. Dezember 2026.</li>
+        <li><b>Rollover:</b> In den Tagen vor dem Verfall wechseln die Händler in den nächsten FDAX-Kontrakt. Im Chart des alten Kontrakts sinkt das Volumen dann scheinbar. Nutze den fortlaufenden Kontrakt (FDAX1!).</li>
+        <li><b>Feiertage und Ferien:</b> Wenn die US-Börsen geschlossen sind oder zwischen Weihnachten und Neujahr ist das Volumen niedrig. Bewegungen sind dann weniger verlässlich.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Volume Profile <span>Volumen nach Preis</span></h2>
+      <p class="why">Das normale Volumen zeigt, wann gehandelt wurde. Das Volume Profile zeigt, zu welchem Preis gehandelt wurde, als waagrechte Balken am Rand des Charts. Auf TradingView findest du es als „Volume Profile Visible Range“ oder „Session Volume Profile“.</p>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Begriff</th><th>Bedeutung</th><th>So nutzt du es</th></tr></thead><tbody>
+        <tr><td class="k">POC</td><td>Point of Control: der Preis mit dem meisten Volumen.</td><td>Wirkt wie ein Magnet. Der Kurs kehrt oft dorthin zurück.</td></tr>
+        <tr><td class="k">Value Area</td><td>Der Bereich, in dem etwa 70 % des Volumens gehandelt wurden, mit Ober- und Untergrenze (VAH, VAL).</td><td>Der „faire“ Preisbereich. Ausbrüche aus der Value Area des Vortags sind wichtige Signale.</td></tr>
+        <tr><td class="k">HVN</td><td>High Volume Node: Preiszone mit viel Volumen.</td><td>Unterstützung oder Widerstand. Der Kurs verlangsamt sich dort.</td></tr>
+        <tr><td class="k">LVN</td><td>Low Volume Node: Preiszone mit wenig Volumen.</td><td>Der Kurs läuft schnell durch. Gute Stelle für Stops dahinter.</td></tr>
+      </tbody></table></div>
+      <p class="src">Beliebte DAX-Taktik: Eröffnet der DAX außerhalb der Value Area des Vortags und kehrt hinein zurück, läuft er oft bis zur anderen Seite der Value Area.</p>
+    </section>
+
+    <section class="panel">
+      <h2>VWAP und weitere Indikatoren <span>Werkzeuge</span></h2>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Indikator</th><th>Was er zeigt</th><th>Hinweis</th></tr></thead><tbody>
+        <tr><td>VWAP</td><td>Volumengewichteter Durchschnittspreis des Tages. Profis messen ihre Ausführung daran.</td><td>Kurs über dem VWAP: Käufer haben die Kontrolle, unter dem VWAP: Verkäufer. Rücksetzer an den VWAP sind beliebte Einstiege. Startet jeden Tag neu.</td></tr>
+        <tr><td>Anchored VWAP</td><td>VWAP ab einem selbst gewählten Punkt, zum Beispiel einem wichtigen Tief oder dem Tag eines Zinsentscheids.</td><td>Zeigt, ob die Käufer seit diesem Ereignis im Plus oder Minus sind.</td></tr>
+        <tr><td>Volumen-Durchschnitt</td><td>Gleitender Durchschnitt der Volumenbalken, zum Beispiel über 20 Kerzen.</td><td>Einfachster Filter: Ist das aktuelle Volumen über oder unter dem Durchschnitt?</td></tr>
+        <tr><td>Relatives Volumen (RVOL)</td><td>Aktuelles Volumen im Verhältnis zum Durchschnitt derselben Uhrzeit.</td><td>Ab etwa 1,5 auffällig, ab 2 stark. Rechner unten.</td></tr>
+        <tr><td>On-Balance-Volume (OBV)</td><td>Addiert das Volumen an Tagen mit steigendem Kurs, zieht es an Tagen mit fallendem Kurs ab.</td><td>Divergenzen zwischen OBV und Kurs können eine Wende ankündigen.</td></tr>
+        <tr><td>Delta und Footprint</td><td>Unterschied zwischen Käufen zum Briefkurs und Verkäufen zum Geldkurs, pro Kerze oder pro Preis.</td><td>Für Fortgeschrittene. Funktioniert nur mit echten Futures-Daten, nicht mit CFDs.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>Volumen und Wyckoff <span>Zusammenhang</span></h2>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Wyckoff-Punkt</th><th>Erwartetes Volumen</th><th>Wenn es anders ist</th></tr></thead><tbody>
+        <tr><td>Selling Climax / Buying Climax</td><td>Sehr hoch, oft das höchste der Bewegung</td><td>Ohne Klimax-Volumen ist der Wendepunkt fraglich.</td></tr>
+        <tr><td>Secondary Test</td><td>Deutlich niedriger als beim Climax</td><td>Gleich hohes Volumen: Der Druck ist noch da.</td></tr>
+        <tr><td>Spring / UTAD</td><td>Unterschiedlich, entscheidend ist die schnelle Rückkehr</td><td>Bleibt der Kurs mit hohem Volumen außerhalb, war es ein echter Ausbruch.</td></tr>
+        <tr><td>Test nach dem Spring</td><td>Niedrig</td><td>Hohes Volumen beim Test: Vorsicht, die Verkäufer sind zurück.</td></tr>
+        <tr><td>Sign of Strength / Weakness</td><td>Hoch, über dem Durchschnitt</td><td>Ohne Volumen kein überzeugendes Signal.</td></tr>
+        <tr><td>LPS / LPSY</td><td>Niedrig</td><td>Hohes Volumen am LPS spricht gegen den Aufwärtstrend.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Relatives Volumen <span>Rechner</span></h2>
+        <div class="fields">
+          <label>Volumen der aktuellen Kerze<input id="rvCur" type="number" value="4200" step="100"></label>
+          <label>Ø Volumen zur gleichen Uhrzeit<input id="rvAvg" type="number" value="2600" step="100"></label>
+          <label>Kerze<select id="rvDir"><option value="up">steigend</option><option value="down">fallend</option><option value="flat">kaum Bewegung</option></select></label>
+        </div>
+        <dl class="out"><div><dt>RVOL</dt><dd id="rvOut">–</dd></div><div><dt>Einstufung</dt><dd id="rvLvl" style="font-size:16px">–</dd></div></dl>
+        <div class="msg" id="rvMsg"></div>
+        <p class="src">Den Durchschnitt zur gleichen Uhrzeit bekommst du, indem du das Volumen der gleichen Kerze an den letzten 5 bis 10 Handelstagen mittelst.</p>
+      </section>
+      <section class="panel">
+        <h2>VWAP <span>Rechner</span></h2>
+        <label>Kerzen: Hoch; Tief; Schluss; Volumen (eine Kerze pro Zeile)<textarea id="vwIn" style="font-family:var(--mono);min-height:130px">24210; 24150; 24195; 3800
+24230; 24185; 24220; 2900
+24240; 24205; 24212; 2100
+24218; 24170; 24178; 2600
+24190; 24160; 24186; 1900</textarea></label>
+        <dl class="out"><div><dt>VWAP</dt><dd id="vwOut">–</dd></div><div><dt>Letzter Schluss</dt><dd id="vwLast">–</dd></div><div><dt>Abstand</dt><dd id="vwDist">–</dd></div></dl>
+        <div class="msg" id="vwMsg"></div>
+        <p class="src">Berechnet mit dem typischen Preis (Hoch + Tief + Schluss) ÷ 3 je Kerze. Die Beispielwerte sind erfunden.</p>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Typische Fehler <span>vermeiden</span></h2>
+      <ul class="warnlist">
+        <li>Tick-Volumen eines CFD-Brokers wie echtes Volumen behandeln.</li>
+        <li>Volumen über verschiedene Uhrzeiten vergleichen, ohne das Tagesprofil zu beachten.</li>
+        <li>Eine einzelne hohe Volumenkerze ohne Zusammenhang deuten. Entscheidend ist, wo sie entsteht: am Trendende, an einer Unterstützung, beim Ausbruch.</li>
+        <li>Hohes Volumen automatisch als bullisch sehen. Hohes Volumen heißt nur, dass viel gehandelt wurde, nicht von wem.</li>
+        <li>Volumen bei Nachrichten überbewerten. Nach Zinsentscheiden oder Daten ist hohes Volumen normal und sagt wenig über die weitere Richtung.</li>
+        <li>Am Verfallstag oder in der Rollover-Woche normale Maßstäbe anlegen.</li>
       </ul>
     </section>
   </div>
@@ -1160,7 +1305,7 @@ renderCal(); setInterval(renderCal,30000);
 
 /* ---------- Reiter ---------- */
 function showTab(id){
-  ['cockpit','chart','plan','wissen','wyckoff','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  ['cockpit','chart','plan','wissen','wyckoff','vol','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
   if(id==='chart'&&window.chReady)loadChart();
   store.set('tab',id);
 }
@@ -1169,9 +1314,10 @@ $('tb-chart').onclick=()=>showTab('chart');
 $('tb-plan').onclick=()=>showTab('plan');
 $('tb-wissen').onclick=()=>showTab('wissen');
 $('tb-wyckoff').onclick=()=>showTab('wyckoff');
+$('tb-vol').onclick=()=>showTab('vol');
 $('tb-tipps').onclick=()=>showTab('tipps');
 $('tb-psy').onclick=()=>showTab('psy');
-showTab(['#wissen','#cockpit','#chart','#plan','#wyckoff','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
+showTab(['#wissen','#cockpit','#chart','#plan','#wyckoff','#vol','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
 
 /* ---------- Marktwissen ---------- */
 const TOPICS=[
@@ -1597,6 +1743,48 @@ function pauseStart(min){pauseEnd=Date.now()+min*60000;store.set('pauseEnd',paus
 $('pause5').onclick=()=>pauseStart(5); $('pause15').onclick=()=>pauseStart(15);
 $('pauseStop').onclick=()=>{pauseEnd=0;store.set('pauseEnd',0);clearInterval(pauseT);$('pauseBox').hidden=true;$('pauseStop').hidden=true;};
 if(pauseEnd>Date.now()){$('pauseBox').hidden=false;$('pauseStop').hidden=false;pauseT=setInterval(pauseTick,1000);pauseTick();}else{pauseEnd=0;}
+
+/* ---------- Volumen ---------- */
+(function(){
+  // schematisches Intraday-Volumen je halbe Stunde, 8:00 bis 22:00 (relative Höhe, keine echten Daten)
+  const V=[[480,8],[510,10],[540,95],[570,70],[600,52],[630,42],[660,36],[690,32],[720,27],[750,25],[780,25],[810,30],[840,34],[870,58],[900,52],[930,88],[960,72],[990,60],[1020,66],[1050,85],[1080,24],[1110,18],[1140,16],[1170,14],[1200,13],[1230,12],[1260,11],[1290,9]];
+  const x0=50,x1=730,w=(x1-x0)/V.length,yb=200,sc=1.6;
+  let g=`<svg viewBox="0 0 760 250" role="img" aria-label="Schematisches Tagesprofil des DAX-Volumens">`;
+  g+=`<line x1="${x0}" x2="${x1}" y1="${yb}" y2="${yb}" stroke="var(--line)"/>`;
+  V.forEach((v,i)=>{const h=v[1]*sc,x=x0+i*w,hot=[540,930,1050].includes(v[0]),mid=v[0]===870;
+    g+=`<rect x="${x+2}" y="${yb-h}" width="${w-4}" height="${h}" rx="2" fill="${hot?'var(--accent)':mid?'var(--warn)':'color-mix(in srgb,var(--accent) 35%,transparent)'}"/>`;});
+  [480,540,720,900,1050,1200,1290].forEach(m=>{const i=V.findIndex(v=>v[0]===m);const x=x0+i*w;g+=`<text x="${x+w/2}" y="${yb+16}" text-anchor="middle">${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}</text>`;});
+  const lab=(m,t,dy)=>{const i=V.findIndex(v=>v[0]===m);const x=x0+i*w+w/2;const h=V[i][1]*sc;g+=`<text class="lb" x="${x}" y="${yb-h-8-(dy||0)}" text-anchor="middle">${t}</text>`;};
+  lab(540,'Xetra-Eröffnung');lab(870,'US-Daten',14);lab(930,'Wall Street',0);lab(1050,'Schlussauktion',14);lab(750,'Mittagsflaute');
+  g+=`<text x="${x0}" y="240">Volumen</text><text x="${x1}" y="240" text-anchor="end">schematisch, keine echten Daten</text>`;
+  $('volDay').innerHTML=g+'</svg>';
+})();
+['rvCur','rvAvg','rvDir'].forEach(id=>{const v=store.get('f_'+id,null);if(v!==null)$(id).value=v;$(id).addEventListener('input',()=>{store.set('f_'+id,$(id).value);rvCalc();});});
+function rvCalc(){
+  const c=+$('rvCur').value,a=+$('rvAvg').value,d=$('rvDir').value,m=$('rvMsg');
+  if(!(c>=0&&a>0)){$('rvOut').textContent='–';$('rvLvl').textContent='–';m.className='msg bad';m.textContent='Bitte beide Volumenwerte eingeben, der Durchschnitt muss größer als 0 sein.';return;}
+  const r=c/a;$('rvOut').textContent=fmt(r,2)+'×';
+  const lvl=r>=3?'extrem':r>=2?'stark erhöht':r>=1.5?'erhöht':r>=0.7?'normal':'niedrig';$('rvLvl').textContent=lvl;
+  let t;
+  if(r>=2&&d==='flat')t='Sehr hohes Volumen ohne Bewegung: Absorption. Ein großer Teilnehmer fängt die Orders auf. Achte darauf, in welche Richtung der Kurs danach ausbricht.';
+  else if(r>=3)t='Extremes Volumen. Nach einem langen Trend oft ein Klimax und damit ein möglicher Wendepunkt, am Anfang einer Bewegung eher ein starker Impuls.';
+  else if(r>=1.5)t=d==='up'?'Steigende Kerze mit erhöhtem Volumen: Die Käufer sind aktiv. Bestätigt einen Ausbruch oder Aufwärtsimpuls.':d==='down'?'Fallende Kerze mit erhöhtem Volumen: echter Verkaufsdruck. Nicht dagegen kaufen, außer es ist ein Climax am Ende eines langen Abverkaufs.':'Erhöhtes Volumen bei kaum Bewegung: leichte Absorption.';
+  else if(r>=0.7)t='Normales Volumen für diese Uhrzeit. Kein besonderes Signal.';
+  else t=d==='up'?'Steigende Kerze mit wenig Volumen: möglicherweise No Demand. Anstieg ohne Überzeugung.':d==='down'?'Fallende Kerze mit wenig Volumen: möglicherweise No Supply. Im Aufwärtstrend ein gutes Zeichen.':'Wenig Volumen und wenig Bewegung: Der Markt wartet.';
+  m.className='msg '+(r>=1.5?'mid':'');m.textContent=t;
+}
+rvCalc();
+$('vwIn').value=store.get('vwIn',$('vwIn').value);
+$('vwIn').addEventListener('input',()=>{store.set('vwIn',$('vwIn').value);vwCalc();});
+function vwCalc(){
+  const m=$('vwMsg');let pv=0,vs=0,last=null,bad=0,n=0;
+  $('vwIn').value.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{const p=l.split(/[;\t]/).map(x=>parseFloat(x.trim().replace(/\s/g,'').replace(',','.')));
+    if(p.length<4||p.some(x=>!isFinite(x))||p[3]<0||p[0]<p[1]){bad++;return;}const tp=(p[0]+p[1]+p[2])/3;pv+=tp*p[3];vs+=p[3];last=p[2];n++;});
+  if(!vs){['vwOut','vwLast','vwDist'].forEach(id=>$(id).textContent='–');m.className='msg bad';m.textContent='Keine gültigen Zeilen. Format je Zeile: Hoch; Tief; Schluss; Volumen.';return;}
+  const vw=pv/vs,d=last-vw;$('vwOut').textContent=fmt(vw,1);$('vwLast').textContent=fmt(last,1);$('vwDist').textContent=(d>0?'+':'')+fmt(d,1)+' Pkt';$('vwDist').className=d>=0?'pos':'neg';
+  m.className='msg';m.textContent=`${n} Kerzen ausgewertet${bad?`, ${bad} Zeile(n) übersprungen`:''}. Der Kurs liegt ${d>=0?'über':'unter'} dem VWAP, ${d>=0?'die Käufer':'die Verkäufer'} haben heute im Schnitt die Kontrolle.`;
+}
+vwCalc();
 
 setDir(dir); pivots(); renderChk(); renderJ();
 </script>
