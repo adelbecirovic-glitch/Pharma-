@@ -94,6 +94,38 @@ td.txt{font-family:var(--body)}
 .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px}
 footer{font-size:12px;color:var(--muted);max-width:75ch}
 .full{grid-column:1/-1}
+
+/* Reiter */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;font:600 15px var(--body);color:var(--muted);padding:10px 14px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabpane{display:grid;gap:18px}
+/* Marktwissen */
+.rule{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:16px 18px;display:grid;gap:6px}
+.rule h3{margin:0;font-size:18px}
+.rule p{margin:0;max-width:75ch}
+.topics{display:grid;gap:14px}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px;min-width:0}
+.topic header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px}
+.topic h3{margin:0;font-size:17px}
+.topic .cat{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.gb{grid-template-columns:minmax(0,1fr)}}
+.gb>div{border-radius:8px;padding:10px 12px;min-width:0}
+.gb .g{background:color-mix(in srgb,var(--long) 9%,transparent)}
+.gb .b{background:color-mix(in srgb,var(--short) 9%,transparent)}
+.gb h4{margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.gb .g h4{color:var(--long)} .gb .b h4{color:var(--short)}
+.gb ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:14px}
+.why{font-size:14px;margin:0;max-width:80ch}
+.aff{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
+.aff span{padding:3px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--line)}
+.aff .up{color:var(--long);border-color:color-mix(in srgb,var(--long) 35%,transparent)}
+.aff .dn{color:var(--short);border-color:color-mix(in srgb,var(--short) 35%,transparent)}
+.matrix{width:100%;border-collapse:collapse;font-size:14px;min-width:600px}
+.matrix td{font-family:var(--body)}
+.matrix td.u{color:var(--long);font-weight:600} .matrix td.d{color:var(--short);font-weight:600} .matrix td.n{color:var(--muted)}
+#wSearch{font-family:var(--body);max-width:360px}
 /* Wirtschaftskalender */
 .cal{display:grid;gap:14px}
 .day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
@@ -128,6 +160,13 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
     <h1><small>Werkzeuge für den DE40</small>DAX Trading-Cockpit</h1>
     <div class="clock"><div class="t" id="clk">--:--:--</div><div class="z">Frankfurt / Wien · <span id="date"></span></div></div>
   </header>
+
+  <nav class="tabs" role="tablist" aria-label="Bereiche">
+    <button role="tab" id="tb-cockpit" aria-selected="true" aria-controls="cockpit">Cockpit</button>
+    <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
+  </nav>
+
+  <div class="tabpane" id="cockpit" role="tabpanel" aria-labelledby="tb-cockpit">
 
   <section class="sessions" aria-label="Handelszeiten heute">
     <div class="bar" id="bar"></div>
@@ -264,6 +303,30 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
         <thead><tr><th>Datum</th><th>Richtung</th><th>Ein</th><th>Aus</th><th>Punkte</th><th>Ergebnis</th><th>Setup</th><th>Notiz</th><th></th></tr></thead>
         <tbody id="jBody"></tbody>
       </table></div>
+    </section>
+  </div>
+
+  </div>
+
+  <div class="tabpane" id="wissen" role="tabpanel" aria-labelledby="tb-wissen" hidden>
+    <div class="rule">
+      <h3>Die wichtigste Regel: Es zählt die Überraschung</h3>
+      <p>Der Markt handelt nicht die Nachricht selbst, sondern den Unterschied zur Erwartung (Konsens). Eine Zinssenkung, die alle erwartet haben, ist meist schon im Kurs. Steigt der DAX trotzdem nicht, ist das kein Widerspruch. Vergleiche deshalb immer den veröffentlichten Wert mit der Prognose im Kalender deiner Plattform.</p>
+    </div>
+    <div class="rule">
+      <h3>Die ersten Minuten sind Lärm</h3>
+      <p>Direkt nach wichtigen Daten springt der Kurs oft in beide Richtungen, Spreads werden breiter und Stops werden überrannt. Viele Trader warten 5 bis 15 Minuten, bis sich eine Richtung zeigt. Bei Zinsentscheiden kann die Pressekonferenz die erste Reaktion komplett umdrehen.</p>
+    </div>
+    <div class="row">
+      <input id="wSearch" type="search" placeholder="Suchen, z. B. Inflation, Öl, Zölle" aria-label="Themen durchsuchen">
+      <div class="seg-toggle" role="group" aria-label="Kategorie" id="wCats"></div>
+    </div>
+    <div class="topics" id="topics"></div>
+
+    <section class="panel">
+      <h2>Wer profitiert wovon? <span>Branchen-Übersicht</span></h2>
+      <p class="why">Grobe Faustregeln für typische Reaktionen. Im Einzelfall können andere Faktoren überwiegen.</p>
+      <div class="tablebox"><table class="matrix" id="matrix"></table></div>
     </section>
   </div>
 
@@ -547,6 +610,122 @@ $('uAdd').onclick=()=>{
 };
 $('calSrc').innerHTML='Termine laut <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69858898-wochenvorschau-26-oktober-bis-1-november-44-kw-015.htm" target="_blank" rel="noopener">Wochenvorschau KW 44</a>, <a href="https://www.lbbw.de/artikel/maerkte-verstehen/termine-oktober-2026_anjnmvdjip_d.html" target="_blank" rel="noopener">LBBW</a> und <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">Federal Reserve</a>, Stand 22. Oktober 2026. Termine können sich kurzfristig ändern.';
 renderCal(); setInterval(renderCal,30000);
+
+
+/* ---------- Reiter ---------- */
+function showTab(id){
+  ['cockpit','wissen'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  store.set('tab',id);
+}
+$('tb-cockpit').onclick=()=>showTab('cockpit');
+$('tb-wissen').onclick=()=>showTab('wissen');
+showTab(location.hash==='#wissen'?'wissen':location.hash==='#cockpit'?'cockpit':store.get('tab','cockpit'));
+
+/* ---------- Marktwissen ---------- */
+const TOPICS=[
+ {c:'Notenbanken',t:'EZB-Zinsentscheid',
+  g:['Zinssenkung oder Hinweis auf weitere Senkungen','Pressekonferenz klingt „taubenhaft“ (Sorge um Wachstum, Inflation unter Kontrolle)','Neue Anleihekäufe oder Liquiditätshilfen'],
+  b:['Zinserhöhung oder überraschend keine Senkung','„Falkenhafte“ Töne: Inflation zu hoch, weitere Erhöhungen möglich','Ende von Anleihekäufen'],
+  w:'Niedrigere Zinsen verbilligen Kredite für Firmen und Verbraucher und machen Aktien im Vergleich zu Anleihen attraktiver. Höhere Zinsen bremsen die Wirtschaft und senken den Wert künftiger Gewinne.',
+  up:['Immobilien','Bau','Wachstumswerte'],dn:['Banken bei Zinssenkung','Versicherer bei Zinssenkung']},
+ {c:'Notenbanken',t:'Fed-Zinsentscheid (USA)',
+  g:['Zinssenkung oder Signal für Senkungen („dot plot“ zeigt mehr Senkungen)','Powell bzw. Fed-Chef betont Risiken für den Arbeitsmarkt'],
+  b:['Zinsen bleiben länger hoch („higher for longer“)','Weniger Senkungen im „dot plot“ als erwartet'],
+  w:'Die Fed bestimmt die Stimmung an den Weltbörsen. Fallende US-Zinsen stützen Aktien weltweit, also auch den DAX. Der Entscheid kommt nach Xetra-Schluss, der DAX reagiert also zuerst im FDAX und CFD und am nächsten Morgen.',
+  up:['Technologie','Zykliker'],dn:['Banken bei Senkung']},
+ {c:'Konjunkturdaten',t:'Inflation (Verbraucherpreise)',
+  g:['Inflation niedriger als erwartet','Kerninflation (ohne Energie und Lebensmittel) sinkt'],
+  b:['Inflation höher als erwartet','Kerninflation bleibt hartnäckig'],
+  w:'Hohe Inflation zwingt Notenbanken zu hohen Zinsen. Deshalb sind höhere Inflationsdaten meist schlecht für Aktien. Für den DAX zählen die US-Inflation (CPI) und die deutsche bzw. Eurozonen-Inflation.',
+  up:['Immobilien','Konsum bei sinkender Inflation'],dn:['Wachstumswerte bei steigender Inflation']},
+ {c:'Konjunkturdaten',t:'US-Arbeitsmarktbericht',
+  g:['Moderates Jobwachstum, leicht steigende Arbeitslosigkeit (Wirtschaft wächst, Fed kann senken)','Löhne steigen weniger stark als erwartet'],
+  b:['Extrem starke Zahlen: Angst, dass die Fed die Zinsen hoch hält','Sehr schwache Zahlen: Angst vor Rezession'],
+  w:'Hier gilt die „Goldlöckchen-Regel“: nicht zu heiß, nicht zu kalt. Beide Extreme können den Markt belasten, je nachdem, ob gerade Inflation oder Konjunktur die größere Sorge ist. Erscheint meist am ersten Freitag des Monats um 14:30.',
+  up:[],dn:[]},
+ {c:'Konjunkturdaten',t:'BIP (Wirtschaftswachstum)',
+  g:['Wachstum höher als erwartet','Rezessionssorgen lassen nach'],
+  b:['Schrumpfende Wirtschaft (zwei Quartale in Folge = technische Rezession)','Deutliche Abwärtsrevision'],
+  w:'Wachstum bedeutet höhere Umsätze und Gewinne. Die erste Schätzung bewegt den Markt am stärksten, spätere Revisionen weniger.',
+  up:['Industrie','Autobauer','Chemie'],dn:[]},
+ {c:'Konjunkturdaten',t:'ifo, ZEW und Einkaufsmanagerindizes (PMI)',
+  g:['Werte über der Prognose','PMI steigt über 50 (Wachstum)','ZEW-Erwartungen steigen'],
+  b:['Werte unter der Prognose','PMI fällt unter 50 (Schrumpfung)','ifo-Geschäftserwartungen brechen ein'],
+  w:'Diese Stimmungsumfragen erscheinen früh im Monat und zeigen Trends, bevor harte Daten wie das BIP kommen. Für den DAX sind die deutschen Werte besonders wichtig, weil die Indexkonzerne stark von der Industrie abhängen.',
+  up:['Industrie','Chemie','Maschinenbau'],dn:[]},
+ {c:'Unternehmen',t:'Quartalszahlen',
+  g:['Umsatz und Gewinn über den Erwartungen','Prognose (Guidance) wird angehoben','Aktienrückkäufe oder höhere Dividende'],
+  b:['Gewinnwarnung oder gesenkte Prognose','Gute Zahlen, aber vorsichtiger Ausblick','Hohe Einmalkosten, Abschreibungen'],
+  w:'Der Ausblick ist oft wichtiger als das abgelaufene Quartal. Zahlen der Schwergewichte wie SAP, Siemens, Allianz oder Deutsche Telekom bewegen den ganzen Index, kleinere Werte kaum.',
+  up:[],dn:[]},
+ {c:'Märkte',t:'Euro gegenüber dem Dollar',
+  g:['Schwächerer Euro: deutsche Produkte werden im Ausland billiger, Auslandsgewinne sind in Euro mehr wert'],
+  b:['Starker Euro: belastet Exporteure, die einen Großteil ihres Umsatzes im Ausland machen'],
+  w:'Viele DAX-Konzerne verdienen den Großteil ihres Geldes außerhalb Europas. Ein schwacher Euro hilft ihnen, ein starker belastet.',
+  up:['Exporteure bei schwachem Euro','Autobauer','Chemie'],dn:['Importabhängige Firmen bei schwachem Euro']},
+ {c:'Märkte',t:'Anleiherenditen',
+  g:['Fallende Renditen (z. B. 10-jährige Bundesanleihe, US-Treasuries)'],
+  b:['Schnell steigende Renditen'],
+  w:'Steigende Renditen machen Anleihen gegenüber Aktien attraktiver und erhöhen die Finanzierungskosten. Banken und Versicherer profitieren dagegen oft von höheren Zinsen.',
+  up:['Banken bei steigenden Renditen','Versicherer'],dn:['Immobilien','Wachstumswerte']},
+ {c:'Märkte',t:'Ölpreis und Energiepreise',
+  g:['Fallender Öl- und Gaspreis: weniger Kosten, weniger Inflation'],
+  b:['Stark steigende Energiepreise, z. B. durch Konflikte im Nahen Osten oder Lieferstopps'],
+  w:'Deutschland importiert fast seine gesamte Energie. Hohe Preise treffen energieintensive Industrie und treiben die Inflation. Der DAX hat kaum Öl-Konzerne, die davon profitieren würden.',
+  up:['Versorger teils','Erneuerbare'],dn:['Chemie','Fluggesellschaften','Industrie']},
+ {c:'Politik & Welt',t:'Zölle und Handelsstreit',
+  g:['Einigung in Handelsgesprächen, Zollsenkungen','Aufschub angedrohter Zölle'],
+  b:['Neue US-Zölle auf EU-Waren, besonders Autos','Eskalation zwischen USA und China','Exportbeschränkungen'],
+  w:'Die deutsche Wirtschaft hängt stark vom Export ab, besonders in die USA und nach China. Schlagzeilen zu Zöllen bewegen den DAX oft sofort, auch außerhalb des Wirtschaftskalenders.',
+  up:[],dn:['Autobauer','Maschinenbau','Chemie']},
+ {c:'Politik & Welt',t:'China-Konjunktur',
+  g:['Starke China-Daten (Industrieproduktion, Einzelhandel, Exporte)','Konjunkturprogramme in China'],
+  b:['Schwache Nachfrage aus China','Immobilienkrise verschärft sich'],
+  w:'China ist einer der wichtigsten Absatzmärkte für deutsche Autos, Maschinen, Chemie und Luxusgüter. Die Daten erscheinen meist nachts, der DAX reagiert dann zur Eröffnung.',
+  up:['Autobauer','Chemie','Sportartikel'],dn:[]},
+ {c:'Politik & Welt',t:'Geopolitik und Krisen',
+  g:['Waffenstillstand, Entspannung, Friedensgespräche'],
+  b:['Kriegsausbruch, Eskalation, Anschläge','Plötzliche Unsicherheit („Risk-off“)'],
+  w:'In Krisen ziehen Anleger Geld aus Aktien ab und kaufen sichere Häfen wie Gold, Bundesanleihen oder den Schweizer Franken. Erste Reaktionen fallen oft übertrieben aus und erholen sich teilweise.',
+  up:['Rüstung bei Eskalation'],dn:['Zykliker','Reise und Luftfahrt']},
+ {c:'Politik & Welt',t:'Deutsche Politik und Haushalt',
+  g:['Große Investitionsprogramme (Infrastruktur, Verteidigung)','Steuersenkungen für Unternehmen','Stabile Regierung'],
+  b:['Regierungskrise, Neuwahlen','Sparpakete, die die Wirtschaft bremsen'],
+  w:'Staatliche Investitionen bringen Aufträge für Bau, Industrie und Rüstung. Politische Unsicherheit wirkt meist nur kurz, außer sie betrifft Haushalt oder Wirtschaftspolitik direkt.',
+  up:['Bau','Rüstung','Industrie'],dn:[]},
+ {c:'Märkte',t:'Wall Street',
+  g:['Starke US-Börsen am Vortag oder vorbörslich','Gute Zahlen großer US-Tech-Konzerne'],
+  b:['Ausverkauf in den USA','Schwache US-Futures am Morgen'],
+  w:'Der DAX folgt oft der Richtung der US-Märkte. Ab 15:30 (US-Eröffnung) steigt die Bewegung im DAX meist deutlich.',
+  up:['SAP und Technologie bei US-Tech-Rally'],dn:[]}
+];
+const CATS=['Alle','Notenbanken','Konjunkturdaten','Unternehmen','Märkte','Politik & Welt'];
+let wCat='Alle';
+$('wCats').innerHTML=CATS.map(c=>`<button class="f" data-c="${c}" aria-pressed="${c===wCat}">${c}</button>`).join('');
+document.querySelectorAll('#wCats button').forEach(b=>b.onclick=()=>{wCat=b.dataset.c;document.querySelectorAll('#wCats button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderTopics();});
+$('wSearch').oninput=renderTopics;
+function renderTopics(){
+  const q=$('wSearch').value.trim().toLowerCase();
+  const list=TOPICS.filter(t=>(wCat==='Alle'||t.c===wCat)&&(!q||JSON.stringify(t).toLowerCase().includes(q)));
+  $('topics').innerHTML=list.map(t=>`<article class="topic">
+    <header><h3>${t.t}</h3><span class="cat">${t.c}</span></header>
+    <div class="gb"><div class="g"><h4>Gut für den DAX</h4><ul>${t.g.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="b"><h4>Schlecht für den DAX</h4><ul>${t.b.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+    <p class="why"><b>Warum:</b> ${t.w}</p>
+    ${t.up.length||t.dn.length?`<div class="aff">${t.up.map(x=>`<span class="up">▲ ${x}</span>`).join('')}${t.dn.map(x=>`<span class="dn">▼ ${x}</span>`).join('')}</div>`:''}
+  </article>`).join('')||'<div class="msg">Kein Thema gefunden.</div>';
+}
+renderTopics();
+const MX=[['Ereignis','Banken','Autobauer','Chemie','Technologie','Immobilien','Rüstung'],
+ ['Zinsen sinken','d','u','u','u','u','n'],
+ ['Zinsen steigen','u','d','d','d','d','n'],
+ ['Euro wird schwächer','n','u','u','u','n','n'],
+ ['Ölpreis steigt stark','n','d','d','n','n','n'],
+ ['Neue US-Zölle','d','d','d','n','n','n'],
+ ['China-Daten stark','n','u','u','n','n','n'],
+ ['Geopolitische Eskalation','d','d','d','d','d','u']];
+const sym={u:'▲ profitiert',d:'▼ belastet',n:'–'};
+$('matrix').innerHTML='<thead><tr>'+MX[0].map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>'+MX.slice(1).map(r=>'<tr><td class="txt"><b>'+r[0]+'</b></td>'+r.slice(1).map(v=>`<td class="${v}">${sym[v]}</td>`).join('')+'</tr>').join('')+'</tbody>';
 
 setDir(dir); pivots(); renderChk(); renderJ();
 </script>
