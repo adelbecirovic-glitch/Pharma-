@@ -185,6 +185,32 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 .calc-hist{display:grid;gap:2px;max-height:110px;overflow:auto;font-family:var(--mono);font-size:12px}
 .calc-hist button{all:unset;cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:4px 6px;border-radius:4px;color:var(--muted)}
 .calc-hist button:hover,.calc-hist button:focus-visible{background:var(--bg);color:var(--ink)}
+
+/* Marktpsychologie */
+.cyc{overflow-x:auto}
+.cyc svg{display:block;width:100%;min-width:680px;height:auto}
+.cyc text{font-family:var(--body);font-size:13px;fill:var(--ink)}
+.cyc .zone{font-size:11px;font-weight:700;letter-spacing:.08em}
+.cyc g.pt{cursor:pointer}
+.cyc g.pt circle{fill:var(--panel);stroke:var(--ink);stroke-width:1.5;transition:r .15s}
+.cyc g.pt:hover circle,.cyc g.pt:focus circle{r:7}
+.cyc g.pt.sel circle{fill:var(--accent);stroke:var(--accent);r:7}
+.cyc g.pt.sel text{font-weight:700;fill:var(--accent)}
+.cyc g.pt:focus{outline:none}
+.stage{display:grid;gap:10px}
+.stage h3{margin:0;font-size:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.stage h3 small{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stage .q{margin:0;font-size:16px;font-style:italic;max-width:70ch}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.sgrid div{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:14px;min-width:0}
+.sgrid b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.stepline{display:grid;gap:6px}
+.stepline div{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:14px}
+.stepline span{font:600 12px var(--mono);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--bg);color:var(--muted)}
+.selfchk{display:grid;gap:6px}
+.selfchk label{display:flex;gap:10px;align-items:flex-start;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;padding:6px 8px;border-radius:6px}
+.selfchk label:hover{background:var(--bg)}
+.selfchk input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--accent)}
 /* Wirtschaftskalender */
 .cal{display:grid;gap:14px}
 .day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
@@ -225,6 +251,7 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
     <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
     <button role="tab" id="tb-wyckoff" aria-selected="false" aria-controls="wyckoff">Wyckoff</button>
     <button role="tab" id="tb-tipps" aria-selected="false" aria-controls="tipps">DAX Tipps</button>
+    <button role="tab" id="tb-psy" aria-selected="false" aria-controls="psy">Marktpsychologie</button>
   </nav>
 
   <div class="tabpane" id="cockpit" role="tabpanel" aria-labelledby="tb-cockpit">
@@ -574,6 +601,51 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
     </div>
   </div>
 
+  <div class="tabpane" id="psy" role="tabpanel" aria-labelledby="tb-psy" hidden>
+    <div class="rule">
+      <h3>Die Psychologie des Marktzyklus</h3>
+      <p>Märkte bewegen sich nicht nur nach Zahlen, sondern nach Gefühlen. Gier und Angst wiederholen sich in jedem Zyklus in ähnlicher Reihenfolge, im Tageschart genauso wie über Jahre. Der Zyklus ist eine Orientierung, keine Prognose: Er sagt nicht, wann der Wendepunkt kommt, aber er hilft dir, deine eigene Stimmung und die der anderen einzuordnen.</p>
+    </div>
+
+    <section class="panel">
+      <h2>Der Zyklus <span>Phase antippen für Details</span></h2>
+      <div class="cyc" id="cycSvg"></div>
+      <div class="stage" id="stage"></div>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Am Hoch <span>vom Rausch zur Panik</span></h2>
+        <div class="stepline">
+          <div><span>1</span><p style="margin:0"><b>Euphorie:</b> Alle sind sich einig, dass es weiter steigt. Die Volumen sind hoch, die Nachrichten durchweg positiv.</p></div>
+          <div><span>2</span><p style="margin:0"><b>Erster Rücksetzer:</b> Er wird als Kaufgelegenheit gesehen. Das nächste Hoch wird aber nicht mehr klar überboten.</p></div>
+          <div><span>3</span><p style="margin:0"><b>Sorge und Verleugnung:</b> Die Kurse fallen weiter, aber kaum jemand verkauft. Stops werden verschoben, Verluste schöngeredet.</p></div>
+          <div><span>4</span><p style="margin:0"><b>Panik:</b> Der Bruch wichtiger Unterstützungen löst Massenverkäufe aus.</p></div>
+        </div>
+        <p class="src">Warnzeichen: Gute Nachrichten bewegen den Kurs nicht mehr nach oben. In Wyckoff-Begriffen: Buying Climax, Distribution, UTAD.</p>
+      </section>
+      <section class="panel">
+        <h2>Am Tief <span>von der Verzweiflung zur Hoffnung</span></h2>
+        <div class="stepline">
+          <div><span>1</span><p style="margin:0"><b>Kapitulation:</b> Die letzten Halter werfen hin. Extremes Volumen, Schlagzeilen über Crash und Krise.</p></div>
+          <div><span>2</span><p style="margin:0"><b>Depression:</b> Der Markt interessiert kaum noch jemanden. Die Kurse laufen seitwärts, das Volumen trocknet aus.</p></div>
+          <div><span>3</span><p style="margin:0"><b>Unglaube:</b> Die ersten Anstiege werden als „Bärenmarktrally“ abgetan und leerverkauft.</p></div>
+          <div><span>4</span><p style="margin:0"><b>Hoffnung und Erleichterung:</b> Höhere Tiefs bestätigen die Wende. Jetzt steigen die Ersten wieder ein.</p></div>
+        </div>
+        <p class="src">Warnzeichen fürs Verpassen: Schlechte Nachrichten drücken den Kurs nicht mehr nach unten. In Wyckoff-Begriffen: Selling Climax, Akkumulation, Spring.</p>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Wo stehst du gerade? <span>Selbst-Check</span></h2>
+      <p class="why">Hak an, was gerade auf dich zutrifft. Deine eigenen Gedanken verraten oft mehr über die Marktphase als jeder Indikator.</p>
+      <div class="selfchk" id="selfchk"></div>
+      <div class="msg" id="selfMsg"></div>
+    </section>
+
+    <p class="src">Weitere Schaubilder zur Zyklus-Psychologie gibt es bei <a href="https://dimensionwithin.cloud/ressourcen/" target="_blank" rel="noopener">Dimensionwithin – Ressourcen</a>.</p>
+  </div>
+
   <footer>Alle Kurse sind Beispielwerte zum Ausprobieren, keine Live-Daten. Hebelprodukte wie CFDs und Futures können zu Verlusten über den Einsatz hinaus führen. Dieses Werkzeug ist keine Anlageberatung.</footer>
 </div>
 
@@ -873,14 +945,15 @@ renderCal(); setInterval(renderCal,30000);
 
 /* ---------- Reiter ---------- */
 function showTab(id){
-  ['cockpit','wissen','wyckoff','tipps'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  ['cockpit','wissen','wyckoff','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
   store.set('tab',id);
 }
 $('tb-cockpit').onclick=()=>showTab('cockpit');
 $('tb-wissen').onclick=()=>showTab('wissen');
 $('tb-wyckoff').onclick=()=>showTab('wyckoff');
 $('tb-tipps').onclick=()=>showTab('tipps');
-showTab(['#wissen','#cockpit','#wyckoff','#tipps'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
+$('tb-psy').onclick=()=>showTab('psy');
+showTab(['#wissen','#cockpit','#wyckoff','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
 
 /* ---------- Marktwissen ---------- */
 const TOPICS=[
@@ -1119,6 +1192,66 @@ document.addEventListener('keydown',e=>{
   if(/^[0-9+\-*/()%,=]$/.test(k)||k==='back'||k==='C'){e.preventDefault();cKey(k);}
 });
 cRender();
+
+/* ---------- Marktpsychologie ---------- */
+const STG=[
+ {n:'Optimismus',x:40,y:250,ph:'Aufwärts',q:'„Es läuft wieder, das könnte etwas werden.“',m:'Der Aufwärtstrend ist etabliert, Rücksetzer werden gekauft.',g:'Halten ihre Positionen aus der Akkumulation.',w:'Markup, Phase E',t:'Gute Phase für Trendfolge. Rücksetzer an Unterstützungen nutzen.'},
+ {n:'Begeisterung',x:110,y:200,ph:'Aufwärts',q:'„Ich hätte früher einsteigen sollen.“',m:'Der Anstieg beschleunigt sich, die Medien berichten positiv.',g:'Halten, erste kleine Gewinnmitnahmen.',w:'Markup',t:'Stops nachziehen, Positionsgröße nicht erhöhen, nur weil es gut läuft.'},
+ {n:'Nervenkitzel',x:180,y:140,ph:'Hoch',q:'„Ich bin ein Genie, jeder Trade klappt.“',m:'Steile Kerzen, steigende Volumen, viele neue Privatanleger.',g:'Beginnen zu verkaufen.',w:'Preliminary Supply (PSY)',t:'Vorsicht vor Übermut. Gewinne teilweise sichern.'},
+ {n:'Euphorie',x:250,y:60,ph:'Hoch',q:'„Diesmal ist alles anders, es geht nur noch nach oben.“',m:'Rekordhochs, extremes Volumen, alle sind investiert.',g:'Verkaufen in großem Stil an die Nachzügler.',w:'Buying Climax (BC)',t:'Größtes Risiko im Zyklus. Keine neuen Long-Positionen mit vollem Risiko.'},
+ {n:'Selbstzufriedenheit',x:305,y:120,ph:'Abwärts',q:'„Nur eine gesunde Korrektur, gleich geht es weiter.“',m:'Erster deutlicher Rückgang, wird als Kaufgelegenheit gesehen.',g:'Verkaufen weiter in jede Erholung.',w:'Automatic Reaction (AR)',t:'Achte darauf, ob das alte Hoch noch einmal überboten wird.'},
+ {n:'Sorge',x:360,y:150,ph:'Abwärts',q:'„Warum fällt es weiter? Die Nachrichten sind doch gut.“',m:'Tiefere Hochs, gute Nachrichten verpuffen.',g:'Schließen die Verteilung ab.',w:'Distribution, Phase B bis C',t:'Long-Positionen kritisch prüfen, Stops nicht verschieben.'},
+ {n:'Verleugnung',x:405,y:172,ph:'Abwärts',q:'„Das ist ein guter Kurs, die Firmen sind doch stark.“',m:'Die Kurse fallen weiter, kurze Erholungen scheitern.',g:'Sind ausgestiegen oder schon short.',w:'UTAD, Sign of Weakness (SOW)',t:'Typische Phase für verschobene Stops. Halte dich an deinen Plan.'},
+ {n:'Panik',x:470,y:250,ph:'Abwärts',q:'„Ich muss raus, bevor es noch schlimmer wird.“',m:'Schnelle Kursstürze, Unterstützungen brechen, hohe Volatilität.',g:'Beobachten, schließen Short-Positionen teilweise.',w:'Markdown',t:'Nicht in fallende Messer greifen. Spreads beachten.'},
+ {n:'Kapitulation',x:515,y:300,ph:'Tief',q:'„Ich verkaufe alles, nie wieder Aktien.“',m:'Extremes Volumen, Crash-Schlagzeilen, Ausverkauf.',g:'Beginnen zu kaufen, was die Panik anbietet.',w:'Selling Climax (SC)',t:'Hier entsteht oft das Tief. Auf eine Gegenbewegung und einen Test warten.'},
+ {n:'Wut',x:548,y:272,ph:'Tief',q:'„Wer ist schuld? Die Notenbank, die Politik, mein Broker!“',m:'Kurze, heftige Erholung, danach erneuter Rückfall.',g:'Kaufen weiter, ohne den Kurs hochzutreiben.',w:'Automatic Rally (AR), Secondary Test (ST)',t:'Keine Revanche-Trades. Pause machen, Journal auswerten.'},
+ {n:'Depression',x:595,y:322,ph:'Tief',q:'„Ich schaue mir das gar nicht mehr an.“',m:'Seitwärtsphase, niedriges Volumen, kaum Berichterstattung.',g:'Schließen die Akkumulation ab.',w:'Akkumulation, Phase B bis C, Spring',t:'Größte Chance im Zyklus. Nach Spring und Test suchen.'},
+ {n:'Unglaube',x:648,y:282,ph:'Aufwärts',q:'„Das ist nur eine Bärenmarktrally, das hält nicht.“',m:'Erste Anstiege mit steigendem Volumen, werden angezweifelt.',g:'Halten und kaufen bei Rücksetzern nach.',w:'Sign of Strength (SOS)',t:'Erste Long-Chancen mit engem Risiko. Höhere Tiefs beobachten.'},
+ {n:'Hoffnung',x:715,y:252,ph:'Aufwärts',q:'„Vielleicht war das doch das Tief.“',m:'Ein höheres Tief bestätigt die Wende.',g:'Kaufen am Last Point of Support nach.',w:'Last Point of Support (LPS), Back-up',t:'Klassischer Einstiegspunkt nach Wyckoff.'},
+ {n:'Erleichterung',x:780,y:200,ph:'Aufwärts',q:'„Endlich bin ich wieder bei null.“',m:'Der Kurs erreicht alte Einstiegsniveaus, viele verkaufen dort.',g:'Nehmen das Angebot der Erleichterten auf.',w:'Markup beginnt',t:'Verkaufsdruck an alten Widerständen einplanen.'},
+ {n:'Optimismus',x:860,y:158,ph:'Aufwärts',q:'„Es läuft wieder.“',m:'Der neue Zyklus beginnt.',g:'Sind voll investiert.',w:'Markup, Phase E',t:'Der Kreislauf beginnt von vorn.'}
+];
+let stSel=+store.get('psySel',3);
+function smoothPath(P){let d=`M${P[0][0]},${P[0][1]}`;for(let i=0;i<P.length-1;i++){const p0=P[i-1]||P[i],p1=P[i],p2=P[i+1],p3=P[i+2]||p2;
+  d+=` C${p1[0]+(p2[0]-p0[0])/6},${p1[1]+(p2[1]-p0[1])/6} ${p2[0]-(p3[0]-p1[0])/6},${p2[1]-(p3[1]-p1[1])/6} ${p2[0]},${p2[1]}`;}return d;}
+function drawCycle(){
+  const P=STG.map(s=>[s.x,s.y]);
+  let svg=`<svg viewBox="0 0 900 380" role="img" aria-label="Marktzyklus mit Stimmungsphasen">`;
+  svg+=`<rect x="190" y="10" width="140" height="350" rx="8" fill="color-mix(in srgb,var(--short) 7%,transparent)"/><text class="zone" x="260" y="30" text-anchor="middle" fill="var(--short)">GRÖSSTES RISIKO</text>`;
+  svg+=`<rect x="530" y="10" width="140" height="350" rx="8" fill="color-mix(in srgb,var(--long) 7%,transparent)"/><text class="zone" x="600" y="30" text-anchor="middle" fill="var(--long)">GRÖSSTE CHANCE</text>`;
+  svg+=`<path d="${smoothPath(P)}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>`;
+  STG.forEach((s,i)=>{const prev=STG[i-1],next=STG[i+1];const peak=(!prev||s.y<=prev.y)&&(!next||s.y<=next.y);const trough=(!prev||s.y>=prev.y)&&(!next||s.y>=next.y);
+    const above=peak||(!trough&&s.ph!=='Tief'&&s.y<200);const ly=above?s.y-14:s.y+24;
+    svg+=`<g class="pt${i===stSel?' sel':''}" data-i="${i}" tabindex="0" role="button" aria-label="${s.n}"><circle cx="${s.x}" cy="${s.y}" r="5"/><text x="${s.x}" y="${ly}" text-anchor="middle">${s.n}</text></g>`;});
+  $('cycSvg').innerHTML=svg+'</svg>';
+  document.querySelectorAll('#cycSvg g.pt').forEach(g=>{const go=()=>{stSel=+g.dataset.i;store.set('psySel',stSel);drawCycle();};g.onclick=go;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};});
+  const s=STG[stSel];
+  $('stage').innerHTML=`<h3>${s.n} <small>${s.ph}</small></h3><p class="q">${s.q}</p>
+   <div class="sgrid"><div><b>Was der Markt zeigt</b>${s.m}</div><div><b>Was die Großen tun</b>${s.g}</div><div><b>Wyckoff</b>${s.w}</div><div><b>Für dich als Trader</b>${s.t}</div></div>`;
+}
+drawCycle();
+const SELF=[
+ ['Ich habe Angst, den Anstieg zu verpassen, und will schnell noch rein.','Euphorie',3],
+ ['Ich erhöhe meine Positionsgröße, weil es gerade so gut läuft.','Nervenkitzel',2],
+ ['Das ist nur eine kurze Korrektur, ich halte meine Position.','Selbstzufriedenheit',4],
+ ['Ich verschiebe meinen Stop, damit ich nicht ausgestoppt werde.','Verleugnung',6],
+ ['Ich will nur noch raus, egal zu welchem Preis.','Kapitulation',8],
+ ['Ich will meinen Verlust heute noch zurückholen.','Wut',9],
+ ['Ich schaue mir den Markt kaum noch an.','Depression',10],
+ ['Der Anstieg ist sicher nur eine Bärenmarktrally.','Unglaube',11]
+];
+let selfSel=store.get('psySelf',[]);
+$('selfchk').innerHTML=SELF.map((x,i)=>`<label><input type="checkbox" id="sf${i}" ${selfSel.includes(i)?'checked':''}>${x[0]}</label>`).join('');
+SELF.forEach((_,i)=>$('sf'+i).onchange=e=>{selfSel=e.target.checked?[...new Set([...selfSel,i])]:selfSel.filter(v=>v!==i);store.set('psySelf',selfSel);selfRender();});
+function selfRender(){
+  const m=$('selfMsg');
+  if(!selfSel.length){m.className='msg';m.textContent='Nichts angehakt. Gute Voraussetzung für klare Entscheidungen.';return;}
+  const st=[...new Set(selfSel.map(i=>SELF[i][1]))];
+  const hot=selfSel.some(i=>i<=1), pain=selfSel.some(i=>i>=3&&i<=5);
+  m.className='msg '+(hot||pain?'bad':'mid');
+  m.textContent=`Deine Gedanken passen zur Phase ${st.join(', ')}. `+(hot?'Gier verleitet zu großen Positionen kurz vor der Wende. Halte dich strikt an 1 % Risiko. ':'')+(pain?'In dieser Stimmung entstehen die größten Verluste. Kein neuer Trade heute, erst Abstand gewinnen. ':'')+(!hot&&!pain?'Die meisten verpassen genau hier den Einstieg. Prüfe nüchtern, ob der Chart ein höheres Tief zeigt.':'');
+}
+selfRender();
 
 setDir(dir); pivots(); renderChk(); renderJ();
 </script>
