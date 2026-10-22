@@ -127,6 +127,34 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 .matrix td{font-family:var(--body)}
 .matrix td.u{color:var(--long);font-weight:600} .matrix td.d{color:var(--short);font-weight:600} .matrix td.n{color:var(--muted)}
 #wSearch{font-family:var(--body);max-width:360px}
+
+/* Wyckoff */
+.wy-intro{display:grid;gap:8px;max-width:80ch}
+.wy-intro p{margin:0}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:6px;align-content:start;min-width:0}
+.card h3{margin:0;font-size:16px}
+.card p{margin:0;font-size:14px}
+.card .ex{font-size:13px;color:var(--muted)}
+.cycle{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.cycle{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:440px){.cycle{grid-template-columns:minmax(0,1fr)}}
+.cycle .card{border-top:4px solid var(--line)}
+.cycle .acc{border-top-color:var(--long)} .cycle .up{border-top-color:var(--accent)}
+.cycle .dis{border-top-color:var(--warn)} .cycle .dn{border-top-color:var(--short)}
+.cycle .n{font:600 12px var(--mono);color:var(--muted)}
+.schema{overflow-x:auto}
+.schema svg{display:block;width:100%;min-width:640px;height:auto}
+.schema text{font-family:var(--mono);font-size:12px;fill:var(--ink)}
+.schema .ph{font-family:var(--body);font-size:11px;font-weight:600;fill:var(--muted);letter-spacing:.06em}
+.gloss td:first-child{font-weight:600;white-space:nowrap}
+.gloss td{font-family:var(--body);vertical-align:top}
+.gloss td.k{font-family:var(--mono)}
+.phases{display:grid;gap:8px}
+.phases div{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:14px}
+.phases b{font-family:var(--mono)}
+@media (max-width:480px){.phases div{grid-template-columns:minmax(0,1fr)}}
+.warnlist{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px;max-width:80ch}
 /* Wirtschaftskalender */
 .cal{display:grid;gap:14px}
 .day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
@@ -165,6 +193,7 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
   <nav class="tabs" role="tablist" aria-label="Bereiche">
     <button role="tab" id="tb-cockpit" aria-selected="true" aria-controls="cockpit">Cockpit</button>
     <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
+    <button role="tab" id="tb-wyckoff" aria-selected="false" aria-controls="wyckoff">Wyckoff</button>
   </nav>
 
   <div class="tabpane" id="cockpit" role="tabpanel" aria-labelledby="tb-cockpit">
@@ -328,6 +357,137 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
       <h2>Wer profitiert wovon? <span>Branchen-Übersicht</span></h2>
       <p class="why">Grobe Faustregeln für typische Reaktionen. Im Einzelfall können andere Faktoren überwiegen.</p>
       <div class="tablebox"><table class="matrix" id="matrix"></table></div>
+    </section>
+  </div>
+
+  <div class="tabpane" id="wyckoff" role="tabpanel" aria-labelledby="tb-wyckoff" hidden>
+    <div class="rule wy-intro">
+      <h3>Die Wyckoff-Methode</h3>
+      <p>Richard D. Wyckoff entwickelte die Methode in den 1930er-Jahren aus der Beobachtung großer Marktteilnehmer. Die Grundidee: Große Akteure (Fonds, Banken) können ihre Positionen nicht auf einmal kaufen oder verkaufen. Sie bauen sie in Seitwärtsphasen langsam auf und ab. Wer diese Phasen am Zusammenspiel von <b>Preis und Volumen</b> erkennt, kann mit den großen Akteuren statt gegen sie handeln.</p>
+      <p>Wyckoff nannte diese Großen den <b>„Composite Man“</b>: Stell dir den Markt so vor, als würde ihn eine einzige, sehr gut informierte Person steuern, die günstig einkaufen und teuer verkaufen will.</p>
+    </div>
+
+    <section class="panel">
+      <h2>Die drei Gesetze <span>Grundlage</span></h2>
+      <div class="cards3">
+        <div class="card"><h3>Angebot und Nachfrage</h3><p>Ist die Nachfrage größer als das Angebot, steigt der Preis. Ist das Angebot größer, fällt er. Klingt banal, aber jede Kerze und jeder Volumenbalken zeigt dir, wer gerade gewinnt.</p><p class="ex">Am Chart: steigende Kerzen mit hohem Volumen = Nachfrage dominiert.</p></div>
+        <div class="card"><h3>Ursache und Wirkung</h3><p>Eine Seitwärtsphase (Ursache) bereitet die folgende Bewegung (Wirkung) vor. Je länger und breiter die Handelsspanne, desto größer kann der Trend danach werden.</p><p class="ex">Am Chart: eine Spanne über mehrere Wochen trägt weiter als eine über zwei Stunden.</p></div>
+        <div class="card"><h3>Aufwand und Ergebnis</h3><p>Volumen ist der Aufwand, die Preisbewegung das Ergebnis. Passen beide zusammen, ist der Trend gesund. Viel Volumen, aber kaum Bewegung, zeigt, dass jemand auf der Gegenseite absorbiert.</p><p class="ex">Am Chart: Rekordvolumen, aber der DAX kommt nicht mehr höher = Warnsignal.</p></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Der Marktzyklus <span>vier Phasen in fester Reihenfolge</span></h2>
+      <div class="cycle">
+        <div class="card acc"><span class="n">1</span><h3>Akkumulation</h3><p>Nach einem Abwärtstrend läuft der Kurs seitwärts. Große Akteure kaufen unauffällig von verängstigten Verkäufern.</p></div>
+        <div class="card up"><span class="n">2</span><h3>Aufwärtstrend (Markup)</h3><p>Das Angebot ist aufgebraucht, der Kurs bricht nach oben aus. Höhere Hochs und höhere Tiefs.</p></div>
+        <div class="card dis"><span class="n">3</span><h3>Distribution</h3><p>Nach dem Anstieg wieder seitwärts. Die Großen verkaufen an Nachzügler, die jetzt erst einsteigen.</p></div>
+        <div class="card dn"><span class="n">4</span><h3>Abwärtstrend (Markdown)</h3><p>Die Nachfrage ist erschöpft, der Kurs bricht nach unten aus. Danach beginnt der Zyklus von vorn.</p></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Akkumulations-Schema <span>Bodenbildung</span></h2>
+      <div class="schema" id="schemaAcc"></div>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Kürzel</th><th>Name</th><th>Was passiert</th><th>Volumen</th></tr></thead><tbody>
+        <tr><td class="k">PS</td><td>Preliminary Support</td><td>Erste Käufe bremsen den Abwärtstrend.</td><td>steigt</td></tr>
+        <tr><td class="k">SC</td><td>Selling Climax</td><td>Panikverkäufe, starker Abverkauf, Große kaufen die Angebote auf. Markiert meist das untere Ende der Spanne.</td><td>sehr hoch</td></tr>
+        <tr><td class="k">AR</td><td>Automatic Rally</td><td>Schnelle Erholung, weil das Angebot erschöpft ist. Markiert das obere Ende der Spanne.</td><td>mittel</td></tr>
+        <tr><td class="k">ST</td><td>Secondary Test</td><td>Der Kurs testet das SC-Tief erneut, aber mit weniger Verkaufsdruck.</td><td>niedriger als beim SC</td></tr>
+        <tr><td class="k">Spring</td><td>Spring / Shakeout</td><td>Kurzer Bruch unter die Spanne, der Stops auslöst und schnell zurückkommt. Die letzte Falle für Verkäufer und oft der beste Einstieg.</td><td>niedrig bis hoch, Hauptsache schnelle Rückkehr</td></tr>
+        <tr><td class="k">Test</td><td>Test des Springs</td><td>Rücklauf Richtung Spring-Tief, der nicht mehr tiefer fällt.</td><td>niedrig</td></tr>
+        <tr><td class="k">SOS</td><td>Sign of Strength</td><td>Kräftiger Anstieg bis an oder über den Widerstand der Spanne („Creek“).</td><td>hoch</td></tr>
+        <tr><td class="k">LPS</td><td>Last Point of Support</td><td>Rücksetzer nach dem SOS, der über dem alten Bereich hält. Klassischer Nachkaufpunkt.</td><td>niedrig</td></tr>
+        <tr><td class="k">BU</td><td>Back-up</td><td>Nach dem Ausbruch kommt der Kurs zum alten Widerstand zurück, der nun als Unterstützung hält.</td><td>niedrig</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>Distributions-Schema <span>Topbildung</span></h2>
+      <div class="schema" id="schemaDis"></div>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Kürzel</th><th>Name</th><th>Was passiert</th><th>Volumen</th></tr></thead><tbody>
+        <tr><td class="k">PSY</td><td>Preliminary Supply</td><td>Erste größere Verkäufe bremsen den Aufwärtstrend.</td><td>steigt</td></tr>
+        <tr><td class="k">BC</td><td>Buying Climax</td><td>Euphorie, Privatanleger kaufen in Massen, Große verkaufen an sie. Markiert meist das obere Ende der Spanne.</td><td>sehr hoch</td></tr>
+        <tr><td class="k">AR</td><td>Automatic Reaction</td><td>Schneller Rückfall, weil die Kaufkraft erschöpft ist. Markiert das untere Ende der Spanne.</td><td>mittel</td></tr>
+        <tr><td class="k">ST</td><td>Secondary Test</td><td>Der Kurs testet das BC-Hoch erneut, aber mit weniger Kaufdruck.</td><td>niedriger als beim BC</td></tr>
+        <tr><td class="k">UT</td><td>Upthrust</td><td>Kurzer Sprung über das Hoch der Spanne, der wieder abverkauft wird.</td><td>mittel</td></tr>
+        <tr><td class="k">UTAD</td><td>Upthrust after Distribution</td><td>Letzter Fehlausbruch nach oben, der Käufer in die Falle lockt. Gegenstück zum Spring und oft der beste Short-Einstieg.</td><td>oft erhöht</td></tr>
+        <tr><td class="k">SOW</td><td>Sign of Weakness</td><td>Kräftiger Fall bis an oder unter die Unterstützung der Spanne („Ice“).</td><td>hoch</td></tr>
+        <tr><td class="k">LPSY</td><td>Last Point of Supply</td><td>Schwache Erholung nach dem SOW, die unter dem alten Bereich scheitert. Klassischer Short-Nachlegepunkt.</td><td>niedrig</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>Die Phasen A bis E <span>innerhalb einer Spanne</span></h2>
+      <div class="phases">
+        <div><b>Phase A</b><span>Der alte Trend stoppt. Climax (SC bzw. BC), automatische Gegenbewegung (AR) und erster Test (ST) stecken die Spanne ab.</span></div>
+        <div><b>Phase B</b><span>Die eigentliche „Ursache“ wird gebaut. Der Kurs pendelt in der Spanne, die Großen sammeln oder verteilen. Diese Phase dauert am längsten.</span></div>
+        <div><b>Phase C</b><span>Der entscheidende Test: Spring bei Akkumulation, UTAD bei Distribution. Hier zeigt sich, ob noch Gegenkraft da ist.</span></div>
+        <div><b>Phase D</b><span>Der neue Trend setzt sich innerhalb der Spanne durch (SOS und LPS bzw. SOW und LPSY).</span></div>
+        <div><b>Phase E</b><span>Der Kurs verlässt die Spanne und läuft im neuen Trend.</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Volumen lesen <span>Aufwand gegen Ergebnis</span></h2>
+      <div class="tablebox"><table class="gloss"><thead><tr><th>Beobachtung</th><th>Bedeutung</th></tr></thead><tbody>
+        <tr><td>Großer Anstieg, hohes Volumen</td><td>Echte Nachfrage. Gesunder Aufwärtsimpuls.</td></tr>
+        <tr><td>Anstieg mit sinkendem Volumen</td><td>Die Käufer werden müde. Kein Short-Signal allein, aber Vorsicht bei Long-Einstiegen.</td></tr>
+        <tr><td>Hohes Volumen, kleine Kerze</td><td>Absorption: Jemand fängt alles auf. Am Tief oft Akkumulation, am Hoch oft Distribution.</td></tr>
+        <tr><td>Rücksetzer mit niedrigem Volumen</td><td>Kaum Verkaufsdruck. Im Aufwärtstrend ein gutes Zeichen (LPS, BU).</td></tr>
+        <tr><td>Bruch unter die Spanne mit schneller Rückkehr</td><td>Spring. Die Verkäufer konnten den Kurs nicht unten halten.</td></tr>
+        <tr><td>Bruch über die Spanne mit schnellem Abverkauf</td><td>Upthrust bzw. UTAD. Die Käufer konnten den Kurs nicht oben halten.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>Wyckoff am DAX <span>praktische Hinweise</span></h2>
+      <ul class="warnlist">
+        <li><b>Echtes Volumen nutzen:</b> CFDs zeigen nur das Tick-Volumen deines Brokers. Aussagekräftiger ist das Volumen des FDAX-Futures oder, zur Xetra-Zeit, des Kassamarkts. Viele Plattformen bieten den FDAX-Chart auch für CFD-Trader an.</li>
+        <li><b>Zeitrahmen:</b> Saubere Schemata siehst du im 1-Stunden- und 4-Stunden-Chart oder im Tageschart. Im 5-Minuten-Chart funktioniert das Prinzip auch, die Spannen sind aber kleiner und störanfälliger.</li>
+        <li><b>Volumen schwankt mit der Uhrzeit:</b> Zur Xetra-Eröffnung um 9:00, zur US-Eröffnung und zum Xetra-Schluss ist das Volumen immer höher. Vergleiche Volumen deshalb mit der gleichen Tageszeit, nicht mit der Kerze davor.</li>
+        <li><b>Springs an bekannten Marken:</b> Ein Spring unter das Vortagestief, unter S1 oder unter ein Wochentief ist besonders aussagekräftig, weil dort viele Stops liegen. Kombiniere das mit dem Pivot-Rechner im Cockpit.</li>
+        <li><b>Termine beachten:</b> Ein scheinbarer Spring direkt nach Inflationsdaten oder einem Zinsentscheid ist oft nur Nachrichtenlärm. Prüfe den Kalender.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Spring- und UTAD-Trade planen <span>Rechner</span></h2>
+      <div class="row">
+        <div class="seg-toggle" role="group" aria-label="Setup">
+          <button class="l" id="wyL" aria-pressed="true">Spring (Long)</button>
+          <button class="s" id="wyS" aria-pressed="false">UTAD (Short)</button>
+        </div>
+      </div>
+      <div class="fields">
+        <label id="wyLowL">Unterstützung der Spanne<input id="wySup" type="number" value="23900" step="0.5"></label>
+        <label id="wyHighL">Widerstand der Spanne<input id="wyRes" type="number" value="24150" step="0.5"></label>
+        <label id="wyExtL">Spring-Tief<input id="wyExt" type="number" value="23862" step="0.5"></label>
+        <label>Einstieg (nach dem Test)<input id="wyEntry" type="number" value="23930" step="0.5"></label>
+        <label>Stop-Puffer (Pkt)<input id="wyBuf" type="number" value="8" step="1"></label>
+      </div>
+      <dl class="out">
+        <div><dt>Spannenhöhe</dt><dd id="wyH">–</dd></div>
+        <div><dt>Stop</dt><dd id="wyStop">–</dd></div>
+        <div><dt>Ziel 1 (Spannenrand)</dt><dd id="wyT1">–</dd></div>
+        <div><dt>Ziel 2 (Spanne projiziert)</dt><dd id="wyT2">–</dd></div>
+        <div><dt>CRV Ziel 1</dt><dd id="wyC1">–</dd></div>
+        <div><dt>CRV Ziel 2</dt><dd id="wyC2">–</dd></div>
+      </dl>
+      <div class="msg" id="wyMsg"></div>
+      <div class="row"><button class="btn" id="wyUse">In Positionsrechner übernehmen</button></div>
+      <p class="src">Ziel 2 projiziert die Höhe der Spanne über den Ausbruchspunkt. Das ist eine einfache Faustregel. Wyckoff selbst nutzte für Kursziele die Point-and-Figure-Zählung.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Typische Fehler <span>vermeiden</span></h2>
+      <ul class="warnlist">
+        <li>In jeder Seitwärtsphase ein Wyckoff-Schema sehen. Viele Spannen sind einfach nur Pausen im Trend (Reakkumulation oder Redistribution).</li>
+        <li>Den Spring sofort kaufen. Sicherer ist es, auf den Test mit niedrigem Volumen zu warten.</li>
+        <li>Phase B zu früh für beendet halten. Sie dauert oft länger als erwartet.</li>
+        <li>Volumen ignorieren. Ohne Volumen ist Wyckoff nur Linien zeichnen.</li>
+        <li>Den Stop zu eng direkt am Spring-Tief setzen. Ein kleiner Puffer verhindert unnötige Ausstopper.</li>
+      </ul>
     </section>
   </div>
 
@@ -615,12 +775,13 @@ renderCal(); setInterval(renderCal,30000);
 
 /* ---------- Reiter ---------- */
 function showTab(id){
-  ['cockpit','wissen'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  ['cockpit','wissen','wyckoff'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
   store.set('tab',id);
 }
 $('tb-cockpit').onclick=()=>showTab('cockpit');
 $('tb-wissen').onclick=()=>showTab('wissen');
-showTab(location.hash==='#wissen'?'wissen':location.hash==='#cockpit'?'cockpit':store.get('tab','cockpit'));
+$('tb-wyckoff').onclick=()=>showTab('wyckoff');
+showTab(['#wissen','#cockpit','#wyckoff'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
 
 /* ---------- Marktwissen ---------- */
 const TOPICS=[
@@ -727,6 +888,59 @@ const MX=[['Ereignis','Banken','Autobauer','Chemie','Technologie','Immobilien','
  ['Geopolitische Eskalation','d','d','d','d','d','u']];
 const sym={u:'▲ profitiert',d:'▼ belastet',n:'–'};
 $('matrix').innerHTML='<thead><tr>'+MX[0].map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>'+MX.slice(1).map(r=>'<tr><td class="txt"><b>'+r[0]+'</b></td>'+r.slice(1).map(v=>`<td class="${v}">${sym[v]}</td>`).join('')+'</tr>').join('')+'</tbody>';
+
+/* ---------- Wyckoff ---------- */
+function drawSchema(el,flip,labels){
+  // Kursverlauf im Koordinatensystem 760×300; Spanne zwischen y=110 und y=210
+  const P=[[10,30],[90,170,0],[115,140],[150,232,1],[195,110,2],[245,200,3],[285,140],[330,205,4],[372,114],[405,170],[445,246,5],[478,198,6],[540,94,7],[582,134,8],[612,112],[640,120,9],[700,60],[750,18]];
+  const fy=y=>flip?300-y:y, top=flip?90:110, bot=flip?190:210;
+  const bands=[['A',60,215],['B',215,425],['C',425,505],['D',505,650],['E',650,760]];
+  const pts=P.map(p=>p[0]+','+fy(p[1])).join(' ');
+  let svg=`<svg viewBox="0 0 760 330" role="img" aria-label="${flip?'Distributions':'Akkumulations'}-Schema nach Wyckoff">`;
+  bands.forEach((b,i)=>{svg+=`<rect x="${b[1]}" y="0" width="${b[2]-b[1]}" height="300" fill="${i%2?'var(--bg)':'transparent'}"/><text class="ph" x="${(b[1]+b[2])/2}" y="320" text-anchor="middle">PHASE ${b[0]}</text>`;});
+  svg+=`<line x1="60" x2="650" y1="${top}" y2="${top}" stroke="var(--muted)" stroke-dasharray="5 5"/><line x1="60" x2="650" y1="${bot}" y2="${bot}" stroke="var(--muted)" stroke-dasharray="5 5"/>`;
+  svg+=`<text class="ph" x="64" y="${top-6}">${flip?'BC-HOCH':'WIDERSTAND (CREEK)'}</text><text class="ph" x="64" y="${bot+16}">${flip?'UNTERSTÜTZUNG (ICE)':'SC-TIEF'}</text>`;
+  svg+=`<polyline points="${pts}" fill="none" stroke="${flip?'var(--short)':'var(--long)'}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  P.forEach(p=>{if(p[2]===undefined)return;const x=p[0],y=fy(p[1]);const low=flip?(p[1]<150):(p[1]>150);
+    svg+=`<circle cx="${x}" cy="${y}" r="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${low?y+20:y-10}" text-anchor="middle" font-weight="600">${labels[p[2]]}</text>`;});
+  el.innerHTML=svg+'</svg>';
+}
+drawSchema($('schemaAcc'),false,['PS','SC','AR','ST','ST','Spring','Test','SOS','LPS','BU']);
+drawSchema($('schemaDis'),true,['PSY','BC','AR','ST','UT','UTAD','ST','SOW','LPSY','LPSY']);
+
+let wyDir=store.get('wyDir','long');
+['wySup','wyRes','wyExt','wyEntry','wyBuf'].forEach(id=>{const v=store.get('f_'+id,null);if(v!==null)$(id).value=v;$(id).addEventListener('input',()=>{store.set('f_'+id,$(id).value);wyCalc();});});
+function wySet(d,reset){wyDir=d;store.set('wyDir',d);$('wyL').setAttribute('aria-pressed',d==='long');$('wyS').setAttribute('aria-pressed',d==='short');
+  $('wyExtL').firstChild.textContent=d==='long'?'Spring-Tief':'UTAD-Hoch';
+  $('wyEntry').parentNode.firstChild.textContent=d==='long'?'Einstieg (nach dem Test)':'Einstieg (nach dem Rückfall)';
+  if(reset){if(d==='long'){$('wyExt').value=23862;$('wyEntry').value=23930;}else{$('wyExt').value=24188;$('wyEntry').value=24120;}['wyExt','wyEntry'].forEach(id=>store.set('f_'+id,$(id).value));}
+  wyCalc();}
+$('wyL').onclick=()=>wySet('long',true); $('wyS').onclick=()=>wySet('short',true);
+let wyRes=null;
+function wyCalc(){
+  const sup=+$('wySup').value,res=+$('wyRes').value,ext=+$('wyExt').value,e=+$('wyEntry').value,buf=+$('wyBuf').value||0,m=$('wyMsg');
+  const H=res-sup; wyRes=null;
+  const L=wyDir==='long';
+  const stop=L?ext-buf:ext+buf, t1=L?res:sup, t2=L?res+H:sup-H;
+  const risk=Math.abs(e-stop), c1=Math.abs(t1-e)/risk, c2=Math.abs(t2-e)/risk;
+  $('wyH').textContent=fmt(H,0)+' Pkt'; $('wyStop').textContent=fmt(stop,1); $('wyT1').textContent=fmt(t1,1); $('wyT2').textContent=fmt(t2,1);
+  $('wyC1').textContent=isFinite(c1)?'1 : '+fmt(c1,2):'–'; $('wyC2').textContent=isFinite(c2)?'1 : '+fmt(c2,2):'–';
+  m.className='msg';
+  if(!(H>0)){m.className='msg bad';m.textContent='Der Widerstand muss über der Unterstützung liegen.';return;}
+  if(L&&!(ext<sup)){m.className='msg bad';m.textContent='Ein Spring liegt unter der Unterstützung der Spanne. Prüfe das Spring-Tief.';return;}
+  if(!L&&!(ext>res)){m.className='msg bad';m.textContent='Ein UTAD liegt über dem Widerstand der Spanne. Prüfe das UTAD-Hoch.';return;}
+  if(L?!(e>stop&&e<t1):!(e<stop&&e>t1)){m.className='msg bad';m.textContent='Der Einstieg muss zwischen Stop und Ziel 1 liegen.';return;}
+  wyRes={e,stop,t:t2};
+  if(c1<1.5){m.className='msg mid';m.textContent=`Bis zum Spannenrand nur 1 : ${fmt(c1,2)}. Das Setup lohnt sich vor allem, wenn du auf den Ausbruch (Ziel 2) spekulierst. Alternativ Einstieg näher am ${L?'Spring':'UTAD'} suchen.`;}
+  else{m.className='msg good';m.textContent=`Schon bis zum Spannenrand 1 : ${fmt(c1,2)}. Teilgewinn an Ziel 1 und Rest mit nachgezogenem Stop Richtung Ziel 2 ist eine gängige Variante.`;}
+}
+$('wyUse').onclick=()=>{
+  if(!wyRes){$('wyMsg').className='msg bad';$('wyMsg').textContent='Bitte zuerst gültige Werte eingeben.';return;}
+  $('entry').value=wyRes.e;$('stop').value=wyRes.stop;$('target').value=wyRes.t;
+  ['entry','stop','target'].forEach(id=>store.set('f_'+id,$(id).value));
+  setDir(wyDir); showTab('cockpit'); $('acc').scrollIntoView({behavior:'smooth',block:'center'});
+};
+wySet(wyDir,false);
 
 setDir(dir); pivots(); renderChk(); renderJ();
 </script>
