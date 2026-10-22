@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DAX Trading-Cockpit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: Kopfband mit Marktuhr, darunter zweispaltiges Raster aus Werkzeug-Panels, darunter Journal */
+:root{
+  --bg:#f3f4f7; --panel:#ffffff; --ink:#151a24; --muted:#5d6577; --line:#dfe2ea;
+  --accent:#1f4fd1; --accent-soft:#e6ecfb;
+  --long:#0f8a5f; --short:#c23a3a; --warn:#b7791f;
+  --display:"Archivo",system-ui,sans-serif; --body:"Archivo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1118; --panel:#161b26; --ink:#e7eaf2; --muted:#9099ad; --line:#262d3d;
+  --accent:#7d9cff; --accent-soft:#1c2540; --long:#3ec994; --short:#ff7a7a; --warn:#f0b54a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1118; --panel:#161b26; --ink:#e7eaf2; --muted:#9099ad; --line:#262d3d;
+  --accent:#7d9cff; --accent-soft:#1c2540; --long:#3ec994; --short:#ff7a7a; --warn:#f0b54a; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,36px);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 small{display:block;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.clock{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.clock .t{font-size:28px;font-weight:600}
+.clock .z{font-size:12px;color:var(--muted)}
+.sessions{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px}
+.bar{position:relative;height:34px;border-radius:6px;background:var(--bg);overflow:hidden}
+.seg{position:absolute;top:0;bottom:0;display:flex;align-items:center;padding:0 6px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden}
+.seg.fdax{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.seg.xetra{background:color-mix(in srgb,var(--accent) 34%,transparent);color:var(--ink);top:9px;bottom:0}
+.seg.us{background:color-mix(in srgb,var(--warn) 30%,transparent);color:var(--ink);top:18px;bottom:0}
+.now{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--short)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.chip.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chip.hot{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn);border-color:transparent}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:14px;align-content:start;min-width:0}
+.panel h2{margin:0;font-size:17px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel h2 span{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+label{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+input,select,textarea{font:500 15px var(--mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%;font-variant-numeric:tabular-nums}
+textarea{font-family:var(--body);min-height:60px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg-toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg-toggle button{border:0;background:transparent;color:var(--muted);font:600 13px var(--body);padding:7px 14px;cursor:pointer}
+.seg-toggle button[aria-pressed="true"].l{background:var(--long);color:#fff}
+.seg-toggle button[aria-pressed="true"].s{background:var(--short);color:#fff}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.out div{background:var(--panel);padding:10px 12px}
+.out dt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.out dd{margin:2px 0 0;font:600 19px var(--mono);font-variant-numeric:tabular-nums}
+.msg{font-size:13px;padding:8px 12px;border-radius:6px;background:var(--bg);color:var(--muted)}
+.msg.bad{background:color-mix(in srgb,var(--short) 12%,transparent);color:var(--short)}
+.msg.good{background:color-mix(in srgb,var(--long) 12%,transparent);color:var(--long)}
+.msg.mid{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.ladder{font-family:var(--mono);font-variant-numeric:tabular-nums;display:grid;gap:2px}
+.rung{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:6px 10px;border-radius:5px;font-size:14px}
+.rung b{font-weight:600}
+.rung.r{background:color-mix(in srgb,var(--short) 9%,transparent)}
+.rung.s{background:color-mix(in srgb,var(--long) 9%,transparent)}
+.rung.p{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.rung.cur{outline:2px dashed var(--ink);outline-offset:-2px}
+.rung .d{font-size:12px;color:var(--muted)}
+.check{display:grid;gap:6px}
+.check label{display:flex;gap:10px;align-items:flex-start;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;padding:6px 8px;border-radius:6px}
+.check label:hover{background:var(--bg)}
+.check input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.meter{height:8px;border-radius:99px;background:var(--bg);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);transition:width .2s}
+button.btn{font:600 14px var(--body);border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;padding:9px 16px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tablebox{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.txt{font-family:var(--body)}
+.pos{color:var(--long)} .neg{color:var(--short)}
+.stats{display:flex;flex-wrap:wrap;gap:20px;font-size:13px;color:var(--muted)}
+.stats b{font:600 17px var(--mono);color:var(--ink);display:block}
+.x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px}
+footer{font-size:12px;color:var(--muted);max-width:75ch}
+.full{grid-column:1/-1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1><small>Werkzeuge für den DE40</small>DAX Trading-Cockpit</h1>
+    <div class="clock"><div class="t" id="clk">--:--:--</div><div class="z">Frankfurt / Wien · <span id="date"></span></div></div>
+  </header>
+
+  <section class="sessions" aria-label="Handelszeiten heute">
+    <div class="bar" id="bar"></div>
+    <div class="ticks"><span>00</span><span>03</span><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span><span>24</span></div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div class="grid">
+    <!-- Positionsgröße -->
+    <section class="panel">
+      <h2>Positionsgröße &amp; Risiko <span>Rechner</span></h2>
+      <div class="row">
+        <div class="seg-toggle" role="group" aria-label="Richtung">
+          <button class="l" id="dLong" aria-pressed="true">Long</button>
+          <button class="s" id="dShort" aria-pressed="false">Short</button>
+        </div>
+      </div>
+      <div class="fields">
+        <label>Konto (€)<input id="acc" type="number" value="10000" step="100"></label>
+        <label>Risiko pro Trade (%)<input id="riskPct" type="number" value="1" step="0.1"></label>
+        <label>Instrument
+          <select id="inst">
+            <option value="1">CFD / DE40 – 1 € je Punkt</option>
+            <option value="25">FDAX – 25 € je Punkt</option>
+            <option value="5">Mini-DAX FDXM – 5 € je Punkt</option>
+            <option value="1.0001">Micro-DAX FDXS – 1 € je Punkt</option>
+            <option value="custom">Eigener Punktwert</option>
+          </select>
+        </label>
+        <label id="customWrap" hidden>€ je Punkt<input id="customPv" type="number" value="1" step="0.1"></label>
+        <label>Einstieg<input id="entry" type="number" value="24180" step="0.5"></label>
+        <label>Stop-Loss<input id="stop" type="number" value="24140" step="0.5"></label>
+        <label>Kursziel<input id="target" type="number" value="24280" step="0.5"></label>
+        <label>Spread + Gebühr (Pkt)<input id="spread" type="number" value="1.2" step="0.1"></label>
+      </div>
+      <dl class="out">
+        <div><dt>Max. Risiko</dt><dd id="oRisk">–</dd></div>
+        <div><dt>Stop-Abstand</dt><dd id="oDist">–</dd></div>
+        <div><dt>Positionsgröße</dt><dd id="oSize">–</dd></div>
+        <div><dt>Echtes Risiko</dt><dd id="oReal">–</dd></div>
+        <div><dt>Chance</dt><dd id="oGain">–</dd></div>
+        <div><dt>CRV</dt><dd id="oCrv">–</dd></div>
+      </dl>
+      <div class="msg" id="oMsg"></div>
+    </section>
+
+    <!-- Pivots -->
+    <section class="panel">
+      <h2>Pivot-Punkte <span>aus dem Vortag</span></h2>
+      <div class="fields">
+        <label>Hoch<input id="pH" type="number" value="24312" step="0.5"></label>
+        <label>Tief<input id="pL" type="number" value="24051" step="0.5"></label>
+        <label>Schluss<input id="pC" type="number" value="24196" step="0.5"></label>
+        <label>Aktueller Kurs<input id="pNow" type="number" value="24180" step="0.5"></label>
+        <label>Methode
+          <select id="pMode"><option value="classic">Klassisch</option><option value="fib">Fibonacci</option><option value="cam">Camarilla</option></select>
+        </label>
+      </div>
+      <div class="ladder" id="ladder"></div>
+      <div class="msg" id="pMsg"></div>
+    </section>
+
+    <!-- Checkliste -->
+    <section class="panel">
+      <h2>Vor dem Trade <span id="chkCount">0 / 8</span></h2>
+      <div class="meter"><i id="chkBar" style="width:0"></i></div>
+      <div class="check" id="check"></div>
+      <div class="row"><button class="btn ghost" id="chkReset">Checkliste zurücksetzen</button></div>
+    </section>
+
+    <!-- Tagesregeln -->
+    <section class="panel">
+      <h2>Tageslimit <span>Disziplin</span></h2>
+      <div class="fields">
+        <label>Max. Verlust heute (€)<input id="dayMax" type="number" value="300" step="10"></label>
+        <label>Max. Trades heute<input id="dayTrades" type="number" value="4" step="1"></label>
+      </div>
+      <dl class="out">
+        <div><dt>Ergebnis heute</dt><dd id="dPnl">0 €</dd></div>
+        <div><dt>Trades heute</dt><dd id="dCnt">0</dd></div>
+        <div><dt>Puffer bis Limit</dt><dd id="dLeft">–</dd></div>
+      </dl>
+      <div class="msg" id="dMsg"></div>
+    </section>
+
+    <!-- Journal -->
+    <section class="panel full">
+      <h2>Trade-Journal <span>nur in diesem Browser gespeichert</span></h2>
+      <div class="fields">
+        <label>Datum<input id="jDate" type="date"></label>
+        <label>Richtung<select id="jDir"><option>Long</option><option>Short</option></select></label>
+        <label>Einstieg<input id="jIn" type="number" step="0.5"></label>
+        <label>Ausstieg<input id="jOut" type="number" step="0.5"></label>
+        <label>Kontrakte / Stück<input id="jQty" type="number" step="0.1" value="1"></label>
+        <label>€ je Punkt<input id="jPv" type="number" step="0.1" value="1"></label>
+        <label>Setup<select id="jSetup"><option>Opening Range Breakout</option><option>Pivot-Abpraller</option><option>Trendfortsetzung</option><option>Gap-Close</option><option>US-Eröffnung</option><option>Anderes</option></select></label>
+      </div>
+      <label>Notiz<textarea id="jNote" placeholder="Was lief gut, was nicht? Regel eingehalten?"></textarea></label>
+      <div class="row"><button class="btn" id="jAdd">Trade eintragen</button><span class="msg" id="jMsg" hidden></span></div>
+      <div class="stats" id="jStats"></div>
+      <div class="tablebox"><table>
+        <thead><tr><th>Datum</th><th>Richtung</th><th>Ein</th><th>Aus</th><th>Punkte</th><th>Ergebnis</th><th>Setup</th><th>Notiz</th><th></th></tr></thead>
+        <tbody id="jBody"></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <footer>Alle Kurse sind Beispielwerte zum Ausprobieren, keine Live-Daten. Hebelprodukte wie CFDs und Futures können zu Verlusten über den Einsatz hinaus führen. Dieses Werkzeug ist keine Anlageberatung.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const fmt=(n,d=0)=>isFinite(n)?n.toLocaleString('de-AT',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+const eur=(n,d=0)=>isFinite(n)?fmt(n,d)+' €':'–';
+
+/* ---------- Marktuhr ---------- */
+function tzMinutes(tz,date=new Date()){
+  const p=new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(date);
+  const h=+p.find(x=>x.type==='hour').value%24, m=+p.find(x=>x.type==='minute').value; return h*60+m;
+}
+function usOpenBerlin(){ // 09:30 New York in Frankfurter Zeit, inkl. Sommerzeit-Verschiebungen
+  const diff=tzMinutes('Europe/Berlin')-tzMinutes('America/New_York');
+  const d=((diff%1440)+1440)%1440; return 570+d;
+}
+function renderSessions(){
+  const now=new Date(), mins=tzMinutes('Europe/Berlin',now);
+  $('clk').textContent=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(now);
+  $('date').textContent=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Berlin',weekday:'long',day:'numeric',month:'long'}).format(now);
+  const wd=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',weekday:'short'}).format(now);
+  const weekend=wd==='Sat'||wd==='Sun';
+  const us=usOpenBerlin(), usClose=us+390;
+  const pct=m=>(m/1440*100)+'%';
+  const hm=m=>String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+  $('bar').innerHTML=
+    `<div class="seg fdax" style="left:${pct(75)};width:${pct(1320-75)}">FDAX 01:15–22:00</div>`+
+    `<div class="seg xetra" style="left:${pct(540)};width:${pct(1050-540)}">Xetra 09:00–17:30</div>`+
+    `<div class="seg us" style="left:${pct(us)};width:${pct(Math.min(usClose,1440)-us)}">US ${hm(us)}</div>`+
+    `<div class="now" style="left:${pct(mins)}" title="Jetzt"></div>`;
+  const ev=[
+    ['Wochenende – Börsen geschlossen',weekend,'hot'],
+    ['Xetra Vorbörse 08:00',!weekend&&mins>=480&&mins<540,'on'],
+    ['Xetra-Eröffnung: erste 30 Min. volatil',!weekend&&mins>=540&&mins<570,'hot'],
+    ['Xetra-Handel',!weekend&&mins>=570&&mins<1050,'on'],
+    [`US-Daten meist ${hm(us-60)}`,!weekend&&mins>=us-75&&mins<us-45,'hot'],
+    [`Wall-Street-Eröffnung ${hm(us)}`,!weekend&&mins>=us-5&&mins<us+30,'hot'],
+    ['Schlussauktion 17:30–17:35',!weekend&&mins>=1050&&mins<1055,'hot'],
+    ['Nachbörse (FDAX bis 22:00)',!weekend&&mins>=1055&&mins<1320,'on'],
+    ['FDAX geschlossen',!weekend&&(mins<75||mins>=1320),'']
+  ];
+  const act=ev.filter(e=>e[1]);
+  const hint = us!==930 ? [`Achtung: US-Eröffnung heute um ${hm(us)} statt 15:30 (Zeitumstellung)`,true,'hot'] : null;
+  $('chips').innerHTML=[...act,...(hint?[hint]:[])].map(e=>`<span class="chip ${e[2]}">${e[0]}</span>`).join('');
+}
+renderSessions(); setInterval(renderSessions,1000);
+
+/* ---------- Positionsrechner ---------- */
+let dir=store.get('dir','long');
+function setDir(d){dir=d;$('dLong').setAttribute('aria-pressed',d==='long');$('dShort').setAttribute('aria-pressed',d==='short');store.set('dir',d);calc();}
+$('dLong').onclick=()=>setDir('long'); $('dShort').onclick=()=>setDir('short');
+const posIds=['acc','riskPct','inst','customPv','entry','stop','target','spread'];
+posIds.forEach(id=>{const v=store.get('f_'+id,null); if(v!==null) $(id).value=v; $(id).addEventListener('input',()=>{store.set('f_'+id,$(id).value);calc();});});
+function pointValue(){const v=$('inst').value; $('customWrap').hidden=v!=='custom'; return v==='custom'?+$('customPv').value:Math.round(+v);}
+function calc(){
+  const acc=+$('acc').value, rp=+$('riskPct').value, pv=pointValue(), e=+$('entry').value, s=+$('stop').value, t=+$('target').value, sp=+$('spread').value||0;
+  const isFut=['25','5','1.0001'].includes($('inst').value);
+  const maxRisk=acc*rp/100;
+  const msg=$('oMsg'); msg.className='msg';
+  const stopOk = dir==='long'? s<e : s>e;
+  const tgtOk = dir==='long'? t>e : t<e;
+  const dist=Math.abs(e-s), effDist=dist+sp;
+  let size=maxRisk/(effDist*pv);
+  if(isFut) size=Math.floor(size); else size=Math.floor(size*10)/10;
+  const realRisk=size*effDist*pv;
+  const gainPts=Math.abs(t-e)-sp, gain=size*gainPts*pv;
+  const crv=gainPts/effDist;
+  $('oRisk').textContent=eur(maxRisk);
+  $('oDist').textContent=fmt(dist,1)+' Pkt';
+  $('oSize').textContent=isFut?fmt(size)+' Kontr.':fmt(size,1)+' Stk';
+  $('oReal').textContent=eur(realRisk);
+  $('oGain').textContent=eur(gain);
+  $('oCrv').textContent=isFinite(crv)&&crv>0?'1 : '+fmt(crv,2):'–';
+  if(!stopOk){msg.className='msg bad';msg.textContent=`Der Stop liegt auf der falschen Seite. Bei ${dir==='long'?'Long':'Short'} muss er ${dir==='long'?'unter':'über'} dem Einstieg liegen.`;return;}
+  if(!tgtOk){msg.className='msg bad';msg.textContent=`Das Kursziel liegt auf der falschen Seite des Einstiegs.`;return;}
+  if(size<=0){msg.className='msg bad';msg.textContent=isFut?`Für dieses Risiko ist selbst 1 Kontrakt zu groß (1 Kontrakt = ${eur(effDist*pv)} Risiko). Stop enger setzen oder kleineres Instrument wählen.`:'Positionsgröße zu klein. Stop enger setzen oder Risiko erhöhen.';return;}
+  if(crv<1.5){msg.className='msg mid';msg.textContent=`CRV unter 1 : 1,5. Bei diesem Verhältnis brauchst du über ${fmt(100/(1+crv),0)} % Trefferquote, um profitabel zu sein.`;}
+  else{msg.className='msg good';msg.textContent=`Solides Verhältnis. Ab ${fmt(100/(1+crv),0)} % Trefferquote ist das Setup langfristig im Plus (vor Slippage).`;}
+}
+
+/* ---------- Pivots ---------- */
+['pH','pL','pC','pNow','pMode'].forEach(id=>{const v=store.get('f_'+id,null); if(v!==null) $(id).value=v; $(id).addEventListener('input',()=>{store.set('f_'+id,$(id).value);pivots();});});
+function pivots(){
+  const H=+$('pH').value,L=+$('pL').value,C=+$('pC').value,N=+$('pNow').value,m=$('pMode').value,R=H-L;
+  const P=(H+L+C)/3; let lv;
+  if(m==='classic') lv=[['R3',H+2*(P-L)],['R2',P+R],['R1',2*P-L],['P',P],['S1',2*P-H],['S2',P-R],['S3',L-2*(H-P)]];
+  else if(m==='fib') lv=[['R3',P+R],['R2',P+.618*R],['R1',P+.382*R],['P',P],['S1',P-.382*R],['S2',P-.618*R],['S3',P-R]];
+  else lv=[['R4',C+R*1.1/2],['R3',C+R*1.1/4],['R2',C+R*1.1/6],['R1',C+R*1.1/12],['P',P],['S1',C-R*1.1/12],['S2',C-R*1.1/6],['S3',C-R*1.1/4],['S4',C-R*1.1/2]];
+  lv.sort((a,b)=>b[1]-a[1]);
+  let above=null,below=null;
+  lv.forEach(([n,v])=>{if(v>=N&&(!above||v<above[1]))above=[n,v]; if(v<N&&(!below||v>below[1]))below=[n,v];});
+  $('ladder').innerHTML=lv.map(([n,v])=>{
+    const c=n==='P'?'p':n[0]==='R'?'r':'s';
+    const cur=(above&&n===above[0])||(below&&n===below[0])?' cur':'';
+    const d=v-N;
+    return `<div class="rung ${c}${cur}"><b>${n}</b><span>${fmt(v,1)}</span><span class="d">${d>0?'+':''}${fmt(d,1)}</span></div>`;
+  }).join('');
+  const pm=$('pMsg');
+  if(!(H>=L&&C<=H&&C>=L)){pm.className='msg bad';pm.textContent='Schlusskurs muss zwischen Hoch und Tief liegen.';return;}
+  pm.className='msg';
+  pm.textContent=`Kurs ${N>=P?'über':'unter'} dem Pivot (${fmt(P,1)}). Nächster Widerstand: ${above?above[0]+' '+fmt(above[1],1):'keiner'} · nächste Unterstützung: ${below?below[0]+' '+fmt(below[1],1):'keine'}. Vortagesspanne ${fmt(R,0)} Punkte.`;
+}
+
+/* ---------- Checkliste ---------- */
+const items=['Wirtschaftskalender geprüft (z. B. ZEW, ifo, US-Arbeitsmarkt, EZB/Fed)','Trend im übergeordneten Zeitrahmen (1 h / 4 h) bestimmt','Einstieg an klarem Level (Pivot, Vortageshoch/-tief, Gap)','Stop-Loss an technisch sinnvoller Stelle, nicht nach Geldbetrag','CRV mindestens 1 : 1,5','Positionsgröße mit dem Rechner bestimmt','Tageslimit noch nicht erreicht','Ruhig und ohne Revanche-Gedanken an den Trade'];
+let chk=store.get('chk',[]);
+function renderChk(){
+  $('check').innerHTML=items.map((t,i)=>`<label><input type="checkbox" id="c${i}" ${chk.includes(i)?'checked':''}>${t}</label>`).join('');
+  items.forEach((_,i)=>$('c'+i).onchange=e=>{chk=e.target.checked?[...new Set([...chk,i])]:chk.filter(x=>x!==i);store.set('chk',chk);updChk();});
+  updChk();
+}
+function updChk(){$('chkCount').textContent=`${chk.length} / ${items.length}`;$('chkBar').style.width=(chk.length/items.length*100)+'%';}
+$('chkReset').onclick=()=>{chk=[];store.set('chk',chk);renderChk();};
+
+/* ---------- Journal + Tageslimit ---------- */
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Berlin'}).format(new Date());
+const sample=[
+  {d:'2026-10-20',dir:'Long',i:24050,o:24095,q:1,pv:1,setup:'Opening Range Breakout',n:'Beispiel – Ausbruch über die erste 15-Min-Kerze'},
+  {d:'2026-10-21',dir:'Short',i:24260,o:24282,q:1,pv:1,setup:'Pivot-Abpraller',n:'Beispiel – R1 hielt nicht, Stop gezogen'}
+];
+let trades=store.get('trades',null); if(trades===null){trades=sample;}
+['dayMax','dayTrades'].forEach(id=>{const v=store.get('f_'+id,null); if(v!==null) $(id).value=v; $(id).addEventListener('input',()=>{store.set('f_'+id,$(id).value);renderDay();});});
+const pnl=t=>((t.dir==='Long'?t.o-t.i:t.i-t.o)*t.q*t.pv);
+function renderJ(){
+  $('jBody').innerHTML=trades.slice().reverse().map((t,ri)=>{const idx=trades.length-1-ri,p=pnl(t),pts=t.dir==='Long'?t.o-t.i:t.i-t.o;
+    return `<tr><td>${t.d.split('-').reverse().join('.')}</td><td class="txt">${t.dir}</td><td>${fmt(t.i,1)}</td><td>${fmt(t.o,1)}</td><td class="${pts>=0?'pos':'neg'}">${pts>0?'+':''}${fmt(pts,1)}</td><td class="${p>=0?'pos':'neg'}">${eur(p,2)}</td><td class="txt">${t.setup}</td><td class="txt">${t.n||''}</td><td><button class="x" aria-label="Trade löschen" data-i="${idx}">×</button></td></tr>`}).join('')||'<tr><td colspan="9" class="txt" style="color:var(--muted)">Noch keine Trades. Trag oben deinen ersten ein.</td></tr>';
+  document.querySelectorAll('.x').forEach(b=>b.onclick=()=>{trades.splice(+b.dataset.i,1);store.set('trades',trades);renderJ();});
+  const ps=trades.map(pnl), w=ps.filter(x=>x>0), l=ps.filter(x=>x<=0);
+  const sum=ps.reduce((a,b)=>a+b,0), aw=w.length?w.reduce((a,b)=>a+b,0)/w.length:0, al=l.length?l.reduce((a,b)=>a+b,0)/l.length:0;
+  $('jStats').innerHTML=`<div>Trades<b>${trades.length}</b></div><div>Trefferquote<b>${trades.length?fmt(w.length/trades.length*100,0)+' %':'–'}</b></div><div>Gesamt<b class="${sum>=0?'pos':'neg'}">${eur(sum,2)}</b></div><div>Ø Gewinn<b>${eur(aw,2)}</b></div><div>Ø Verlust<b>${eur(al,2)}</b></div><div>Profitfaktor<b>${l.length&&al?fmt(w.reduce((a,b)=>a+b,0)/Math.abs(l.reduce((a,b)=>a+b,0)),2):'–'}</b></div>`;
+  renderDay();
+}
+function renderDay(){
+  const td=trades.filter(t=>t.d===today()), s=td.map(pnl).reduce((a,b)=>a+b,0), max=+$('dayMax').value, mt=+$('dayTrades').value;
+  $('dPnl').textContent=eur(s,2); $('dPnl').className=s>=0?'pos':'neg';
+  $('dCnt').textContent=`${td.length} / ${mt}`;
+  $('dLeft').textContent=eur(max+Math.min(s,0)+Math.max(0,0),0);
+  const m=$('dMsg');
+  if(-s>=max){m.className='msg bad';m.textContent='Tageslimit erreicht. Für heute keine weiteren Trades.';}
+  else if(td.length>=mt){m.className='msg bad';m.textContent='Maximale Anzahl Trades für heute erreicht.';}
+  else if(-s>=max*.6){m.className='msg mid';m.textContent='Über 60 % des Tageslimits verbraucht. Nur noch A-Setups.';}
+  else{m.className='msg good';m.textContent='Im grünen Bereich. Trades von heute zählen hier automatisch aus dem Journal.';}
+}
+$('jDate').value=today();
+$('jAdd').onclick=()=>{
+  const t={d:$('jDate').value,dir:$('jDir').value,i:+$('jIn').value,o:+$('jOut').value,q:+$('jQty').value,pv:+$('jPv').value,setup:$('jSetup').value,n:$('jNote').value.trim()};
+  const jm=$('jMsg'); jm.hidden=false;
+  if(!t.d||!t.i||!t.o||!t.q||!t.pv){jm.className='msg bad';jm.textContent='Bitte Datum, Einstieg, Ausstieg, Stückzahl und Punktwert ausfüllen.';return;}
+  trades.push(t); store.set('trades',trades); $('jIn').value='';$('jOut').value='';$('jNote').value='';
+  jm.className='msg good'; jm.textContent='Trade eingetragen.'; renderJ();
+};
+
+setDir(dir); pivots(); renderChk(); renderJ();
+</script>
+</body>
+</html>
