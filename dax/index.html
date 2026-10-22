@@ -156,6 +156,16 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 .phases b{font-family:var(--mono)}
 @media (max-width:480px){.phases div{grid-template-columns:minmax(0,1fr)}}
 .warnlist{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px;max-width:80ch}
+
+/* DAX Tipps */
+.tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.tips{grid-template-columns:minmax(0,1fr)}}
+.tips .card p,.tips .card li{font-size:14px}
+.tips .card ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.dd{width:100%;border-collapse:collapse;font-size:14px}
+.dd td,.dd th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
+.dd th:first-child,.dd td:first-child{text-align:left}
+.dd td.neg{color:var(--short)} .dd td.pos{color:var(--long)}
 /* Wirtschaftskalender */
 .cal{display:grid;gap:14px}
 .day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
@@ -195,6 +205,7 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
     <button role="tab" id="tb-cockpit" aria-selected="true" aria-controls="cockpit">Cockpit</button>
     <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
     <button role="tab" id="tb-wyckoff" aria-selected="false" aria-controls="wyckoff">Wyckoff</button>
+    <button role="tab" id="tb-tipps" aria-selected="false" aria-controls="tipps">DAX Tipps</button>
   </nav>
 
   <div class="tabpane" id="cockpit" role="tabpanel" aria-labelledby="tb-cockpit">
@@ -512,6 +523,38 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
     </section>
   </div>
 
+  <div class="tabpane" id="tipps" role="tabpanel" aria-labelledby="tb-tipps" hidden>
+    <div class="rule">
+      <h3>Was über Erfolg entscheidet</h3>
+      <p>Werkzeuge helfen beim Rechnen. Ob du langfristig Geld verdienst, hängt aber vor allem an Vorteil, Risiko, Kosten und Disziplin.</p>
+    </div>
+    <div class="tips">
+      <div class="card"><h3>Die nüchterne Ausgangslage kennen</h3><p>CFD-Broker in der EU müssen offenlegen, wie viele ihrer Kunden Geld verlieren. Meist sind das zwischen 70 und 80 Prozent. Das heißt nicht, dass es unmöglich ist. Es heißt aber, dass der Normalfall der Verlust ist und du einen echten Vorteil brauchst, nicht nur ein gutes Gefühl.</p></div>
+      <div class="card"><h3>Einen nachweisbaren Vorteil haben</h3><p>Konzentriere dich auf ein oder zwei Setups, die du genau kennst, zum Beispiel den Opening Range Breakout oder den Spring am Vortagestief. Prüfe sie an echten Daten, bevor du Geld einsetzt. Wenn du nach 50 bis 100 Trades im Journal keinen positiven Profitfaktor hast, ist das Setup nicht gut genug. Das ist keine Frage von Pech.</p></div>
+      <div class="card"><h3>Verluste begrenzen</h3><p>Große Verluste lassen sich kaum aufholen. Deshalb sind 1 % Risiko pro Trade und ein festes Tageslimit so wichtig.</p>
+        <table class="dd"><thead><tr><th>Verlust</th><th>Nötiger Gewinn zum Ausgleich</th></tr></thead><tbody>
+          <tr><td class="neg">−10 %</td><td class="pos">+11 %</td></tr>
+          <tr><td class="neg">−20 %</td><td class="pos">+25 %</td></tr>
+          <tr><td class="neg">−30 %</td><td class="pos">+43 %</td></tr>
+          <tr><td class="neg">−50 %</td><td class="pos">+100 %</td></tr>
+          <tr><td class="neg">−75 %</td><td class="pos">+300 %</td></tr>
+        </tbody></table></div>
+      <div class="card"><h3>Die Kosten im Blick behalten</h3><ul>
+        <li>Der Spread fällt bei jedem Trade an. Bei zehn Trades am Tag mit je 1–2 Punkten Spread kommt viel zusammen.</li>
+        <li>Wer CFDs über Nacht hält, zahlt Finanzierungskosten.</li>
+        <li>Bei wichtigen Daten weiten sich die Spreads oft stark aus.</li></ul></div>
+      <div class="card"><h3>Die Eigenheiten des DAX kennen</h3><ul>
+        <li>Zur Xetra-Eröffnung um 9:00 gibt es oft Kurslücken und hektische erste Minuten.</li>
+        <li>Ab 15:30 (US-Eröffnung) kommt meist ein zweiter Bewegungsschub.</li>
+        <li>Mittags ist der Markt oft ruhig und richtungslos. In dieser Zeit entstehen viele schlechte Trades.</li>
+        <li>Der DAX hängt stark an der Wall Street und an wenigen Schwergewichten wie SAP und Siemens.</li></ul></div>
+      <div class="card"><h3>Psychologie</h3><p>Die meisten Konten gehen nicht an schlechten Setups kaputt, sondern an Revanche-Trades nach einem Verlust, an verschobenen Stops und an zu großen Positionen nach einer Gewinnserie. Hilfreich ist eine feste Regel, zum Beispiel: nach zwei Verlusten in Folge Pause bis zum nächsten Tag.</p></div>
+      <div class="card"><h3>Regelmäßig auswerten</h3><p>Schau dir jeden Sonntag dein Journal an: Welche Setups haben funktioniert? Zu welcher Uhrzeit verlierst du am meisten? Hast du deine Regeln eingehalten? Daraus lernst du mehr als aus jedem neuen Indikator.</p></div>
+      <div class="card"><h3>Steuern in Österreich</h3><p>Gewinne aus CFDs und Futures sind in Österreich mit 27,5 % zu versteuern. Bei einem ausländischen Broker musst du das in der Regel selbst über die Steuererklärung (Beilage E1kv) angeben. Verluste kannst du nur mit Gewinnen aus demselben Jahr verrechnen, nicht mit Gewinnen in späteren Jahren. Das ist keine Steuerberatung, lass dir die Details im Zweifel bestätigen. Das exportierte Journal hilft dir dabei.</p></div>
+      <div class="card"><h3>Klein anfangen</h3><p>Zuerst ein Demokonto, dann die kleinsten Positionen, etwa 1 € je Punkt oder den Micro-DAX. Erhöhe die Größe erst, wenn das Journal über mehrere Monate zeigt, dass deine Regeln funktionieren.</p></div>
+    </div>
+  </div>
+
   <footer>Alle Kurse sind Beispielwerte zum Ausprobieren, keine Live-Daten. Hebelprodukte wie CFDs und Futures können zu Verlusten über den Einsatz hinaus führen. Dieses Werkzeug ist keine Anlageberatung.</footer>
 </div>
 
@@ -796,13 +839,14 @@ renderCal(); setInterval(renderCal,30000);
 
 /* ---------- Reiter ---------- */
 function showTab(id){
-  ['cockpit','wissen','wyckoff'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  ['cockpit','wissen','wyckoff','tipps'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
   store.set('tab',id);
 }
 $('tb-cockpit').onclick=()=>showTab('cockpit');
 $('tb-wissen').onclick=()=>showTab('wissen');
 $('tb-wyckoff').onclick=()=>showTab('wyckoff');
-showTab(['#wissen','#cockpit','#wyckoff'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
+$('tb-tipps').onclick=()=>showTab('tipps');
+showTab(['#wissen','#cockpit','#wyckoff','#tipps'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
 
 /* ---------- Marktwissen ---------- */
 const TOPICS=[
