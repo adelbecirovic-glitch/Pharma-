@@ -211,6 +211,10 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 .selfchk label{display:flex;gap:10px;align-items:flex-start;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;padding:6px 8px;border-radius:6px}
 .selfchk label:hover{background:var(--bg)}
 .selfchk input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--accent)}
+
+/* Chart */
+.chartbox{height:min(72vh,680px);min-height:420px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.chartbox .tradingview-widget-container,.chartbox .tradingview-widget-container__widget{height:100%;width:100%}
 /* Wirtschaftskalender */
 .cal{display:grid;gap:14px}
 .day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
@@ -248,6 +252,7 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 
   <nav class="tabs" role="tablist" aria-label="Bereiche">
     <button role="tab" id="tb-cockpit" aria-selected="true" aria-controls="cockpit">Cockpit</button>
+    <button role="tab" id="tb-chart" aria-selected="false" aria-controls="chart">Chart</button>
     <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
     <button role="tab" id="tb-wyckoff" aria-selected="false" aria-controls="wyckoff">Wyckoff</button>
     <button role="tab" id="tb-tipps" aria-selected="false" aria-controls="tipps">DAX Tipps</button>
@@ -644,6 +649,29 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 
   </div>
 
+  <div class="tabpane" id="chart" role="tabpanel" aria-labelledby="tb-chart" hidden>
+    <div class="row">
+      <label>Kursquelle
+        <select id="chSym">
+          <option value="CAPITALCOM:DE40">DAX-CFD (Capital.com, fast rund um die Uhr)</option>
+          <option value="PEPPERSTONE:GER40">DAX-CFD (Pepperstone)</option>
+          <option value="XETR:DAX">DAX-Index (Xetra, 9:00–17:30)</option>
+          <option value="FOREXCOM:GRXEUR">DAX-CFD (Forex.com)</option>
+        </select>
+      </label>
+      <label>Zeitrahmen
+        <select id="chInt">
+          <option value="1">1 Minute</option><option value="5">5 Minuten</option><option value="15">15 Minuten</option>
+          <option value="60" selected>1 Stunde</option><option value="240">4 Stunden</option><option value="D">1 Tag</option><option value="W">1 Woche</option>
+        </select>
+      </label>
+      <a class="btn ghost" id="chOpen" href="https://www.tradingview.com/chart/?symbol=CAPITALCOM%3ADE40" target="_blank" rel="noopener" style="text-decoration:none;align-self:end">In TradingView öffnen</a>
+    </div>
+    <div class="chartbox" id="chartBox"></div>
+    <div class="msg" id="chMsg" hidden></div>
+    <p class="src">Chart und Kurse von TradingView, je nach Quelle teilweise verzögert. Im Chart kannst du über die Symbolsuche oben links auch andere Werte aufrufen und mit den Werkzeugen links Linien und Zonen einzeichnen. Zeichnungen werden im eingebetteten Chart nicht gespeichert; dafür „In TradingView öffnen“ nutzen.</p>
+  </div>
+
   <footer>Alle Kurse sind Beispielwerte zum Ausprobieren, keine Live-Daten. Hebelprodukte wie CFDs und Futures können zu Verlusten über den Einsatz hinaus führen. Dieses Werkzeug ist keine Anlageberatung.</footer>
 </div>
 
@@ -943,15 +971,17 @@ renderCal(); setInterval(renderCal,30000);
 
 /* ---------- Reiter ---------- */
 function showTab(id){
-  ['cockpit','wissen','wyckoff','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  ['cockpit','chart','wissen','wyckoff','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  if(id==='chart'&&window.chReady)loadChart();
   store.set('tab',id);
 }
 $('tb-cockpit').onclick=()=>showTab('cockpit');
+$('tb-chart').onclick=()=>showTab('chart');
 $('tb-wissen').onclick=()=>showTab('wissen');
 $('tb-wyckoff').onclick=()=>showTab('wyckoff');
 $('tb-tipps').onclick=()=>showTab('tipps');
 $('tb-psy').onclick=()=>showTab('psy');
-showTab(['#wissen','#cockpit','#wyckoff','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
+showTab(['#wissen','#cockpit','#chart','#wyckoff','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
 
 /* ---------- Marktwissen ---------- */
 const TOPICS=[
@@ -1250,6 +1280,31 @@ function selfRender(){
   m.textContent=`Deine Gedanken passen zur Phase ${st.join(', ')}. `+(hot?'Gier verleitet zu großen Positionen kurz vor der Wende. Halte dich strikt an 1 % Risiko. ':'')+(pain?'In dieser Stimmung entstehen die größten Verluste. Kein neuer Trade heute, erst Abstand gewinnen. ':'')+(!hot&&!pain?'Die meisten verpassen genau hier den Einstieg. Prüfe nüchtern, ob der Chart ein höheres Tief zeigt.':'');
 }
 selfRender();
+
+/* ---------- Chart (TradingView) ---------- */
+let chKey='';
+['chSym','chInt'].forEach(id=>{const v=store.get('f_'+id,null);if(v!==null)$(id).value=v;$(id).addEventListener('change',()=>{store.set('f_'+id,$(id).value);loadChart(true);});});
+function isDark(){const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;}
+function loadChart(force){
+  const sym=$('chSym').value, iv=$('chInt').value, dark=isDark(), key=sym+'|'+iv+'|'+dark;
+  $('chOpen').href='https://www.tradingview.com/chart/?symbol='+encodeURIComponent(sym);
+  if(key===chKey&&!force)return; chKey=key;
+  const box=$('chartBox'); box.innerHTML='';
+  const wrap=document.createElement('div');wrap.className='tradingview-widget-container';
+  const inner=document.createElement('div');inner.className='tradingview-widget-container__widget';wrap.appendChild(inner);
+  const sc=document.createElement('script');sc.type='text/javascript';sc.async=true;
+  sc.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.textContent=JSON.stringify({autosize:true,symbol:sym,interval:iv,timezone:'Europe/Berlin',theme:dark?'dark':'light',style:'1',locale:'de_DE',
+    allow_symbol_change:true,hide_side_toolbar:false,withdateranges:true,details:false,calendar:false,studies:['STD;Volume'],support_host:'https://www.tradingview.com'});
+  sc.onerror=()=>chFail();
+  wrap.appendChild(sc); box.appendChild(wrap); $('chMsg').hidden=true;
+  setTimeout(()=>{if(!box.querySelector('iframe'))chFail();},8000);
+}
+function chFail(){const m=$('chMsg');m.hidden=false;m.className='msg mid';
+  m.textContent='Der Chart konnte hier nicht geladen werden. In der Claude-Vorschau sind fremde Inhalte gesperrt; auf der GitHub-Seite funktioniert er. Falls er dort nicht erscheint, wähle eine andere Kursquelle oder nutze „In TradingView öffnen“.';}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(!$('chart').hidden)loadChart();});
+window.chReady=true;
+if(!$('chart').hidden)loadChart();
 
 setDir(dir); pivots(); renderChk(); renderJ();
 </script>
