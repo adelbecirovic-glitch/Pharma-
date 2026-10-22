@@ -145,6 +145,7 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
 .cycle .n{font:600 12px var(--mono);color:var(--muted)}
 .schema{overflow-x:auto}
 .schema svg{display:block;width:100%;min-width:640px;height:auto}
+#galType{flex-wrap:wrap}
 .schema text{font-family:var(--mono);font-size:12px;fill:var(--ink)}
 .schema .ph{font-family:var(--body);font-size:11px;font-weight:600;fill:var(--muted);letter-spacing:.06em}
 .gloss td:first-child{font-weight:600;white-space:nowrap}
@@ -415,6 +416,26 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
         <tr><td class="k">SOW</td><td>Sign of Weakness</td><td>Kräftiger Fall bis an oder unter die Unterstützung der Spanne („Ice“).</td><td>hoch</td></tr>
         <tr><td class="k">LPSY</td><td>Last Point of Supply</td><td>Schwache Erholung nach dem SOW, die unter dem alten Bereich scheitert. Klassischer Short-Nachlegepunkt.</td><td>niedrig</td></tr>
       </tbody></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>Alle Schema-Varianten <span>8 Schemata</span></h2>
+      <div class="row">
+        <div class="seg-toggle" role="group" aria-label="Schema-Typ" id="galType">
+          <button class="f" data-t="acc">Akkumulation</button>
+          <button class="f" data-t="reacc">Reakkumulation</button>
+          <button class="f" data-t="dis">Distribution</button>
+          <button class="f" data-t="redis">Redistribution</button>
+        </div>
+        <div class="seg-toggle" role="group" aria-label="Variante">
+          <button class="f" id="galV1">#1 mit Shakeout</button>
+          <button class="f" id="galV2">#2 ohne Shakeout</button>
+        </div>
+      </div>
+      <h3 id="galTitle" style="margin:0;font-size:16px"></h3>
+      <div class="schema" id="galSvg"></div>
+      <p class="why" id="galText"></p>
+      <p class="src">Weitere Wyckoff-Schemata als Bilder für TradingView gibt es bei <a href="https://dimensionwithin.cloud/ressourcen/" target="_blank" rel="noopener">Dimensionwithin – Ressourcen</a>.</p>
     </section>
 
     <section class="panel">
@@ -890,23 +911,52 @@ const sym={u:'▲ profitiert',d:'▼ belastet',n:'–'};
 $('matrix').innerHTML='<thead><tr>'+MX[0].map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>'+MX.slice(1).map(r=>'<tr><td class="txt"><b>'+r[0]+'</b></td>'+r.slice(1).map(v=>`<td class="${v}">${sym[v]}</td>`).join('')+'</tr>').join('')+'</tbody>';
 
 /* ---------- Wyckoff ---------- */
-function drawSchema(el,flip,labels){
-  // Kursverlauf im Koordinatensystem 760×300; Spanne zwischen y=110 und y=210
-  const P=[[10,30],[90,170,0],[115,140],[150,232,1],[195,110,2],[245,200,3],[285,140],[330,205,4],[372,114],[405,170],[445,246,5],[478,198,6],[540,94,7],[582,134,8],[612,112],[640,120,9],[700,60],[750,18]];
+const MIRROR={PS:'PSY',SC:'BC',AR:'AR',ST:'ST','ST in B':'UT',Spring:'UTAD',Test:'ST',SOS:'SOW',LPS:'LPSY',BU:'LPSY',Hoch:'Tief'};
+function schemaPoints(re,shake){
+  // Koordinaten im Akkumulations-Sinn (760×300, Spanne y=110 bis y=210); Distribution wird gespiegelt
+  const pre=re?[[10,292],[60,190],[100,104,'Hoch'],[150,206,'AR'],[195,116,'ST']]
+              :[[10,30],[90,170,'PS'],[115,140],[150,232,'SC'],[195,110,'AR']];
+  const mid=[[245,200,'ST'],[285,140],[330,205,'ST in B'],[372,114]];
+  const c=shake?[[405,170],[445,246,'Spring'],[478,198,'Test']]:[[405,150],[445,192,'LPS'],[478,168]];
+  const post=[[540,94,'SOS'],[582,134,'LPS'],[612,112],[640,120,'BU'],[700,60],[750,18]];
+  return [...pre,...mid,...c,...post];
+}
+function drawSchema(el,flip,re,shake){
+  const P=schemaPoints(re,shake);
   const fy=y=>flip?300-y:y, top=flip?90:110, bot=flip?190:210;
   const bands=[['A',60,215],['B',215,425],['C',425,505],['D',505,650],['E',650,760]];
-  const pts=P.map(p=>p[0]+','+fy(p[1])).join(' ');
-  let svg=`<svg viewBox="0 0 760 330" role="img" aria-label="${flip?'Distributions':'Akkumulations'}-Schema nach Wyckoff">`;
+  const name=(flip?(re?'Redistribution':'Distribution'):(re?'Reakkumulation':'Akkumulation'))+(shake?' #1':' #2');
+  let svg=`<svg viewBox="0 0 760 330" role="img" aria-label="Wyckoff-Schema ${name}">`;
   bands.forEach((b,i)=>{svg+=`<rect x="${b[1]}" y="0" width="${b[2]-b[1]}" height="300" fill="${i%2?'var(--bg)':'transparent'}"/><text class="ph" x="${(b[1]+b[2])/2}" y="320" text-anchor="middle">PHASE ${b[0]}</text>`;});
   svg+=`<line x1="60" x2="650" y1="${top}" y2="${top}" stroke="var(--muted)" stroke-dasharray="5 5"/><line x1="60" x2="650" y1="${bot}" y2="${bot}" stroke="var(--muted)" stroke-dasharray="5 5"/>`;
-  svg+=`<text class="ph" x="64" y="${top-6}">${flip?'BC-HOCH':'WIDERSTAND (CREEK)'}</text><text class="ph" x="64" y="${bot+16}">${flip?'UNTERSTÜTZUNG (ICE)':'SC-TIEF'}</text>`;
-  svg+=`<polyline points="${pts}" fill="none" stroke="${flip?'var(--short)':'var(--long)'}" stroke-width="2.5" stroke-linejoin="round"/>`;
-  P.forEach(p=>{if(p[2]===undefined)return;const x=p[0],y=fy(p[1]);const low=flip?(p[1]<150):(p[1]>150);
-    svg+=`<circle cx="${x}" cy="${y}" r="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${low?y+20:y-10}" text-anchor="middle" font-weight="600">${labels[p[2]]}</text>`;});
+  svg+=`<text class="ph" x="64" y="${top-6}">${flip?'WIDERSTAND':'WIDERSTAND (CREEK)'}</text><text class="ph" x="64" y="${bot+16}">${flip?'UNTERSTÜTZUNG (ICE)':'UNTERSTÜTZUNG'}</text>`;
+  svg+=`<polyline points="${P.map(p=>p[0]+','+fy(p[1])).join(' ')}" fill="none" stroke="${flip?'var(--short)':'var(--long)'}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  P.forEach(p=>{if(!p[2])return;const x=p[0],y=fy(p[1]),lowPt=p[1]>150,below=flip?!lowPt:lowPt;const lab=flip?(MIRROR[p[2]]||p[2]):p[2];
+    svg+=`<circle cx="${x}" cy="${y}" r="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${below?y+20:y-10}" text-anchor="middle" font-weight="600">${lab}</text>`;});
   el.innerHTML=svg+'</svg>';
 }
-drawSchema($('schemaAcc'),false,['PS','SC','AR','ST','ST','Spring','Test','SOS','LPS','BU']);
-drawSchema($('schemaDis'),true,['PSY','BC','AR','ST','UT','UTAD','ST','SOW','LPSY','LPSY']);
+drawSchema($('schemaAcc'),false,false,true);
+drawSchema($('schemaDis'),true,false,true);
+const GAL={
+  acc:{flip:false,re:false,t:'Akkumulation',d:'Bodenbildung nach einem Abwärtstrend. Große Akteure kaufen, danach folgt der Aufwärtstrend.'},
+  reacc:{flip:false,re:true,t:'Reakkumulation',d:'Pause in einem bestehenden Aufwärtstrend. Schwache Hände steigen aus, Große kaufen nach, danach geht der Aufwärtstrend weiter. Sieht auf den ersten Blick oft wie eine Distribution aus.'},
+  dis:{flip:true,re:false,t:'Distribution',d:'Topbildung nach einem Aufwärtstrend. Große Akteure verkaufen, danach folgt der Abwärtstrend.'},
+  redis:{flip:true,re:true,t:'Redistribution',d:'Pause in einem bestehenden Abwärtstrend. Kurze Erholungen locken Käufer an, danach geht der Abwärtstrend weiter. Sieht auf den ersten Blick oft wie eine Akkumulation aus.'}
+};
+let galT=store.get('galT','acc'), galS=store.get('galS',true);
+function renderGal(){
+  const g=GAL[galT];
+  document.querySelectorAll('#galType button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===galT));
+  $('galV1').setAttribute('aria-pressed',galS); $('galV2').setAttribute('aria-pressed',!galS);
+  drawSchema($('galSvg'),g.flip,g.re,galS);
+  const up=!g.flip, shakeName=up?'Spring':'UTAD';
+  $('galTitle').textContent=`${g.t} ${galS?'#1':'#2'}`;
+  $('galText').textContent=g.d+' '+(galS?`Variante #1: In Phase C gibt es einen ${shakeName}, also einen kurzen Fehlausbruch ${up?'unter':'über'} die Spanne, der Stops auslöst und schnell zurückkommt.`:`Variante #2: Kein ${shakeName}. Phase C zeigt stattdessen ein ${up?'höheres Tief (LPS)':'tieferes Hoch (LPSY)'} innerhalb der Spanne. Das ist schwerer zu erkennen, weil das auffällige Signal fehlt.`);
+}
+document.querySelectorAll('#galType button').forEach(b=>b.onclick=()=>{galT=b.dataset.t;store.set('galT',galT);renderGal();});
+$('galV1').onclick=()=>{galS=true;store.set('galS',true);renderGal();};
+$('galV2').onclick=()=>{galS=false;store.set('galS',false);renderGal();};
+renderGal();
 
 let wyDir=store.get('wyDir','long');
 ['wySup','wyRes','wyExt','wyEntry','wyBuf'].forEach(id=>{const v=store.get('f_'+id,null);if(v!==null)$(id).value=v;$(id).addEventListener('input',()=>{store.set('f_'+id,$(id).value);wyCalc();});});
