@@ -56,6 +56,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 .seg-toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg-toggle button{border:0;background:transparent;color:var(--muted);font:600 13px var(--body);padding:7px 14px;cursor:pointer}
 .seg-toggle button[aria-pressed="true"].l{background:var(--long);color:#fff}
+.seg-toggle button[aria-pressed="true"].f{background:var(--accent);color:#fff}
 .seg-toggle button[aria-pressed="true"].s{background:var(--short);color:#fff}
 .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .out div{background:var(--panel);padding:10px 12px}
@@ -93,6 +94,30 @@ td.txt{font-family:var(--body)}
 .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px}
 footer{font-size:12px;color:var(--muted);max-width:75ch}
 .full{grid-column:1/-1}
+/* Wirtschaftskalender */
+.cal{display:grid;gap:14px}
+.day h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
+.day h3 .today{color:var(--accent)}
+.ev{display:grid;grid-template-columns:52px 34px 1fr auto;gap:10px;align-items:center;padding:7px 10px;border-radius:6px;font-size:14px}
+.ev+.ev{border-top:1px solid var(--line)}
+.ev time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.ev .cc{font:600 11px var(--mono);text-align:center;padding:2px 0;border-radius:4px;background:var(--bg);color:var(--muted)}
+.ev .what{min-width:0}
+.ev .what small{display:block;font-size:12px;color:var(--muted)}
+.ev.past{opacity:.45}
+.ev.next{background:var(--accent-soft);outline:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+.ev.w3 .cc{background:color-mix(in srgb,var(--short) 16%,transparent);color:var(--short)}
+.ev.w2 .cc{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.imp{display:flex;gap:3px}
+.imp i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.imp i.f{background:var(--ink)}
+.nextbox{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nextbox b{font-family:var(--mono);font-size:18px}
+.src{font-size:12px;color:var(--muted)}
+.src a{color:var(--accent)}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+@media (max-width:520px){.ev{grid-template-columns:46px 30px 1fr}.ev .imp{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -108,6 +133,32 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
     <div class="bar" id="bar"></div>
     <div class="ticks"><span>00</span><span>03</span><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span><span>24</span></div>
     <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="panel" aria-label="Wirtschaftskalender">
+    <h2>Wirtschaftskalender <span>Zeiten in Frankfurt / Wien</span></h2>
+    <div class="nextbox" id="calNext"></div>
+    <div class="row">
+      <div class="seg-toggle" role="group" aria-label="Filter">
+        <button id="fAll" class="f" aria-pressed="true">Alle Termine</button>
+        <button id="fHigh" class="f" aria-pressed="false">Nur wichtige</button>
+        <button id="fMacro" class="f" aria-pressed="false">Ohne Firmenzahlen</button>
+      </div>
+      <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink)"><input type="checkbox" id="fPast" style="width:auto"> Vergangene ausblenden</label>
+    </div>
+    <div class="cal" id="cal"></div>
+    <details>
+      <summary style="cursor:pointer;font-weight:600;font-size:14px">Eigenen Termin hinzufügen</summary>
+      <div class="fields" style="margin-top:10px">
+        <label>Datum<input id="uDate" type="date"></label>
+        <label>Uhrzeit<input id="uTime" type="time" value="14:30"></label>
+        <label>Land<select id="uCc"><option>DE</option><option>EU</option><option>US</option><option>AT</option><option>CN</option><option>UK</option></select></label>
+        <label>Wichtigkeit<select id="uW"><option value="3">Hoch</option><option value="2" selected>Mittel</option><option value="1">Gering</option></select></label>
+        <label style="grid-column:1/-1">Termin<input id="uE" type="text" placeholder="z. B. US-Arbeitsmarktbericht November" style="font-family:var(--body)"></label>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="uAdd">Termin hinzufügen</button><span class="msg" id="uMsg" hidden></span></div>
+    </details>
+    <p class="src" id="calSrc"></p>
   </section>
 
   <div class="grid">
@@ -202,6 +253,12 @@ footer{font-size:12px;color:var(--muted);max-width:75ch}
       </div>
       <label>Notiz<textarea id="jNote" placeholder="Was lief gut, was nicht? Regel eingehalten?"></textarea></label>
       <div class="row"><button class="btn" id="jAdd">Trade eintragen</button><span class="msg" id="jMsg" hidden></span></div>
+      <div class="row">
+        <button class="btn ghost" id="jCsv">Als Excel-Tabelle (CSV) herunterladen</button>
+        <button class="btn ghost" id="jCopy">Tabelle kopieren</button>
+        <span class="btn ghost filebtn" role="button">CSV importieren<input type="file" id="jImport" accept=".csv,text/csv" aria-label="CSV importieren"></span>
+      </div>
+      <div class="msg" id="jExMsg" hidden></div>
       <div class="stats" id="jStats"></div>
       <div class="tablebox"><table>
         <thead><tr><th>Datum</th><th>Richtung</th><th>Ein</th><th>Aus</th><th>Punkte</th><th>Ergebnis</th><th>Setup</th><th>Notiz</th><th></th></tr></thead>
@@ -363,6 +420,133 @@ $('jAdd').onclick=()=>{
   trades.push(t); store.set('trades',trades); $('jIn').value='';$('jOut').value='';$('jNote').value='';
   jm.className='msg good'; jm.textContent='Trade eingetragen.'; renderJ();
 };
+
+/* ---------- Journal-Export ---------- */
+const num=(n,d=2)=>isFinite(n)?n.toFixed(d).replace('.',','):'';
+function journalRows(){
+  const head=['Datum','Richtung','Einstieg','Ausstieg','Stück','€ je Punkt','Punkte','Ergebnis €','Setup','Notiz'];
+  const rows=trades.map(t=>{const pts=t.dir==='Long'?t.o-t.i:t.i-t.o;return [t.d.split('-').reverse().join('.'),t.dir,num(t.i,1),num(t.o,1),num(t.q,1),num(t.pv,2),num(pts,1),num(pnl(t),2),t.setup,t.n||''];});
+  return [head,...rows];
+}
+function exMsg(cls,txt){const m=$('jExMsg');m.hidden=false;m.className='msg '+cls;m.textContent=txt;}
+$('jCsv').onclick=()=>{
+  if(!trades.length){exMsg('bad','Das Journal ist leer. Trag zuerst einen Trade ein.');return;}
+  const csv='﻿'+journalRows().map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  try{
+    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download='dax-journal-'+today()+'.csv';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    exMsg('good','Datei dax-journal-'+today()+'.csv wird heruntergeladen. Sie öffnet sich direkt in Excel. Falls kein Download startet, nutze „Tabelle kopieren“.');
+  }catch(e){exMsg('bad','Der Download ist hier blockiert. Nutze „Tabelle kopieren“ und füge sie in Excel ein.');}
+};
+$('jCopy').onclick=()=>{
+  if(!trades.length){exMsg('bad','Das Journal ist leer. Trag zuerst einen Trade ein.');return;}
+  const tsv=journalRows().map(r=>r.map(c=>String(c).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
+  const fallback=()=>{const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');exMsg('good','Tabelle kopiert. In Excel oder Google Sheets einfügen.');}catch(e){exMsg('bad','Kopieren nicht möglich.');}ta.remove();};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(tsv).then(()=>exMsg('good','Tabelle kopiert. In Excel oder Google Sheets einfügen.'),fallback);}else fallback();
+};
+function parseCsv(text){
+  text=text.replace(/^﻿/,'');const rows=[];let row=[],cur='',q=false;
+  const sep=(text.split('\n')[0].match(/;/g)||[]).length>=(text.split('\n')[0].match(/,/g)||[]).length?';':',';
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
+    else if(ch==='"')q=true; else if(ch===sep){row.push(cur);cur='';}
+    else if(ch==='\n'){row.push(cur.replace(/\r$/,''));rows.push(row);row=[];cur='';}
+    else cur+=ch;}
+  if(cur||row.length){row.push(cur);rows.push(row);}
+  return rows;
+}
+$('jImport').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    const rows=parseCsv(r.result).filter(x=>x.length>=8); const n=s=>parseFloat(String(s).replace(/\./g,'').replace(',','.'));
+    const nf=s=>parseFloat(String(s).replace(',','.'));
+    let added=0; const keys=new Set(trades.map(t=>[t.d,t.dir,t.i,t.o].join('|')));
+    rows.slice(1).forEach(c=>{const dm=c[0].split('.');if(dm.length!==3)return;
+      const t={d:`${dm[2]}-${dm[1].padStart(2,'0')}-${dm[0].padStart(2,'0')}`,dir:c[1]==='Short'?'Short':'Long',i:nf(c[2]),o:nf(c[3]),q:nf(c[4]),pv:nf(c[5]),setup:c[8]||'Anderes',n:c[9]||''};
+      const k=[t.d,t.dir,t.i,t.o].join('|'); if(!isFinite(t.i)||!isFinite(t.o)||keys.has(k))return; keys.add(k); trades.push(t); added++;});
+    trades.sort((a,b)=>a.d.localeCompare(b.d)); store.set('trades',trades); renderJ();
+    exMsg(added?'good':'mid',added?`${added} Trades importiert. Doppelte Einträge wurden übersprungen.`:'Keine neuen Trades gefunden. Nutze eine CSV-Datei, die mit diesem Cockpit exportiert wurde.');
+    e.target.value='';
+  };
+  r.readAsText(f,'utf-8');
+};
+
+/* ---------- Wirtschaftskalender ---------- */
+// Termine der KW 44 laut finanznachrichten.de (Dow Jones Wochenvorschau) und LBBW; Fed-Termine laut federalreserve.gov
+const CAL=[
+  ['2026-10-26T10:00','DE','ifo-Geschäftsklimaindex Oktober',3,'k'],
+  ['2026-10-27T07:30','DE','Porsche AG – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-27T08:00','DE','Beiersdorf – Zahlen 9 Monate',1,'u'],
+  ['2026-10-27T13:30','US','Auftragseingang langlebiger Güter September',2,'k'],
+  ['2026-10-27T15:00','US','Verbrauchervertrauen Oktober (Conference Board)',2,'k'],
+  ['2026-10-28T07:00','DE','Deutsche Bank, BASF, Mercedes-Benz – Zahlen 3. Quartal',2,'u'],
+  ['2026-10-28T07:30','DE','Symrise – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-28T08:00','DE','GfK/NIM-Konsumklima November',1,'k'],
+  ['2026-10-28T19:00','US','Fed-Zinsentscheid (FOMC)',3,'z','Pressekonferenz meist 30 Min. später'],
+  ['2026-10-29T07:30','DE','Adidas, Volkswagen – Zahlen 9 Monate',2,'u'],
+  ['2026-10-29T08:00','DE','MTU Aero Engines – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-29T11:00','EU','Wirtschaftsstimmung Eurozone Oktober',1,'k'],
+  ['2026-10-29T13:30','US','BIP 3. Quartal, erste Schätzung',3,'k'],
+  ['2026-10-29T13:30','US','Persönliche Ausgaben und Einkommen September',2,'k'],
+  ['2026-10-29T14:15','EU','EZB-Zinsentscheid',3,'z'],
+  ['2026-10-29T14:45','EU','EZB-Pressekonferenz',3,'z'],
+  ['2026-10-30T09:55','DE','Arbeitsmarktdaten Oktober',2,'k'],
+  ['2026-10-30T10:00','DE','BIP 3. Quartal, erste Veröffentlichung',3,'k'],
+  ['2026-10-30T11:00','EU','BIP Eurozone 3. Quartal',2,'k'],
+  ['2026-10-30T13:30','US','Arbeitskostenindex 3. Quartal',1,'k'],
+  ['2026-10-30T14:00','DE','Verbraucherpreise Oktober (vorläufig)',3,'k'],
+  ['2026-10-30T14:45','US','Einkaufsmanagerindex Chicago Oktober',1,'k'],
+  ['2026-12-09T20:00','US','Fed-Zinsentscheid (FOMC) mit Projektionen',3,'z','Sitzung 8.–9. Dezember']
+];
+// Ab 25.10. gilt in Frankfurt/Wien MEZ (UTC+1)
+const toDate=s=>new Date(s+':00+01:00');
+let uCal=store.get('calUser',[]);
+let calFilter=store.get('calFilter','all');
+$('fPast').checked=store.get('calPast',false);
+function allEvents(){
+  return [...CAL.map(e=>({d:toDate(e[0]),cc:e[1],e:e[2],w:e[3],k:e[4],note:e[5]||''})),
+          ...uCal.map((e,i)=>({d:new Date(e.d),cc:e.cc,e:e.e,w:e.w,k:'x',note:'Eigener Termin',ui:i}))].sort((a,b)=>a.d-b.d);
+}
+const dayKey=d=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Berlin'}).format(d);
+const hmB=d=>new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit'}).format(d);
+function countdown(ms){const m=Math.max(0,Math.round(ms/60000)),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return (d?d+' T ':'')+(d||h?h+' Std ':'')+mi+' Min';}
+function renderCal(){
+  ['fAll','fHigh','fMacro'].forEach(id=>$(id).setAttribute('aria-pressed',({all:'fAll',high:'fHigh',macro:'fMacro'})[calFilter]===id));
+  const now=new Date(), hidePast=$('fPast').checked;
+  let ev=allEvents();
+  if(calFilter==='high') ev=ev.filter(e=>e.w===3);
+  if(calFilter==='macro') ev=ev.filter(e=>e.k!=='u');
+  const nextEv=allEvents().find(e=>e.d>now&&e.w>=2);
+  $('calNext').innerHTML=nextEv?`<span>Nächster wichtiger Termin:</span> <span>${nextEv.cc} · ${nextEv.e}</span> <b>in ${countdown(nextEv.d-now)}</b>`:'<span>Keine weiteren wichtigen Termine eingetragen. Füge unten eigene hinzu.</span>';
+  if(hidePast) ev=ev.filter(e=>e.d>now-15*60000);
+  const groups={}; ev.forEach(e=>{(groups[dayKey(e.d)]=groups[dayKey(e.d)]||[]).push(e);});
+  const tk=dayKey(now);
+  $('cal').innerHTML=Object.keys(groups).map(k=>{
+    const label=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Berlin',weekday:'long',day:'numeric',month:'long'}).format(groups[k][0].d);
+    return `<div class="day"><h3>${label}${k===tk?' <span class="today">· heute</span>':''}</h3>`+groups[k].map(e=>{
+      const past=e.d<now-15*60000, isNext=nextEv&&e.d.getTime()===nextEv.d.getTime()&&e.e===nextEv.e;
+      return `<div class="ev w${e.w}${past?' past':''}${isNext?' next':''}"><time>${hmB(e.d)}</time><span class="cc">${e.cc}</span><span class="what">${e.e}${e.note?`<small>${e.note}</small>`:''}</span><span class="imp" title="Wichtigkeit">${[1,2,3].map(i=>`<i class="${i<=e.w?'f':''}"></i>`).join('')}${e.ui!==undefined?`<button class="x" data-u="${e.ui}" aria-label="Termin löschen">×</button>`:''}</span></div>`;}).join('')+'</div>';
+  }).join('')||'<div class="msg">Keine Termine für diesen Filter.</div>';
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{uCal.splice(+b.dataset.u,1);store.set('calUser',uCal);renderCal();});
+}
+$('fAll').onclick=()=>{calFilter='all';store.set('calFilter',calFilter);renderCal();};
+$('fHigh').onclick=()=>{calFilter='high';store.set('calFilter',calFilter);renderCal();};
+$('fMacro').onclick=()=>{calFilter='macro';store.set('calFilter',calFilter);renderCal();};
+$('fPast').onchange=()=>{store.set('calPast',$('fPast').checked);renderCal();};
+$('uDate').value=today();
+$('uAdd').onclick=()=>{
+  const d=$('uDate').value,t=$('uTime').value,e=$('uE').value.trim(),m=$('uMsg');m.hidden=false;
+  if(!d||!t||!e){m.className='msg bad';m.textContent='Bitte Datum, Uhrzeit und Termin ausfüllen.';return;}
+  // Ortszeit Frankfurt/Wien in echten Zeitpunkt umrechnen
+  const guess=new Date(d+'T'+t+':00Z'); const off=tzMinutes('Europe/Berlin',guess)-tzMinutes('UTC',guess);
+  const real=new Date(guess.getTime()-((off+1440)%1440>720?(off+1440)%1440-1440:(off+1440)%1440)*60000);
+  uCal.push({d:real.toISOString(),cc:$('uCc').value,e,w:+$('uW').value}); store.set('calUser',uCal);
+  $('uE').value=''; m.className='msg good'; m.textContent='Termin hinzugefügt.'; renderCal();
+};
+$('calSrc').innerHTML='Termine laut <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69858898-wochenvorschau-26-oktober-bis-1-november-44-kw-015.htm" target="_blank" rel="noopener">Wochenvorschau KW 44</a>, <a href="https://www.lbbw.de/artikel/maerkte-verstehen/termine-oktober-2026_anjnmvdjip_d.html" target="_blank" rel="noopener">LBBW</a> und <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">Federal Reserve</a>, Stand 22. Oktober 2026. Termine können sich kurzfristig ändern.';
+renderCal(); setInterval(renderCal,30000);
 
 setDir(dir); pivots(); renderChk(); renderJ();
 </script>
