@@ -500,8 +500,9 @@ const CAL=[
   ['2026-10-30T14:45','US','Einkaufsmanagerindex Chicago Oktober',1,'k'],
   ['2026-12-09T20:00','US','Fed-Zinsentscheid (FOMC) mit Projektionen',3,'z','Sitzung 8.–9. Dezember']
 ];
-// Ab 25.10. gilt in Frankfurt/Wien MEZ (UTC+1)
-const toDate=s=>new Date(s+':00+01:00');
+// Ortszeit Frankfurt/Wien (MEZ oder MESZ) in echten Zeitpunkt umrechnen
+function berlinToDate(d,t){const g=new Date(d+'T'+t+':00Z');let off=(tzMinutes('Europe/Berlin',g)-tzMinutes('UTC',g)+1440)%1440;if(off>720)off-=1440;return new Date(g.getTime()-off*60000);}
+const toDate=s=>berlinToDate(s.slice(0,10),s.slice(11,16));
 let uCal=store.get('calUser',[]);
 let calFilter=store.get('calFilter','all');
 $('fPast').checked=store.get('calPast',false);
@@ -540,8 +541,7 @@ $('uAdd').onclick=()=>{
   const d=$('uDate').value,t=$('uTime').value,e=$('uE').value.trim(),m=$('uMsg');m.hidden=false;
   if(!d||!t||!e){m.className='msg bad';m.textContent='Bitte Datum, Uhrzeit und Termin ausfüllen.';return;}
   // Ortszeit Frankfurt/Wien in echten Zeitpunkt umrechnen
-  const guess=new Date(d+'T'+t+':00Z'); const off=tzMinutes('Europe/Berlin',guess)-tzMinutes('UTC',guess);
-  const real=new Date(guess.getTime()-((off+1440)%1440>720?(off+1440)%1440-1440:(off+1440)%1440)*60000);
+  const real=berlinToDate(d,t);
   uCal.push({d:real.toISOString(),cc:$('uCc').value,e,w:+$('uW').value}); store.set('calUser',uCal);
   $('uE').value=''; m.className='msg good'; m.textContent='Termin hinzugefügt.'; renderCal();
 };
