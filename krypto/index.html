@@ -116,7 +116,7 @@ footer a{color:var(--accent)}
   <header>
     <div>
       <h1>Krypto-Kaufzonen</h1>
-      <p class="lede">Deine 49 Coins mit aktuellem Kurs und deinem Wunsch-Einkaufspreis. Ganz oben steht, was am nächsten an deiner Kaufzone ist.</p>
+      <p class="lede">Deine 50 Coins mit aktuellem Kurs und deinem Wunsch-Einkaufspreis. Ganz oben steht, was am nächsten an deiner Kaufzone ist.</p>
     </div>
     <div class="live" id="live"><span class="dot" aria-hidden="true"></span><span id="liveText">Momentaufnahme vom 22.10.2026, 19:00</span><button type="button" id="refresh">Jetzt aktualisieren</button></div>
   </header>
@@ -124,12 +124,12 @@ footer a{color:var(--accent)}
   <section class="summary" aria-label="Übersicht">
     <div class="stat"><span class="k"><i style="background:var(--zone)"></i>In der Kaufzone</span><span class="v" id="n-zone">10</span><span class="s" id="n-zone-sub">ADA, PEPE, PI, ETC, WLD, TRUMP, BONK, IOTA, VSN, GRASS</span></div>
     <div class="stat"><span class="k"><i style="background:var(--near)"></i>Nahe dran (bis 15 %)</span><span class="v" id="n-near">0</span><span class="s" id="n-near-sub">Gerade keiner</span></div>
-    <div class="stat"><span class="k"><i style="background:var(--far)"></i>Noch weit weg</span><span class="v" id="n-far">39</span><span class="s" id="n-far-sub">Im Schnitt noch −60 %</span></div>
+    <div class="stat"><span class="k"><i style="background:var(--far)"></i>Noch weit weg</span><span class="v" id="n-far">40</span><span class="s" id="n-far-sub">Im Schnitt noch −60 %</span></div>
   </section>
 
   <div class="controls">
     <div class="chips" role="group" aria-label="Filter">
-      <button type="button" class="chip" data-f="all" aria-pressed="true">Alle<span class="n" id="c-all">49</span></button>
+      <button type="button" class="chip" data-f="all" aria-pressed="true">Alle<span class="n" id="c-all">50</span></button>
       <button type="button" class="chip" data-f="zone" aria-pressed="false">Kaufzone<span class="n" id="c-zone">10</span></button>
       <button type="button" class="chip" data-f="near" aria-pressed="false">Nahe dran<span class="n" id="c-near">0</span></button>
     </div>
@@ -289,6 +289,12 @@ footer a{color:var(--accent)}
     <td class="num target">$ 30,00</td>
     <td class="status"><span class="pill far">noch −48,9 %</span></td>
     <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:51.1%;background:var(--accent)"></i></span></span></td>
+  </tr><tr class="far">
+    <td class="coin"><span class="tick">AKT</span><span class="name">Akash Network</span></td>
+    <td class="num price">$ 0,704<span class="chg up">+3,9 %</span></td>
+    <td class="num target">$ 0,35555</td>
+    <td class="status"><span class="pill far">noch −49,5 %</span></td>
+    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:50.5%;background:var(--accent)"></i></span></span></td>
   </tr><tr class="far">
     <td class="coin"><span class="tick">ETH</span><span class="name">Ethereum</span></td>
     <td class="num price">$ 2 383<span class="chg down">−5,0 %</span></td>
@@ -471,6 +477,7 @@ const DATA = [
  ["JASMY","JasmyCoin",0.002834,0.004580,-4.20],["FLOKI","FLOKI",0.00001616,0.00002348,-6.50],["VSN","Vision",0.05364,0.03953,-1.51],
  ["KITE","Kite",0.09,0.1228,0.71],["MELANIA","Official Melania",0.005,0.08157,-7.72],["LIT","Lighter",2.5,3.60,3.65],
  ["GRASS","Grass",1.5,0.6275,-7.60],
+ ["AKT","Akash Network",0.35555,0.7040,3.90],
 ];
 const NEAR_PCT = 15;
 const COINS = DATA.map(([tick,name,target,price,chg])=>({tick,name,target,price,chg}));
