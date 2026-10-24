@@ -15,7 +15,7 @@
   --bg:#f3f5f7; --surface:#ffffff; --fg:#14202b; --muted:#5d6b78; --line:#dde3e9;
   --accent:#1f6f8b; --accent-soft:#e1eef3;
   --zone:#13804f; --zone-soft:#dcf2e6; --near:#a86200; --near-soft:#fbeed8; --far:#5d6b78; --far-soft:#eceff2;
-  --down:#c0392b; --up:#13804f;
+  --down:#c0392b; --down-soft:#fbe3e0; --up:#13804f;
   --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
@@ -24,12 +24,12 @@
   --bg:#0e151c; --surface:#151f28; --fg:#e6edf3; --muted:#8fa0af; --line:#25323e;
   --accent:#5cb8d6; --accent-soft:#16303b;
   --zone:#3fcf8a; --zone-soft:#123326; --near:#f0b45a; --near-soft:#3a2a12; --far:#8fa0af; --far-soft:#1c2833;
-  --down:#ff7a6b; --up:#3fcf8a; color-scheme:dark}}
+  --down:#ff7a6b; --down-soft:#3a1a17; --up:#3fcf8a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e151c; --surface:#151f28; --fg:#e6edf3; --muted:#8fa0af; --line:#25323e;
   --accent:#5cb8d6; --accent-soft:#16303b;
   --zone:#3fcf8a; --zone-soft:#123326; --near:#f0b45a; --near-soft:#3a2a12; --far:#8fa0af; --far-soft:#1c2833;
-  --down:#ff7a6b; --up:#3fcf8a; color-scheme:dark}
+  --down:#ff7a6b; --down-soft:#3a1a17; --up:#3fcf8a; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
@@ -68,7 +68,7 @@ th:first-child{text-align:left}
 th button{all:unset;cursor:pointer;display:block;padding:12px 14px;box-sizing:border-box;width:100%}
 th button:hover{color:var(--fg)}
 th[aria-sort] button{color:var(--accent)}
-td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 tr:last-child td{border-bottom:0}
 tbody tr:hover td{background:var(--accent-soft)}
 tr.zone td:first-child{box-shadow:inset 3px 0 0 var(--zone)}
@@ -87,6 +87,23 @@ td.num{font-family:var(--f-mono);font-size:14px}
 .meter{display:flex;align-items:center;justify-content:flex-end;gap:10px}
 .bar{width:90px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:3px}
+.tier{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding:1px 6px;border-radius:4px;margin-left:8px;vertical-align:2px;font-family:var(--f-body)}
+.tier.kern{color:var(--accent);background:var(--accent-soft)}
+.tier.beimischung{color:var(--near);background:var(--near-soft)}
+.tier.spekulation{color:var(--down);background:var(--down-soft)}
+.tr{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--zone);display:block}
+.dots i.on{background:var(--zone)}
+.tr .next{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+td.status{white-space:normal}
+td.status .pill{white-space:nowrap;margin:2px 0 2px 6px}
+.pill.warn{color:var(--down);background:var(--down-soft)}
+@media (min-width:681px){th[data-key="ratio"],td.meter-cell{display:none}}
+.pill.hard{color:var(--muted);background:var(--far-soft);font-weight:500}
+.guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.guide div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted)}
+.guide b{color:var(--fg);display:block;margin-bottom:2px}
 .empty{padding:28px;text-align:center;color:var(--muted)}
 
 footer{font-size:13px;color:var(--muted);max-width:72ch;display:flex;flex-direction:column;gap:6px}
@@ -98,14 +115,21 @@ footer a{color:var(--accent)}
   .tablebox{overflow:visible;background:transparent;border:0}
   table,tbody{display:block}
   tbody{display:flex;flex-direction:column;gap:8px}
-  tr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"coin status" "price target" "meter meter";gap:4px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"coin status" "price target" "tranche tranche" "meter meter";gap:4px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
   tr.zone{border-left:3px solid var(--zone)} tr.near{border-left:3px solid var(--near)}
   td{display:block;border:0;padding:0;background:transparent!important;box-shadow:none!important}
-  td.coin{grid-area:coin;min-width:0;overflow:hidden;text-overflow:ellipsis}
-  td.status{grid-area:status}
+  td.coin{grid-area:coin;min-width:0;white-space:normal}
+  .coin .name{display:block;margin:2px 0 0}
+  .tier{margin-left:6px}
+  td.status{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  td.status .pill{margin:0}
+  td.status{grid-area:status;text-align:right;white-space:normal}
   td.price{grid-area:price;text-align:left}
-  td.target{grid-area:target;font-size:13px}
+  td.target{grid-area:target;font-size:13px;white-space:normal;text-align:right}
+  td.price{white-space:normal}
   td.target::before{content:"Wunsch ";font-family:var(--f-body);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  td.tranche{grid-area:tranche}
+  .tr{justify-content:flex-start}
   td.meter-cell{grid-area:meter}
   .meter{justify-content:flex-start}
   .bar{flex:1}
@@ -116,7 +140,7 @@ footer a{color:var(--accent)}
   <header>
     <div>
       <h1>Krypto-Kaufzonen</h1>
-      <p class="lede">Deine 50 Coins mit aktuellem Kurs und deinem Wunsch-Einkaufspreis. Ganz oben steht, was am nächsten an deiner Kaufzone ist.</p>
+      <p class="lede">Deine 50 Coins mit aktuellem Kurs, deinem Wunsch-Einkaufspreis und drei gestaffelten Kauf-Tranchen. Die Stufe (Kern, Beimischung, Spekulation) sagt, wie groß eine Position höchstens sein sollte.</p>
     </div>
     <div class="live" id="live"><span class="dot" aria-hidden="true"></span><span id="liveText">Momentaufnahme vom 22.10.2026, 19:00</span><button type="button" id="refresh">Jetzt aktualisieren</button></div>
   </header>
@@ -125,6 +149,7 @@ footer a{color:var(--accent)}
     <div class="stat"><span class="k"><i style="background:var(--zone)"></i>In der Kaufzone</span><span class="v" id="n-zone">10</span><span class="s" id="n-zone-sub">ADA, PEPE, PI, ETC, WLD, TRUMP, BONK, IOTA, VSN, GRASS</span></div>
     <div class="stat"><span class="k"><i style="background:var(--near)"></i>Nahe dran (bis 15 %)</span><span class="v" id="n-near">0</span><span class="s" id="n-near-sub">Gerade keiner</span></div>
     <div class="stat"><span class="k"><i style="background:var(--far)"></i>Noch weit weg</span><span class="v" id="n-far">40</span><span class="s" id="n-far-sub">Im Schnitt noch −60 %</span></div>
+    <div class="stat"><span class="k"><i style="background:var(--down)"></i>Warnung: fällt weiter</span><span class="v" id="n-warn">0</span><span class="s" id="n-warn-sub">–</span></div>
   </section>
 
   <div class="controls">
@@ -132,9 +157,19 @@ footer a{color:var(--accent)}
       <button type="button" class="chip" data-f="all" aria-pressed="true">Alle<span class="n" id="c-all">50</span></button>
       <button type="button" class="chip" data-f="zone" aria-pressed="false">Kaufzone<span class="n" id="c-zone">10</span></button>
       <button type="button" class="chip" data-f="near" aria-pressed="false">Nahe dran<span class="n" id="c-near">0</span></button>
+      <button type="button" class="chip" data-f="warn" aria-pressed="false">Warnung<span class="n" id="c-warn">0</span></button>
+      <button type="button" class="chip" data-f="kern" aria-pressed="false">Kern<span class="n" id="c-kern">0</span></button>
+      <button type="button" class="chip" data-f="beimischung" aria-pressed="false">Beimischung<span class="n" id="c-beimischung">0</span></button>
+      <button type="button" class="chip" data-f="spekulation" aria-pressed="false">Spekulation<span class="n" id="c-spekulation">0</span></button>
     </div>
     <input type="search" id="q" placeholder="Coin suchen, z. B. SOL" aria-label="Coin suchen">
   </div>
+
+  <section class="guide" aria-label="Positionsgröße nach Stufe">
+    <div><b><span class="tier kern" style="margin:0 6px 0 0">Kern</span>60–80 % des Krypto-Budgets</b>Große, etablierte Coins. Erholen sich nach Bärenmärkten meist zuerst.</div>
+    <div><b><span class="tier beimischung" style="margin:0 6px 0 0">Beimischung</span>15–30 %</b>Etablierte Projekte mit echter Nutzung, aber deutlich schwankungsreicher.</div>
+    <div><b><span class="tier spekulation" style="margin:0 6px 0 0">Spekulation</span>höchstens 10 %</b>Memecoins und junge Projekte. Totalverlust einplanen, Positionen klein halten.</div>
+  </section>
 
   <div class="tablebox">
     <table>
@@ -142,315 +177,18 @@ footer a{color:var(--accent)}
         <th data-key="tick"><button type="button">Coin</button></th>
         <th data-key="price"><button type="button">Kurs (USD)</button></th>
         <th data-key="target"><button type="button">Wunschpreis</button></th>
+        <th data-key="hits"><button type="button">Tranchen</button></th>
         <th data-key="dist"><button type="button">Status</button></th>
         <th data-key="ratio"><button type="button">Nähe zur Zone</button></th>
       </tr></thead>
-      <tbody id="rows"><tr class="zone">
-    <td class="coin"><span class="tick">GRASS</span><span class="name">Grass</span></td>
-    <td class="num price">$ 0,6275<span class="chg down">−7,6 %</span></td>
-    <td class="num target">$ 1,50</td>
-    <td class="status"><span class="pill zone">Kaufzone · 58 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">WLD</span><span class="name">Worldcoin</span></td>
-    <td class="num price">$ 0,531<span class="chg down">−7,1 %</span></td>
-    <td class="num target">$ 1,0912</td>
-    <td class="status"><span class="pill zone">Kaufzone · 51 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">TRUMP</span><span class="name">Official Trump</span></td>
-    <td class="num price">$ 1,73<span class="chg down">−8,0 %</span></td>
-    <td class="num target">$ 3,00</td>
-    <td class="status"><span class="pill zone">Kaufzone · 42 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">BONK</span><span class="name">Bonk</span></td>
-    <td class="num price">$ 0,00000303<span class="chg down">−5,1 %</span></td>
-    <td class="num target">$ 0,000005101</td>
-    <td class="status"><span class="pill zone">Kaufzone · 41 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">PI</span><span class="name">Pi Network</span></td>
-    <td class="num price">$ 0,0782<span class="chg down">−2,6 %</span></td>
-    <td class="num target">$ 0,131244</td>
-    <td class="status"><span class="pill zone">Kaufzone · 40 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">IOTA</span><span class="name">IOTA</span></td>
-    <td class="num price">$ 0,0447<span class="chg down">−5,8 %</span></td>
-    <td class="num target">$ 0,06978</td>
-    <td class="status"><span class="pill zone">Kaufzone · 36 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">VSN</span><span class="name">Vision</span></td>
-    <td class="num price">$ 0,0395<span class="chg down">−1,5 %</span></td>
-    <td class="num target">$ 0,05364</td>
-    <td class="status"><span class="pill zone">Kaufzone · 26 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">ETC</span><span class="name">Ethereum Classic</span></td>
-    <td class="num price">$ 7,71<span class="chg down">−5,5 %</span></td>
-    <td class="num target">$ 10,00</td>
-    <td class="status"><span class="pill zone">Kaufzone · 23 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">PEPE</span><span class="name">Pepe</span></td>
-    <td class="num price">$ 0,00000442<span class="chg down">−5,0 %</span></td>
-    <td class="num target">$ 0,000005101</td>
-    <td class="status"><span class="pill zone">Kaufzone · 13 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="zone">
-    <td class="coin"><span class="tick">ADA</span><span class="name">Cardano</span></td>
-    <td class="num price">$ 0,2136<span class="chg down">−6,4 %</span></td>
-    <td class="num target">$ 0,244315</td>
-    <td class="status"><span class="pill zone">Kaufzone · 13 % drunter</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:100.0%;background:var(--zone)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">ALGO</span><span class="name">Algorand</span></td>
-    <td class="num price">$ 0,1075<span class="chg down">−6,6 %</span></td>
-    <td class="num target">$ 0,08761</td>
-    <td class="status"><span class="pill far">noch −18,5 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:81.5%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">ICP</span><span class="name">Internet Computer</span></td>
-    <td class="num price">$ 2,76<span class="chg down">−7,0 %</span></td>
-    <td class="num target">$ 2,23</td>
-    <td class="status"><span class="pill far">noch −19,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:80.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">KITE</span><span class="name">Kite</span></td>
-    <td class="num price">$ 0,1228<span class="chg up">+0,7 %</span></td>
-    <td class="num target">$ 0,09</td>
-    <td class="status"><span class="pill far">noch −26,7 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:73.3%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">DOGE</span><span class="name">Dogecoin</span></td>
-    <td class="num price">$ 0,0789<span class="chg down">−5,1 %</span></td>
-    <td class="num target">$ 0,05678</td>
-    <td class="status"><span class="pill far">noch −28,0 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:72.0%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">BTC</span><span class="name">Bitcoin</span></td>
-    <td class="num price">$ 81 366<span class="chg down">−3,8 %</span></td>
-    <td class="num target">$ 57 000</td>
-    <td class="status"><span class="pill far">noch −29,9 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:70.1%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">LIT</span><span class="name">Lighter</span></td>
-    <td class="num price">$ 3,60<span class="chg up">+3,7 %</span></td>
-    <td class="num target">$ 2,50</td>
-    <td class="status"><span class="pill far">noch −30,6 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:69.4%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">FLOKI</span><span class="name">FLOKI</span></td>
-    <td class="num price">$ 0,0000235<span class="chg down">−6,5 %</span></td>
-    <td class="num target">$ 0,00001616</td>
-    <td class="status"><span class="pill far">noch −31,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:68.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">XRP</span><span class="name">XRP</span></td>
-    <td class="num price">$ 1,32<span class="chg down">−4,2 %</span></td>
-    <td class="num target">$ 0,90</td>
-    <td class="status"><span class="pill far">noch −31,8 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:68.2%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">XDC</span><span class="name">XDC Network</span></td>
-    <td class="num price">$ 0,0345<span class="chg down">−2,4 %</span></td>
-    <td class="num target">$ 0,0214</td>
-    <td class="status"><span class="pill far">noch −37,9 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:62.1%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">JASMY</span><span class="name">JasmyCoin</span></td>
-    <td class="num price">$ 0,00458<span class="chg down">−4,2 %</span></td>
-    <td class="num target">$ 0,002834</td>
-    <td class="status"><span class="pill far">noch −38,1 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:61.9%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">ATOM</span><span class="name">Cosmos</span></td>
-    <td class="num price">$ 1,71<span class="chg down">−3,3 %</span></td>
-    <td class="num target">$ 1,00</td>
-    <td class="status"><span class="pill far">noch −41,5 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:58.5%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">PENGU</span><span class="name">Pudgy Penguins</span></td>
-    <td class="num price">$ 0,00773<span class="chg down">−6,1 %</span></td>
-    <td class="num target">$ 0,0045</td>
-    <td class="status"><span class="pill far">noch −41,8 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:58.2%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">CC</span><span class="name">Canton</span></td>
-    <td class="num price">$ 0,1023<span class="chg down">−5,4 %</span></td>
-    <td class="num target">$ 0,059</td>
-    <td class="status"><span class="pill far">noch −42,3 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:57.7%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">LTC</span><span class="name">Litecoin</span></td>
-    <td class="num price">$ 58,71<span class="chg down">−5,4 %</span></td>
-    <td class="num target">$ 30,00</td>
-    <td class="status"><span class="pill far">noch −48,9 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:51.1%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">AKT</span><span class="name">Akash Network</span></td>
-    <td class="num price">$ 0,704<span class="chg up">+3,9 %</span></td>
-    <td class="num target">$ 0,35555</td>
-    <td class="status"><span class="pill far">noch −49,5 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:50.5%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">ETH</span><span class="name">Ethereum</span></td>
-    <td class="num price">$ 2 383<span class="chg down">−5,0 %</span></td>
-    <td class="num target">$ 1 070</td>
-    <td class="status"><span class="pill far">noch −55,1 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:44.9%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">CAKE</span><span class="name">PancakeSwap</span></td>
-    <td class="num price">$ 2,13<span class="chg down">−5,5 %</span></td>
-    <td class="num target">$ 0,90</td>
-    <td class="status"><span class="pill far">noch −57,7 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:42.3%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">LINK</span><span class="name">Chainlink</span></td>
-    <td class="num price">$ 11,96<span class="chg down">−5,6 %</span></td>
-    <td class="num target">$ 5,00</td>
-    <td class="status"><span class="pill far">noch −58,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:41.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">ONDO</span><span class="name">Ondo</span></td>
-    <td class="num price">$ 0,4278<span class="chg down">−8,0 %</span></td>
-    <td class="num target">$ 0,1616</td>
-    <td class="status"><span class="pill far">noch −62,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:37.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">SUI</span><span class="name">Sui</span></td>
-    <td class="num price">$ 0,9763<span class="chg down">−6,5 %</span></td>
-    <td class="num target">$ 0,364846</td>
-    <td class="status"><span class="pill far">noch −62,6 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:37.4%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">DASH</span><span class="name">Dash</span></td>
-    <td class="num price">$ 50,55<span class="chg down">−4,9 %</span></td>
-    <td class="num target">$ 18,29</td>
-    <td class="status"><span class="pill far">noch −63,8 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:36.2%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">BCH</span><span class="name">Bitcoin Cash</span></td>
-    <td class="num price">$ 274,58<span class="chg down">−4,7 %</span></td>
-    <td class="num target">$ 94,00</td>
-    <td class="status"><span class="pill far">noch −65,8 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:34.2%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">AAVE</span><span class="name">Aave</span></td>
-    <td class="num price">$ 146,58<span class="chg down">−7,7 %</span></td>
-    <td class="num target">$ 49,00</td>
-    <td class="status"><span class="pill far">noch −66,6 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:33.4%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">FET</span><span class="name">ASI Alliance</span></td>
-    <td class="num price">$ 0,18<span class="chg down">−7,9 %</span></td>
-    <td class="num target">$ 0,06001</td>
-    <td class="status"><span class="pill far">noch −66,7 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:33.3%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">AVAX</span><span class="name">Avalanche</span></td>
-    <td class="num price">$ 9,16<span class="chg down">−7,4 %</span></td>
-    <td class="num target">$ 3,00</td>
-    <td class="status"><span class="pill far">noch −67,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:32.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">BNB</span><span class="name">BNB</span></td>
-    <td class="num price">$ 728,65<span class="chg down">−2,7 %</span></td>
-    <td class="num target">$ 210,00</td>
-    <td class="status"><span class="pill far">noch −71,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:28.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">UNI</span><span class="name">Uniswap</span></td>
-    <td class="num price">$ 6,98<span class="chg down">−7,7 %</span></td>
-    <td class="num target">$ 2,00</td>
-    <td class="status"><span class="pill far">noch −71,3 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:28.7%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">XLM</span><span class="name">Stellar</span></td>
-    <td class="num price">$ 0,1763<span class="chg down">−5,1 %</span></td>
-    <td class="num target">$ 0,05</td>
-    <td class="status"><span class="pill far">noch −71,6 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:28.4%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">HYPE</span><span class="name">Hyperliquid</span></td>
-    <td class="num price">$ 77,94<span class="chg down">−4,2 %</span></td>
-    <td class="num target">$ 20,00</td>
-    <td class="status"><span class="pill far">noch −74,3 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:25.7%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">XMR</span><span class="name">Monero</span></td>
-    <td class="num price">$ 613,66<span class="chg up">+1,7 %</span></td>
-    <td class="num target">$ 150,00</td>
-    <td class="status"><span class="pill far">noch −75,6 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:24.4%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">QNT</span><span class="name">Quant</span></td>
-    <td class="num price">$ 190,17<span class="chg down">−3,6 %</span></td>
-    <td class="num target">$ 44,00</td>
-    <td class="status"><span class="pill far">noch −76,9 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:23.1%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">TAO</span><span class="name">Bittensor</span></td>
-    <td class="num price">$ 256,58<span class="chg down">−7,0 %</span></td>
-    <td class="num target">$ 50,00</td>
-    <td class="status"><span class="pill far">noch −80,5 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:19.5%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">SEI</span><span class="name">Sei</span></td>
-    <td class="num price">$ 0,0577<span class="chg down">−8,4 %</span></td>
-    <td class="num target">$ 0,007989</td>
-    <td class="status"><span class="pill far">noch −86,2 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:13.8%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">HBAR</span><span class="name">Hedera</span></td>
-    <td class="num price">$ 0,08<span class="chg down">−6,7 %</span></td>
-    <td class="num target">$ 0,00986111</td>
-    <td class="status"><span class="pill far">noch −87,7 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:12.3%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">NEAR</span><span class="name">NEAR Protocol</span></td>
-    <td class="num price">$ 4,93<span class="chg down">−7,3 %</span></td>
-    <td class="num target">$ 0,526</td>
-    <td class="status"><span class="pill far">noch −89,3 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:10.7%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">SOL</span><span class="name">Solana</span></td>
-    <td class="num price">$ 104,11<span class="chg down">−3,8 %</span></td>
-    <td class="num target">$ 10,00</td>
-    <td class="status"><span class="pill far">noch −90,4 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:9.6%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">OKB</span><span class="name">OKB</span></td>
-    <td class="num price">$ 110,73<span class="chg down">−5,3 %</span></td>
-    <td class="num target">$ 10,00</td>
-    <td class="status"><span class="pill far">noch −91,0 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:9.0%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">MELANIA</span><span class="name">Official Melania</span></td>
-    <td class="num price">$ 0,0816<span class="chg down">−7,7 %</span></td>
-    <td class="num target">$ 0,005</td>
-    <td class="status"><span class="pill far">noch −93,9 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:6.1%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">RENDER</span><span class="name">Render</span></td>
-    <td class="num price">$ 1,79<span class="chg down">−6,2 %</span></td>
-    <td class="num target">$ 0,1004</td>
-    <td class="status"><span class="pill far">noch −94,4 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:5.6%;background:var(--accent)"></i></span></span></td>
-  </tr><tr class="far">
-    <td class="coin"><span class="tick">ZEC</span><span class="name">Zcash</span></td>
-    <td class="num price">$ 1 224<span class="chg down">−8,1 %</span></td>
-    <td class="num target">$ 50,00</td>
-    <td class="status"><span class="pill far">noch −95,9 %</span></td>
-    <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:4.1%;background:var(--accent)"></i></span></span></td>
-  </tr></tbody>
+      <tbody id="rows"></tbody>
     </table>
   </div>
 
   <footer>
-    <span><b>So liest du die Liste:</b> „Kaufzone“ heißt, der Kurs liegt auf oder unter deinem Wunschpreis. Sonst steht da, um wie viel Prozent der Kurs noch fallen muss. Der Balken zeigt, wie nah der Kurs schon ist (voll = erreicht).</span>
+    <span><b>So liest du die Liste:</b> „Kaufzone · −20 %“ heißt, der Kurs liegt 20 % unter deinem Wunschpreis. Sonst steht da, um wie viel Prozent der Kurs noch fallen muss. Der Balken zeigt, wie nah der Kurs schon ist (voll = erreicht).</span>
+    <span><b>Tranchen:</b> Drei gestaffelte Kaufmarken statt einer einzigen Zahl – die Punkte füllen sich, sobald der Kurs eine Marke erreicht. Bei BTC, ETH, SOL, BNB und XRP orientieren sie sich an früheren Zyklus-Tiefs; sonst liegen sie 30/50/65 % (Beimischung) bzw. 40/60/75 % (Spekulation) unter dem Kurs vom 22.10.2026. Dein Wunschpreis bleibt unverändert daneben stehen.</span>
+    <span><b>Warnung „fällt weiter“:</b> Der Coin ist in deiner Kaufzone, liegt aber schon über 25 % unter deinem Wunschpreis oder hat in 24 Stunden mehr als 7 % verloren. Dann ist er meist nicht günstig, sondern im Abwärtstrend – eher die Tranchen abwarten. „Kaum erreichbar“ heißt: Der Kurs müsste über 85 % fallen.</span>
     <span>Wunschpreise und Kurse in US-Dollar. PEPE und BONK: dein Wert 0,05101 ist als 0,0₅5101 gelesen, also 0,000005101 $.</span>
     <span>Kurse live von <a href="https://www.coingecko.com" target="_blank" rel="noopener">CoinGecko</a>, jede Minute neu. Ist CoinGecko nicht erreichbar, zeigt die Seite die Momentaufnahme vom 22.10.2026. Keine Anlageberatung.</span>
   </footer>
@@ -479,8 +217,22 @@ const DATA = [
  ["GRASS","Grass",1.5,0.6275,-7.60],
  ["AKT","Akash Network",0.35555,0.7040,3.90],
 ];
-const NEAR_PCT = 15;
-const COINS = DATA.map(([tick,name,target,price,chg])=>({tick,name,target,price,chg}));
+const NEAR_PCT = 15, HARD_PCT = 85;
+// Stufe: kern = große Position, beimischung = mittel, spekulation = klein
+const TIER = {};
+"BTC ETH SOL BNB XRP".split(" ").forEach(t=>TIER[t]="kern");
+"LINK AVAX LTC BCH XMR HYPE AAVE UNI SUI TAO XLM HBAR ADA NEAR ATOM ONDO ICP QNT ALGO RENDER FET ZEC OKB CC ETC".split(" ").forEach(t=>TIER[t]="beimischung");
+const TIER_RANK = {kern:0, beimischung:1, spekulation:2};
+const TIER_LABEL = {kern:"Kern", beimischung:"Beimischung", spekulation:"Spekulation"};
+// Kern-Coins: Tranchen an früheren Zyklus-Tiefs orientiert (USD)
+const TRANCHES_FIX = {BTC:[65000,57000,50000], ETH:[1800,1400,1070], SOL:[80,55,35], BNB:[580,475,365], XRP:[1.05,0.90,0.70]};
+const TRANCHE_PCT = {beimischung:[30,50,65], spekulation:[40,60,75]};
+const sig3 = x=>{ const e=Math.floor(Math.log10(x))-2, f=Math.pow(10,e); return e<0? +(Math.round(x/f)/Math.pow(10,-e)).toFixed(-e) : Math.round(x/f)*f; };
+const COINS = DATA.map(([tick,name,target,price,chg])=>{
+  const tier = TIER[tick]||"spekulation";
+  const tranches = TRANCHES_FIX[tick] || TRANCHE_PCT[tier].map(p=>sig3(price*(1-p/100)));
+  return {tick,name,target,price,chg,tier,tierRank:TIER_RANK[tier],tranches};
+});
 
 function fmtUsd(p){
   if(p==null||!isFinite(p)) return "–";
@@ -496,22 +248,34 @@ function derive(c){
   c.ratio = Math.min(1, c.target/c.price);            // 1 = erreicht
   c.dist = (c.price - c.target)/c.price*100;          // nötiger Rückgang in %
   c.state = c.price<=c.target ? "zone" : c.dist<=NEAR_PCT ? "near" : "far";
+  c.below = c.state==="zone" ? (c.target-c.price)/c.target*100 : 0;   // so weit unter dem Wunschpreis
+  c.warn = c.state==="zone" && (c.below>25 || (c.chg!=null && c.chg<=-7));
+  c.hits = c.tranches.filter(t=>c.price<=t).length;
   return c;
 }
 function statusHtml(c){
   if(c.state==="zone"){
-    const below=(c.target-c.price)/c.target*100;
-    return `<span class="pill zone">Kaufzone${below>=0.5?" · "+pct(below,0)+" drunter":""}</span>`;
+    const z = `<span class="pill zone" title="${c.below>=0.5? pct(c.below,0)+" unter deinem Wunschpreis":"auf deinem Wunschpreis"}">Kaufzone${c.below>=0.5?" · −"+pct(c.below,0):""}</span>`;
+    return z + (c.warn? `<span class="pill warn" title="Weit unter dem Wunschpreis oder starker Tagesverlust – meist ein Abwärtstrend">⚠ fällt weiter</span>` : "");
   }
+  if(c.dist>HARD_PCT) return `<span class="pill hard">kaum erreichbar · −${pct(c.dist,0)}</span>`;
   return `<span class="pill ${c.state}">noch −${pct(c.dist,1)}</span>`;
+}
+function trancheHtml(c){
+  const all = c.tranches.map((t,i)=>"T"+(i+1)+": "+fmtUsd(t)).join(" · ");
+  const dots = c.tranches.map((t,i)=>`<i class="${i<c.hits?"on":""}"></i>`).join("");
+  const nextT = c.tranches[c.hits];
+  const next = nextT==null? "alle 3 erreicht" : "T"+(c.hits+1)+" "+fmtUsd(nextT)+" · −"+pct((c.price-nextT)/c.price*100,0);
+  return `<span class="tr" title="${all}"><span class="dots" aria-label="${c.hits} von 3 Tranchen erreicht">${dots}</span><span class="next">${next}</span></span>`;
 }
 function rowHtml(c){
   const color = c.state==="zone"?"var(--zone)":c.state==="near"?"var(--near)":"var(--accent)";
   const chg = c.chg==null?"":`<span class="chg ${c.chg>=0?"up":"down"}">${c.chg>=0?"+":"−"}${pct(Math.abs(c.chg),1)}</span>`;
   return `<tr class="${c.state}">
-    <td class="coin"><span class="tick">${c.tick}</span><span class="name">${c.name}</span></td>
+    <td class="coin"><span class="tick">${c.tick}</span><span class="tier ${c.tier}">${TIER_LABEL[c.tier]}</span><span class="name">${c.name}</span></td>
     <td class="num price">${fmtUsd(c.price)}${chg}</td>
     <td class="num target">${fmtExact(c.target)}</td>
+    <td class="tranche">${trancheHtml(c)}</td>
     <td class="status">${statusHtml(c)}</td>
     <td class="meter-cell"><span class="meter"><span class="bar" aria-hidden="true"><i style="width:${(c.ratio*100).toFixed(1)}%;background:${color}"></i></span></span></td>
   </tr>`;
@@ -531,11 +295,16 @@ function render(){
   const avgFar = far.length? far.reduce((s,c)=>s+c.dist,0)/far.length : 0;
   $("n-far-sub").textContent = far.length? "Im Schnitt noch −"+pct(avgFar,0) : "–";
   $("c-all").textContent=COINS.length; $("c-zone").textContent=zone.length; $("c-near").textContent=near.length;
+  const warn=COINS.filter(c=>c.warn);
+  $("n-warn").textContent=warn.length; $("c-warn").textContent=warn.length;
+  $("n-warn-sub").textContent = warn.length? warn.map(c=>c.tick).join(", ") : "Gerade keiner";
+  ["kern","beimischung","spekulation"].forEach(t=>$("c-"+t).textContent=COINS.filter(c=>c.tier===t).length);
 
   const term=($("q").value||"").trim().toLowerCase();
-  let list=COINS.filter(c=>(filter==="all"||c.state===filter)&&(!term||c.tick.toLowerCase().includes(term)||c.name.toLowerCase().includes(term)));
+  const match = c=> filter==="all" || c.state===filter || c.tier===filter || (filter==="warn"&&c.warn);
+  let list=COINS.filter(c=>match(c)&&(!term||c.tick.toLowerCase().includes(term)||c.name.toLowerCase().includes(term)));
   list.sort((a,b)=>{const A=a[sortKey],B=b[sortKey];return (typeof A==="string"?A.localeCompare(B,"de"):A-B)*sortDir;});
-  $("rows").innerHTML = list.length? list.map(rowHtml).join("") : `<tr><td colspan="5" class="empty">Kein Coin in dieser Auswahl.</td></tr>`;
+  $("rows").innerHTML = list.length? list.map(rowHtml).join("") : `<tr><td colspan="6" class="empty">Kein Coin in dieser Auswahl.</td></tr>`;
   document.querySelectorAll("th").forEach(th=>{
     th.removeAttribute("aria-sort");
     if(th.dataset.key===sortKey) th.setAttribute("aria-sort",sortDir>0?"ascending":"descending");
@@ -566,7 +335,7 @@ document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
 }));
 document.querySelectorAll("th button").forEach(b=>b.addEventListener("click",()=>{
   const k=b.parentElement.dataset.key;
-  if(k===sortKey) sortDir*=-1; else {sortKey=k; sortDir=(k==="ratio"||k==="price"||k==="target")?-1:1;}
+  if(k===sortKey) sortDir*=-1; else {sortKey=k; sortDir=(k==="ratio"||k==="price"||k==="target"||k==="hits")?-1:1;}
   render();
 }));
 $("q").addEventListener("input",render);
