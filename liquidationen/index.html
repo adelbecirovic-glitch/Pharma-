@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Krypto-Liquidationen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: Liquidations-Board — Kopf mit Verbindungsstatus, Zeitfenster, Kennzahlen, Longs-vs-Shorts-Balken, Zeitverlauf, Top-Coins + Live-Feed nebeneinander, darunter größte Liquidationen */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#14202b; --muted:#5d6b78; --line:#dde3e9;
+  --accent:#1f6f8b; --accent-soft:#e1eef3;
+  --long:#c0392b; --long-soft:#fbe3e0; --short:#13804f; --short-soft:#dcf2e6;
+  --warn:#a86200; --warn-soft:#fbeed8;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e151c; --surface:#151f28; --fg:#e6edf3; --muted:#8fa0af; --line:#25323e;
+  --accent:#5cb8d6; --accent-soft:#16303b;
+  --long:#ff7a6b; --long-soft:#3a1a17; --short:#3fcf8a; --short-soft:#123326;
+  --warn:#f0b45a; --warn-soft:#3a2a12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151c; --surface:#151f28; --fg:#e6edf3; --muted:#8fa0af; --line:#25323e;
+  --accent:#5cb8d6; --accent-soft:#16303b;
+  --long:#ff7a6b; --long-soft:#3a1a17; --short:#3fcf8a; --short-soft:#123326;
+  --warn:#f0b45a; --warn-soft:#3a2a12; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:20px}
+a{color:var(--accent)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px 24px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1.05;margin:0;letter-spacing:-.01em}
+.lede{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.nav{font-size:13px;color:var(--muted);margin-bottom:6px}
+.nav a{margin-right:12px;text-decoration:none}
+.conn{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13px;font-weight:500}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pill.ok .dot{background:var(--short);box-shadow:0 0 0 3px var(--short-soft)}
+.pill.err .dot{background:var(--long)}
+.pill.wait .dot{background:var(--warn)}
+
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:14px;font-weight:500;border:0;background:none;color:var(--muted);padding:7px 14px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.since{font-size:13px;color:var(--muted)}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .k{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.stat .k i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.stat .v{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3.4vw,30px);line-height:1.15;font-variant-numeric:tabular-nums}
+.stat .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.card h2{font-family:var(--f-display);font-weight:600;font-size:18px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.card h2 small{font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--muted)}
+
+.ratio{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}
+.ratio .l{background:var(--long);transition:width .4s}
+.ratio .s{background:var(--short);transition:width .4s}
+.ratio-legend{display:flex;justify-content:space-between;font-size:13px;margin-top:8px;gap:10px}
+.ratio-legend b{font-family:var(--f-mono);font-weight:600}
+.lg-l{color:var(--long)} .lg-s{color:var(--short)}
+.read{margin:10px 0 0;font-size:14px;color:var(--muted)}
+.read b{color:var(--fg)}
+
+.chartbox{position:relative;height:220px}
+canvas{display:block;width:100%;height:100%}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font-size:12px;padding:6px 8px;border-radius:7px;white-space:nowrap;opacity:0;transition:opacity .1s}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;font-weight:500;color:var(--muted);text-align:right;padding:6px 6px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.coin{font-family:var(--f-body);font-weight:600}
+tr:last-child td{border-bottom:0}
+.tablebox{overflow-x:auto}
+.mini{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--line);min-width:60px}
+.mini .l{background:var(--long)} .mini .s{background:var(--short)}
+.empty{color:var(--muted);font-size:14px;padding:18px 4px;text-align:center}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+select,input[type=search]{font:inherit;font-size:14px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+input[type=search]{width:120px}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted)}
+.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:6px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+
+.feed{max-height:520px;overflow-y:auto;display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:62px 54px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.row .t{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.row .ex{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.row .what{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .what b{font-weight:600}
+.row .what .px{color:var(--muted);font-family:var(--f-mono);font-size:12px;margin-left:6px}
+.row .usd{font-family:var(--f-mono);font-weight:600;text-align:right}
+.row.L .usd{color:var(--long)} .row.S .usd{color:var(--short)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;margin-right:6px}
+.tag.L{background:var(--long-soft);color:var(--long)} .tag.S{background:var(--short-soft);color:var(--short)}
+.row.big{background:var(--warn-soft)}
+.row.new{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:var(--accent-soft)}to{background:transparent}}
+.row.big.new{animation:none}
+
+.whales{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.whale{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.whale .v{font-family:var(--f-display);font-weight:800;font-size:20px}
+.whale.L .v{color:var(--long)} .whale.S .v{color:var(--short)}
+.whale .m{font-size:13px;color:var(--muted)}
+
+footer{display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+footer b{color:var(--fg);font-weight:600}
+
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .chartbox{height:180px}
+  .tablebox table th:nth-child(2),.tablebox table td:nth-child(2),.tablebox table th:nth-child(3),.tablebox table td:nth-child(3){font-size:12px}
+  td{padding:7px 3px}
+  .row{grid-template-columns:52px minmax(0,1fr) auto}
+  .row .ex{display:none}
+  .hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="nav"><a href="../krypto/">← Krypto-Kaufzonen</a><a href="../dax/">DAX-Cockpit</a></div>
+      <h1>Krypto-Liquidationen</h1>
+      <p class="lede">Zwangsschließungen von gehebelten Futures-Positionen, live von Binance, Bybit und OKX. Rot heißt: Longs wurden ausgelöscht (Kurs fiel). Grün heißt: Shorts wurden ausgelöscht (Kurs stieg).</p>
+    </div>
+    <div class="conn" id="conn">
+      <span class="pill wait" data-ex="binance"><span class="dot"></span>Binance</span>
+      <span class="pill wait" data-ex="bybit"><span class="dot"></span>Bybit</span>
+      <span class="pill wait" data-ex="okx"><span class="dot"></span>OKX</span>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Zeitfenster" id="win">
+      <button type="button" data-w="5" aria-pressed="false">5 Min</button>
+      <button type="button" data-w="60" aria-pressed="true">1 Std</button>
+      <button type="button" data-w="240" aria-pressed="false">4 Std</button>
+      <button type="button" data-w="1440" aria-pressed="false">24 Std</button>
+    </div>
+    <span class="since" id="since">Sammelt Daten …</span>
+  </div>
+
+  <section class="kpis" aria-label="Kennzahlen">
+    <div class="stat"><span class="k">Gesamt liquidiert</span><span class="v" id="k-tot">–</span><span class="s" id="k-tot-s">–</span></div>
+    <div class="stat"><span class="k"><i style="background:var(--long)"></i>Longs liquidiert</span><span class="v" id="k-l">–</span><span class="s" id="k-l-s">–</span></div>
+    <div class="stat"><span class="k"><i style="background:var(--short)"></i>Shorts liquidiert</span><span class="v" id="k-s">–</span><span class="s" id="k-s-s">–</span></div>
+    <div class="stat"><span class="k">Größte Einzel-Liquidation</span><span class="v" id="k-max">–</span><span class="s" id="k-max-s">–</span></div>
+  </section>
+
+  <section class="card" aria-label="Longs gegen Shorts">
+    <h2>Longs gegen Shorts <small id="r-n"></small></h2>
+    <div class="ratio"><div class="l" id="r-l" style="width:50%"></div><div class="s" id="r-s" style="width:50%"></div></div>
+    <div class="ratio-legend"><span class="lg-l">Longs <b id="r-lp">–</b></span><span class="lg-s">Shorts <b id="r-sp">–</b></span></div>
+    <p class="read" id="r-read">Warte auf die ersten Liquidationen …</p>
+  </section>
+
+  <section class="card" aria-label="Zeitverlauf">
+    <h2>Verlauf <small id="c-sub"></small></h2>
+    <div class="chartbox" id="chartbox"><canvas id="chart"></canvas><div class="tip" id="tip"></div></div>
+    <div class="legend"><span><i style="background:var(--short)"></i>Shorts (nach oben)</span><span><i style="background:var(--long)"></i>Longs (nach unten)</span></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card" aria-label="Top-Coins">
+      <h2>Top-Coins <small>nach liquidiertem Volumen</small></h2>
+      <div class="tablebox"><table>
+        <thead><tr><th>Coin</th><th>Longs</th><th>Shorts</th><th>Gesamt</th><th class="hide-sm">Verhältnis</th></tr></thead>
+        <tbody id="coins"><tr><td colspan="5" class="empty">Noch keine Daten</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section class="card" aria-label="Live-Feed">
+      <h2>Live-Feed <small id="f-rate"></small></h2>
+      <div class="filters">
+        <select id="f-min" aria-label="Mindestgröße">
+          <option value="0">Alle Größen</option>
+          <option value="1000">ab 1.000 $</option>
+          <option value="10000" selected>ab 10.000 $</option>
+          <option value="50000">ab 50.000 $</option>
+          <option value="100000">ab 100.000 $</option>
+          <option value="1000000">ab 1 Mio $</option>
+        </select>
+        <input type="search" id="f-q" placeholder="Coin, z. B. BTC" aria-label="Coin filtern">
+        <label class="chk"><input type="checkbox" data-fx="binance" checked>Binance</label>
+        <label class="chk"><input type="checkbox" data-fx="bybit" checked>Bybit</label>
+        <label class="chk"><input type="checkbox" data-fx="okx" checked>OKX</label>
+        <button type="button" class="btn" id="f-sound" aria-pressed="false">Ton bei ≥ 100 Tsd $</button>
+        <button type="button" class="btn" id="f-pause" aria-pressed="false">Pause</button>
+      </div>
+      <div class="feed" id="feed"><div class="empty">Warte auf Liquidationen …</div></div>
+    </section>
+  </div>
+
+  <section class="card" aria-label="Größte Liquidationen">
+    <h2>Größte Liquidationen <small id="w-sub">im gewählten Zeitfenster</small></h2>
+    <div class="whales" id="whales"><div class="empty">Noch keine Daten</div></div>
+  </section>
+
+  <footer>
+    <span><b>Was ist eine Liquidation?</b> Wer mit Hebel handelt und zu weit ins Minus läuft, dem schließt die Börse die Position zwangsweise. Viele Long-Liquidationen auf einmal verstärken einen Kursrutsch (Kaskade), viele Short-Liquidationen einen Anstieg („Short Squeeze“). Nach großen Wellen dreht der Markt oft kurzfristig, weil der Hebel aus dem Markt gespült ist – sicher ist das nicht.</span>
+    <span><b>Datenquelle:</b> Öffentliche Live-Schnittstellen von Binance (alle USDT-Futures), Bybit (die 100 meistgehandelten Perpetuals) und OKX (alle Swaps). Die Seite sammelt nur, solange sie offen ist, und merkt sich die letzten 24 Stunden in deinem Browser. Binance meldet pro Coin höchstens eine Liquidation pro Sekunde – die echten Summen sind deshalb höher, die Tendenz stimmt aber.</span>
+    <span>Beträge in US-Dollar (Positionsgröße × Ausführungspreis). Keine Anlageberatung.</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const EX_NAME = {binance:"Binance", bybit:"Bybit", okx:"OKX"};
+  const fmtC = new Intl.NumberFormat("de-DE",{notation:"compact",maximumFractionDigits:1});
+  const fmtP = new Intl.NumberFormat("de-DE",{maximumSignificantDigits:5});
+  const n1 = new Intl.NumberFormat("de-DE",{maximumFractionDigits:1});
+  const usd = v => v >= 1e9 ? n1.format(v/1e9)+" Mrd $" : v >= 1e6 ? n1.format(v/1e6)+" Mio $" : v >= 1e3 ? n1.format(v/1e3)+" Tsd $" : Math.round(v)+" $";
+  const timeF = new Intl.DateTimeFormat("de-AT",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const hmF = new Intl.DateTimeFormat("de-AT",{hour:"2-digit",minute:"2-digit"});
+
+  // ---------- Zustand ----------
+  const DAY = 1440;
+  let buckets = {};          // minute -> {L,S,n,c:{coin:[L,S,n]}}
+  let events = [];           // jüngste Einzel-Liquidationen (Speicher, max 20000)
+  let whales = [];           // größte 50 der letzten 24h
+  let firstSeen = null;
+  let win = 60;
+  const st = {min:10000, q:"", ex:{binance:true,bybit:true,okx:true}, sound:false, pause:false};
+
+  const store = {
+    get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  };
+  (function load(){
+    const d = store.get("liq-v1");
+    if (d && d.b){
+      const cut = nowMin() - DAY;
+      for (const m in d.b) if (+m > cut) buckets[m] = d.b[m];
+      whales = (d.w||[]).filter(e => e.t > Date.now() - DAY*60000);
+      events = (d.e||[]).filter(e => e.t > Date.now() - DAY*60000);
+      firstSeen = d.f && d.f > Date.now() - DAY*60000 ? d.f : (Object.keys(buckets).length ? Math.min(...Object.keys(buckets).map(Number))*60000 : null);
+    }
+    const s = store.get("liq-set");
+    if (s){ Object.assign(st, s, {pause:false}); win = s.win || 60; }
+  })();
+  function save(){
+    store.set("liq-v1",{b:buckets, w:whales, e:events.slice(0,400), f:firstSeen});
+    store.set("liq-set",{min:st.min, q:st.q, ex:st.ex, sound:st.sound, win});
+  }
+  setInterval(save, 15000);
+  window.addEventListener("pagehide", save);
+
+  function nowMin(){ return Math.floor(Date.now()/60000); }
+  function coinOf(sym){
+    let c = sym.replace(/-.*$/,"").replace(/(USDT|USDC|BUSD|FDUSD|USD|PERP)$/,"");
+    c = c.replace(/^(1000000|10000|1000)(?=[A-Z])/,"");
+    return c || sym;
+  }
+
+  // ---------- Ereignis aufnehmen ----------
+  // side: "L" = Long liquidiert, "S" = Short liquidiert
+  let pending = [];
+  function add(ex, sym, side, price, usdVal, t){
+    if (!(usdVal > 0) || !isFinite(usdVal)) return;
+    const e = {ex, c:coinOf(sym), side, p:price, v:usdVal, t:t||Date.now()};
+    if (!firstSeen) firstSeen = e.t;
+    const m = Math.floor(e.t/60000);
+    const b = buckets[m] || (buckets[m] = {L:0,S:0,n:0,c:{}});
+    b[side] += usdVal; b.n++;
+    const cc = b.c[e.c] || (b.c[e.c] = [0,0,0]);
+    cc[side==="L"?0:1] += usdVal; cc[2]++;
+    events.unshift(e); if (events.length > 20000) events.length = 20000;
+    if (whales.length < 50 || usdVal > whales[whales.length-1].v){
+      whales.push(e); whales.sort((a,b)=>b.v-a.v); if (whales.length > 50) whales.length = 50;
+    }
+    pending.push(e);
+    if (st.sound && usdVal >= 100000) beep(side);
+  }
+
+  // ---------- Börsen ----------
+  const conns = {};
+  function setConn(ex, state){
+    const el = document.querySelector(`.pill[data-ex="${ex}"]`);
+    el.className = "pill " + state;
+    el.title = state==="ok" ? "Verbunden" : state==="err" ? "Getrennt – verbinde neu" : "Verbinde …";
+  }
+  function connect(ex, url, onOpen, onMsg, pingFn){
+    let ws, ping, retry = 1000;
+    const open = () => {
+      setConn(ex,"wait");
+      try { ws = new WebSocket(url); } catch(e){ setConn(ex,"err"); return setTimeout(open, retry); }
+      ws.onopen = () => { retry = 1000; setConn(ex,"ok"); onOpen && onOpen(ws); if (pingFn) ping = setInterval(()=>{ try{ pingFn(ws); }catch(e){} }, 20000); };
+      ws.onmessage = ev => { try { onMsg(ev.data); } catch(e){} };
+      ws.onclose = () => { clearInterval(ping); setConn(ex,"err"); retry = Math.min(retry*2, 30000); setTimeout(open, retry); };
+      ws.onerror = () => { try{ ws.close(); }catch(e){} };
+      conns[ex] = ws;
+    };
+    open();
+  }
+
+  // Binance USDT-M Futures: alle Liquidationen in einem Stream
+  connect("binance", "wss://fstream.binance.com/ws/!forceOrder@arr", null, data => {
+    const d = JSON.parse(data); const o = d.o; if (!o) return;
+    const qty = +o.z || +o.q, px = +o.ap || +o.p;
+    // SELL-Order = Long wird geschlossen
+    add("binance", o.s, o.S === "SELL" ? "L" : "S", px, qty*px, o.T || d.E);
+  });
+
+  // Bybit: Top-100 Perpetuals nach Umsatz abonnieren
+  (async () => {
+    let syms = ["BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","DOGEUSDT","BNBUSDT","ADAUSDT","SUIUSDT","LINKUSDT","AVAXUSDT","PEPEUSDT","WIFUSDT","LTCUSDT","TRXUSDT","DOTUSDT","NEARUSDT","APTUSDT","ARBUSDT","OPUSDT","TONUSDT"];
+    try {
+      const r = await fetch("https://api.bybit.com/v5/market/tickers?category=linear");
+      const j = await r.json();
+      const list = (j.result && j.result.list || []).filter(x => /USDT$/.test(x.symbol))
+        .sort((a,b)=>(+b.turnover24h)-(+a.turnover24h)).slice(0,100).map(x=>x.symbol);
+      if (list.length) syms = list;
+    } catch(e){}
+    connect("bybit", "wss://stream.bybit.com/v5/public/linear", ws => {
+      for (let i=0;i<syms.length;i+=10)
+        ws.send(JSON.stringify({op:"subscribe", args:syms.slice(i,i+10).map(s=>"allLiquidation."+s)}));
+    }, data => {
+      const d = JSON.parse(data);
+      if (!d.topic || !d.data) return;
+      for (const x of d.data){
+        const px = +x.p, qty = +x.v;
+        // Bybit: "Buy" = Long-Position wurde liquidiert
+        add("bybit", x.s, x.S === "Buy" ? "L" : "S", px, qty*px, x.T || d.ts);
+      }
+    }, ws => ws.send('{"op":"ping"}'));
+  })();
+
+  // OKX: alle Swaps; Kontraktwerte vorher laden
+  (async () => {
+    const ct = {};
+    try {
+      const r = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
+      const j = await r.json();
+      for (const i of (j.data||[])) ct[i.instId] = {v:+i.ctVal, ccy:i.ctValCcy, inverse:i.ctType==="inverse"};
+    } catch(e){}
+    connect("okx", "wss://ws.okx.com:8443/ws/v5/public", ws => {
+      ws.send(JSON.stringify({op:"subscribe", args:[{channel:"liquidation-orders", instType:"SWAP"}]}));
+    }, data => {
+      if (data === "pong") return;
+      const d = JSON.parse(data);
+      if (!d.data) return;
+      for (const inst of d.data){
+        const c = ct[inst.instId]; if (!c) continue;
+        for (const x of (inst.details||[])){
+          const px = +x.bkPx, sz = +x.sz;
+          const val = c.inverse ? sz*c.v : sz*c.v*px;
+          // sell = Long wird geschlossen
+          const side = x.posSide === "long" ? "L" : x.posSide === "short" ? "S" : (x.side === "sell" ? "L" : "S");
+          add("okx", inst.instId, side, px, val, +x.ts);
+        }
+      }
+    }, ws => ws.send("ping"));
+  })();
+
+  // ---------- Auswertung ----------
+  function windowAgg(){
+    const now = nowMin(), from = now - win + 1;
+    let L=0,S=0,n=0; const coins = {};
+    for (const m in buckets){
+      if (+m < from) continue;
+      const b = buckets[m]; L+=b.L; S+=b.S; n+=b.n;
+      for (const c in b.c){ const a = coins[c] || (coins[c]=[0,0,0]); const x=b.c[c]; a[0]+=x[0]; a[1]+=x[1]; a[2]+=x[2]; }
+    }
+    return {L,S,n,coins};
+  }
+  function prune(){
+    const cut = nowMin() - DAY;
+    for (const m in buckets) if (+m <= cut) delete buckets[m];
+    const tc = Date.now() - DAY*60000;
+    whales = whales.filter(e => e.t > tc);
+    while (events.length && events[events.length-1].t < tc) events.pop();
+  }
+  setInterval(prune, 60000);
+
+  // ---------- Darstellung ----------
+  function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  function renderKpis(){
+    const a = windowAgg(), tot = a.L + a.S;
+    $("k-tot").textContent = tot ? usd(tot) : "0 $";
+    $("k-tot-s").textContent = a.n.toLocaleString("de-DE") + " Liquidationen";
+    $("k-l").textContent = usd(a.L);
+    $("k-s").textContent = usd(a.S);
+    const lp = tot ? a.L/tot*100 : 50;
+    $("k-l-s").textContent = tot ? Math.round(lp) + " % vom Gesamt" : "–";
+    $("k-s-s").textContent = tot ? Math.round(100-lp) + " % vom Gesamt" : "–";
+    const tc = Date.now() - win*60000;
+    const w = whales.find(e => e.t >= tc);
+    $("k-max").textContent = w ? usd(w.v) : "–";
+    $("k-max-s").textContent = w ? `${w.c} ${w.side==="L"?"Long":"Short"} · ${EX_NAME[w.ex]} · ${hmF.format(w.t)}` : "–";
+
+    $("r-l").style.width = lp + "%"; $("r-s").style.width = (100-lp) + "%";
+    $("r-lp").textContent = tot ? lp.toFixed(1).replace(".",",") + " %" : "–";
+    $("r-sp").textContent = tot ? (100-lp).toFixed(1).replace(".",",") + " %" : "–";
+    let read = "Warte auf die ersten Liquidationen …";
+    if (tot){
+      if (lp >= 70) read = "<b>Longs werden ausgespült.</b> Der Markt fällt und gehebelte Käufer müssen raus – Abwärtsdruck kann sich selbst verstärken.";
+      else if (lp >= 58) read = "<b>Mehr Longs als Shorts liquidiert.</b> Leichter Abwärtsdruck.";
+      else if (lp <= 30) read = "<b>Shorts werden ausgespült.</b> Der Markt steigt und Leerverkäufer müssen eindecken – möglicher Short Squeeze.";
+      else if (lp <= 42) read = "<b>Mehr Shorts als Longs liquidiert.</b> Leichter Aufwärtsdruck.";
+      else read = "<b>Ausgeglichen.</b> Beide Seiten werden ähnlich stark liquidiert – kein klares Signal.";
+    }
+    $("r-read").innerHTML = read;
+    $("r-n").textContent = win === 5 ? "letzte 5 Minuten" : win === 60 ? "letzte Stunde" : `letzte ${win/60} Stunden`;
+
+    if (firstSeen){
+      const mins = Math.round((Date.now()-firstSeen)/60000);
+      const txt = mins < 1 ? "gerade eben" : mins < 60 ? `${mins} Min` : `${Math.floor(mins/60)} Std ${mins%60} Min`;
+      $("since").textContent = `Daten seit ${txt}` + (mins < win ? " – Zeitfenster noch nicht voll" : "");
+    }
+  }
+
+  function renderCoins(){
+    const a = windowAgg();
+    const arr = Object.entries(a.coins).map(([c,x])=>({c,L:x[0],S:x[1],n:x[2],t:x[0]+x[1]})).sort((p,q)=>q.t-p.t).slice(0,12);
+    if (!arr.length){ $("coins").innerHTML = '<tr><td colspan="5" class="empty">Noch keine Daten in diesem Zeitfenster</td></tr>'; return; }
+    $("coins").innerHTML = arr.map(r => {
+      const lp = r.t ? r.L/r.t*100 : 50;
+      return `<tr><td class="coin">${esc(r.c)}</td><td style="color:var(--long)">${usd(r.L)}</td><td style="color:var(--short)">${usd(r.S)}</td><td><b>${usd(r.t)}</b></td><td class="hide-sm"><div class="mini" title="${Math.round(lp)} % Longs"><div class="l" style="width:${lp}%"></div><div class="s" style="width:${100-lp}%"></div></div></td></tr>`;
+    }).join("");
+  }
+
+  function visible(e){
+    return e.v >= st.min && st.ex[e.ex] && (!st.q || e.c.includes(st.q));
+  }
+  function rowHtml(e, isNew){
+    const big = e.v >= 100000;
+    return `<div class="row ${e.side}${big?" big":""}${isNew?" new":""}"><span class="t">${timeF.format(e.t)}</span><span class="ex">${EX_NAME[e.ex]}</span><span class="what"><span class="tag ${e.side}">${e.side==="L"?"Long":"Short"}</span><b>${esc(e.c)}</b><span class="px">@ ${fmtP.format(e.p)}</span></span><span class="usd">${usd(e.v)}</span></div>`;
+  }
+  function renderFeedFull(){
+    const list = events.filter(visible).slice(0,150);
+    $("feed").innerHTML = list.length ? list.map(e=>rowHtml(e,false)).join("") : '<div class="empty">Keine Liquidationen mit diesen Filtern – warte oder senke die Mindestgröße.</div>';
+  }
+  function flushFeed(){
+    if (st.pause || !pending.length){ pending = []; return; }
+    const vis = pending.filter(visible).reverse();
+    pending = [];
+    if (!vis.length) return;
+    const feed = $("feed");
+    if (feed.querySelector(".empty")) feed.innerHTML = "";
+    feed.insertAdjacentHTML("afterbegin", vis.slice(0,50).map(e=>rowHtml(e,true)).join(""));
+    while (feed.children.length > 150) feed.lastChild.remove();
+  }
+  function renderRate(){
+    const c = events.filter(e => e.t > Date.now()-60000).length;
+    $("f-rate").textContent = `${c} pro Minute (alle Größen)`;
+  }
+
+  function renderWhales(){
+    const tc = Date.now() - win*60000;
+    const list = whales.filter(e => e.t >= tc).slice(0,8);
+    $("whales").innerHTML = list.length ? list.map(e =>
+      `<div class="whale ${e.side}"><span class="v">${usd(e.v)}</span><span><b>${esc(e.c)}</b> · ${e.side==="L"?"Long liquidiert":"Short liquidiert"}</span><span class="m">${EX_NAME[e.ex]} · @ ${fmtP.format(e.p)} · ${hmF.format(e.t)}</span></div>`
+    ).join("") : '<div class="empty">Noch keine Daten in diesem Zeitfenster</div>';
+  }
+
+  // ---------- Diagramm ----------
+  let bars = [];
+  function chartData(){
+    const N = win === 5 ? 30 : 60;
+    const span = win*60000/N, end = Date.now(), start = end - win*60000;
+    const out = Array.from({length:N},(_,i)=>({t:start+i*span, L:0, S:0}));
+    if (win === 5){
+      for (const e of events){ if (e.t < start) break; const i = Math.min(N-1, Math.floor((e.t-start)/span)); out[i][e.side] += e.v; }
+    } else {
+      for (const m in buckets){ const t = +m*60000; if (t < start - 60000) continue; const i = Math.max(0, Math.min(N-1, Math.floor((t-start)/span))); out[i].L += buckets[m].L; out[i].S += buckets[m].S; }
+    }
+    $("c-sub").textContent = win === 5 ? "je 10 Sekunden" : win === 60 ? "je Minute" : `je ${win/60} Minuten`;
+    return {out, span};
+  }
+  function drawChart(){
+    const cv = $("chart"), box = $("chartbox");
+    const dpr = window.devicePixelRatio || 1, W = box.clientWidth, H = box.clientHeight;
+    if (cv.width !== W*dpr || cv.height !== H*dpr){ cv.width = W*dpr; cv.height = H*dpr; }
+    const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+    const {out} = chartData();
+    const max = Math.max(1, ...out.map(b=>Math.max(b.L,b.S)));
+    const padL = 4, padB = 18, mid = (H - padB)/2, plotW = W - padL - 4;
+    const colL = css("--long"), colS = css("--short"), line = css("--line"), mut = css("--muted");
+    g.font = "11px " + css("--f-mono"); g.fillStyle = mut; g.textAlign = "left"; g.textBaseline = "middle";
+    g.strokeStyle = line; g.lineWidth = 1;
+    [[mid,""],[6,usd(max)],[H-padB-6,usd(max)]].forEach(([y,l])=>{ g.beginPath(); g.moveTo(padL,y+.5); g.lineTo(W,y+.5); g.stroke(); });
+    const bw = plotW/out.length, gap = Math.min(3, bw*.25);
+    bars = [];
+    out.forEach((b,i)=>{
+      const x = padL + 2 + i*bw;
+      const hs = (b.S/max)*(mid-6), hl = (b.L/max)*(mid-6);
+      g.fillStyle = colS; if (hs>0) roundBar(g, x+gap/2, mid-hs, bw-gap, hs, true);
+      g.fillStyle = colL; if (hl>0) roundBar(g, x+gap/2, mid, bw-gap, hl, false);
+      bars.push({x, w:bw, b});
+    });
+    g.textBaseline = "middle"; g.textAlign = "left";
+    [[13,"▲ "+usd(max)],[H-padB-13,"▼ "+usd(max)]].forEach(([y,l])=>{ const tw = g.measureText(l).width; g.fillStyle = css("--surface"); g.fillRect(padL,y-8,tw+8,16); g.fillStyle = mut; g.fillText(l,padL+4,y); });
+    g.fillStyle = mut; g.textBaseline = "alphabetic";
+    g.textAlign = "left"; g.fillText(hmF.format(out[0].t), padL+2, H-3);
+    g.textAlign = "right"; g.fillText("jetzt", W-2, H-3);
+  }
+  function roundBar(g,x,y,w,h,top){
+    const r = Math.min(3, w/2, h);
+    g.beginPath();
+    if (top){ g.moveTo(x,y+h); g.lineTo(x,y+r); g.quadraticCurveTo(x,y,x+r,y); g.lineTo(x+w-r,y); g.quadraticCurveTo(x+w,y,x+w,y+r); g.lineTo(x+w,y+h); }
+    else { g.moveTo(x,y); g.lineTo(x,y+h-r); g.quadraticCurveTo(x,y+h,x+r,y+h); g.lineTo(x+w-r,y+h); g.quadraticCurveTo(x+w,y+h,x+w,y+h-r); g.lineTo(x+w,y); }
+    g.closePath(); g.fill();
+  }
+  $("chartbox").addEventListener("pointermove", ev => {
+    const r = $("chartbox").getBoundingClientRect(), x = ev.clientX - r.left;
+    const hit = bars.find(b => x >= b.x && x < b.x + b.w);
+    const tip = $("tip");
+    if (!hit){ tip.style.opacity = 0; return; }
+    tip.innerHTML = `${hmF.format(hit.b.t)}<br>Shorts ${usd(hit.b.S)} · Longs ${usd(hit.b.L)}`;
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(r.width - tip.offsetWidth, Math.max(0, x - tip.offsetWidth/2)) + "px";
+    tip.style.top = "4px";
+  });
+  $("chartbox").addEventListener("pointerleave", () => $("tip").style.opacity = 0);
+  window.addEventListener("resize", drawChart);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawChart);
+
+  // ---------- Ton ----------
+  let actx;
+  function beep(side){
+    try {
+      actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.frequency.value = side === "L" ? 330 : 660; g.gain.value = .06;
+      o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + .15);
+    } catch(e){}
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  // ---------- Bedienung ----------
+  document.querySelectorAll("#win button").forEach(b => {
+    b.setAttribute("aria-pressed", +b.dataset.w === win);
+    b.onclick = () => { win = +b.dataset.w; document.querySelectorAll("#win button").forEach(x=>x.setAttribute("aria-pressed", x===b)); renderAll(); save(); };
+  });
+  $("f-min").value = String(st.min);
+  $("f-min").onchange = e => { st.min = +e.target.value; renderFeedFull(); save(); };
+  $("f-q").value = st.q;
+  $("f-q").oninput = e => { st.q = e.target.value.trim().toUpperCase(); renderFeedFull(); save(); };
+  document.querySelectorAll("[data-fx]").forEach(c => {
+    c.checked = st.ex[c.dataset.fx] !== false;
+    c.onchange = () => { st.ex[c.dataset.fx] = c.checked; renderFeedFull(); save(); };
+  });
+  $("f-sound").setAttribute("aria-pressed", st.sound);
+  $("f-sound").onclick = () => { st.sound = !st.sound; $("f-sound").setAttribute("aria-pressed", st.sound); if (st.sound) beep("S"); save(); };
+  $("f-pause").onclick = () => { st.pause = !st.pause; $("f-pause").setAttribute("aria-pressed", st.pause); $("f-pause").textContent = st.pause ? "Weiter" : "Pause"; if (!st.pause) renderFeedFull(); };
+
+  function renderAll(){ renderKpis(); renderCoins(); renderWhales(); drawChart(); renderFeedFull(); renderRate(); }
+  renderAll();
+  setInterval(flushFeed, 400);
+  setInterval(() => { renderKpis(); renderRate(); }, 1000);
+  setInterval(() => { renderCoins(); renderWhales(); drawChart(); }, 3000);
+})();
+</script>
+</body>
+</html>
