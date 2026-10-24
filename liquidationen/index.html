@@ -56,6 +56,17 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,40px);l
 .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
 .since{font-size:13px;color:var(--muted)}
 
+.btc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 24px;align-items:center}
+.btc .lbl{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.btc .lbl .dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.btc .lbl .dot.ok{background:var(--short);box-shadow:0 0 0 3px var(--short-soft)}
+.btc .px{white-space:nowrap;font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5vw,42px);line-height:1.1;font-variant-numeric:tabular-nums;transition:color .3s}
+.btc .px.up{color:var(--short)} .btc .px.dn{color:var(--long)}
+.btc .chg{display:inline-block;font-family:var(--f-mono);font-size:13px;font-weight:600;padding:2px 8px;border-radius:6px;margin-left:8px;vertical-align:middle}
+.btc .chg.up{background:var(--short-soft);color:var(--short)} .btc .chg.dn{background:var(--long-soft);color:var(--long)}
+.btc .spark{height:56px;min-width:0}
+.btc .meta{display:grid;grid-template-columns:auto auto;gap:2px 14px;font-size:13px;color:var(--muted)}
+.btc .meta b{font-family:var(--f-mono);font-weight:600;color:var(--fg);text-align:right}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .stat .k{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
@@ -79,8 +90,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,40px);l
 .chartbox{position:relative;height:220px}
 canvas{display:block;width:100%;height:100%}
 .tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font-size:12px;padding:6px 8px;border-radius:7px;white-space:nowrap;opacity:0;transition:opacity .1s}
-.legend{display:flex;gap:14px;font-size:13px;color:var(--muted);margin-top:8px}
-.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:3px}
 
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
@@ -130,6 +141,9 @@ footer b{color:var(--fg);font-weight:600}
 @media (max-width:900px){.grid2{grid-template-columns:1fr}}
 @media (max-width:640px){
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .btc{grid-template-columns:1fr}
+  .btc .px{font-size:32px}
+  .btc .meta{grid-template-columns:1fr auto}
   .chartbox{height:180px}
   .tablebox table th:nth-child(2),.tablebox table td:nth-child(2),.tablebox table th:nth-child(3),.tablebox table td:nth-child(3){font-size:12px}
   td{padding:7px 3px}
@@ -164,6 +178,19 @@ footer b{color:var(--fg);font-weight:600}
     <span class="since" id="since">Sammelt Daten …</span>
   </div>
 
+  <section class="btc" aria-label="Bitcoin-Kurs">
+    <div>
+      <div class="lbl"><span class="dot" id="btc-dot"></span>Bitcoin (BTC/USDT Perpetual, Binance)</div>
+      <div><span class="px mono" id="btc-px">–</span><span class="chg" id="btc-chg">–</span></div>
+    </div>
+    <div class="spark"><canvas id="btc-spark" aria-label="Kursverlauf der letzten 30 Minuten"></canvas></div>
+    <div class="meta">
+      <span>24h Hoch</span><b id="btc-h">–</b>
+      <span>24h Tief</span><b id="btc-l">–</b>
+      <span>BTC liquidiert</span><b id="btc-liq">–</b>
+    </div>
+  </section>
+
   <section class="kpis" aria-label="Kennzahlen">
     <div class="stat"><span class="k">Gesamt liquidiert</span><span class="v" id="k-tot">–</span><span class="s" id="k-tot-s">–</span></div>
     <div class="stat"><span class="k"><i style="background:var(--long)"></i>Longs liquidiert</span><span class="v" id="k-l">–</span><span class="s" id="k-l-s">–</span></div>
@@ -181,7 +208,7 @@ footer b{color:var(--fg);font-weight:600}
   <section class="card" aria-label="Zeitverlauf">
     <h2>Verlauf <small id="c-sub"></small></h2>
     <div class="chartbox" id="chartbox"><canvas id="chart"></canvas><div class="tip" id="tip"></div></div>
-    <div class="legend"><span><i style="background:var(--short)"></i>Shorts (nach oben)</span><span><i style="background:var(--long)"></i>Longs (nach unten)</span></div>
+    <div class="legend"><span><i style="background:var(--short)"></i>Shorts (nach oben)</span><span><i style="background:var(--long)"></i>Longs (nach unten)</span><span><i style="background:var(--accent);height:3px"></i>BTC-Kurs</span></div>
   </section>
 
   <div class="grid2">
@@ -222,6 +249,7 @@ footer b{color:var(--fg);font-weight:600}
 
   <footer>
     <span><b>Was ist eine Liquidation?</b> Wer mit Hebel handelt und zu weit ins Minus läuft, dem schließt die Börse die Position zwangsweise. Viele Long-Liquidationen auf einmal verstärken einen Kursrutsch (Kaskade), viele Short-Liquidationen einen Anstieg („Short Squeeze“). Nach großen Wellen dreht der Markt oft kurzfristig, weil der Hebel aus dem Markt gespült ist – sicher ist das nicht.</span>
+    <span><b>BTC-Kurs:</b> Jeder einzelne Trade im BTC/USDT-Perpetual von Binance, in Echtzeit. Die blaue Linie im Verlauf zeigt, wie sich der Kurs zu den Liquidationswellen bewegt hat.</span>
     <span><b>Datenquelle:</b> Öffentliche Live-Schnittstellen von Binance (alle USDT-Futures), Bybit (die 100 meistgehandelten Perpetuals) und OKX (alle Swaps). Die Seite sammelt nur, solange sie offen ist, und merkt sich die letzten 24 Stunden in deinem Browser. Binance meldet pro Coin höchstens eine Liquidation pro Sekunde – die echten Summen sind deshalb höher, die Tendenz stimmt aber.</span>
     <span>Beträge in US-Dollar (Positionsgröße × Ausführungspreis). Keine Anlageberatung.</span>
   </footer>
@@ -278,6 +306,88 @@ footer b{color:var(--fg);font-weight:600}
     return c || sym;
   }
 
+  function bucket(m){ return buckets[m] || (buckets[m] = {L:0,S:0,n:0,c:{}}); }
+
+  // ---------- BTC-Kurs live ----------
+  const btc = {p:0, last:0, chg:null, h:0, l:0, ticks:[]};   // ticks: 1 pro Sekunde, 30 Min
+  const fmtBtc = new Intl.NumberFormat("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1});
+  function btcPrice(p, t){
+    btc.p = p;
+    const sec = Math.floor(t/1000), lt = btc.ticks[btc.ticks.length-1];
+    if (lt && Math.floor(lt.t/1000) === sec) lt.p = p; else btc.ticks.push({t, p});
+    while (btc.ticks.length && btc.ticks[0].t < t - 30*60000) btc.ticks.shift();
+    bucket(Math.floor(t/60000)).px = p;
+  }
+  let btcRaf = 0;
+  function scheduleBtc(){ if (!btcRaf) btcRaf = requestAnimationFrame(renderBtc); }
+  function renderBtc(){
+    btcRaf = 0;
+    if (!btc.p) return;
+    const el = $("btc-px");
+    el.textContent = fmtBtc.format(btc.p) + " $";
+    if (btc.last && btc.p !== btc.last){
+      el.classList.remove("up","dn"); void el.offsetWidth;
+      el.classList.add(btc.p > btc.last ? "up" : "dn");
+      clearTimeout(renderBtc.t); renderBtc.t = setTimeout(()=>el.classList.remove("up","dn"), 600);
+    }
+    btc.last = btc.p;
+    document.title = `BTC ${fmtBtc.format(btc.p)} $ · Liquidationen`;
+  }
+  function renderBtcStats(){
+    if (btc.chg !== null){
+      const c = $("btc-chg");
+      c.textContent = (btc.chg >= 0 ? "+" : "−") + Math.abs(btc.chg).toFixed(2).replace(".",",") + " % 24h";
+      c.className = "chg " + (btc.chg >= 0 ? "up" : "dn");
+      $("btc-h").textContent = fmtBtc.format(btc.h) + " $";
+      $("btc-l").textContent = fmtBtc.format(btc.l) + " $";
+    }
+    const a = windowAgg().coins.BTC;
+    $("btc-liq").innerHTML = a ? `<span style="color:var(--long)">${usd(a[0])}</span> / <span style="color:var(--short)">${usd(a[1])}</span>` : "–";
+    $("btc-liq").title = "Longs / Shorts im gewählten Zeitfenster";
+    drawSpark();
+  }
+  function drawSpark(){
+    const cv = $("btc-spark"), box = cv.parentElement;
+    const dpr = window.devicePixelRatio || 1, W = box.clientWidth, H = box.clientHeight;
+    if (!W) return;
+    if (cv.width !== W*dpr || cv.height !== H*dpr){ cv.width = W*dpr; cv.height = H*dpr; }
+    const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+    let pts = btc.ticks;
+    if (pts.length < 20){   // nach Neuladen: Minutenwerte aus dem Speicher
+      const from = nowMin() - 30;
+      pts = Object.keys(buckets).filter(m => +m >= from && buckets[m].px).sort((a,b)=>a-b).map(m => ({t:+m*60000, p:buckets[m].px})).concat(btc.ticks);
+    }
+    if (pts.length < 2) return;
+    const t1 = Date.now(), t0 = Math.max(t1 - 30*60000, pts[0].t), spanMin = Math.round((t1-t0)/60000);
+    let mn = Infinity, mx = -Infinity; for (const q of pts){ if (q.p<mn) mn=q.p; if (q.p>mx) mx=q.p; }
+    if (mx === mn){ mx += 1; mn -= 1; }
+    const X = t => Math.max(0,(t-t0)/(t1-t0))*(W-6), Y = p => 15 + (1-(p-mn)/(mx-mn))*(H-19);
+    const up = pts[pts.length-1].p >= pts[0].p, col = css(up ? "--short" : "--long");
+    g.beginPath(); pts.forEach((q,i)=> i ? g.lineTo(X(q.t),Y(q.p)) : g.moveTo(X(q.t),Y(q.p)));
+    g.strokeStyle = col; g.lineWidth = 1.75; g.lineJoin = "round"; g.stroke();
+    g.lineTo(X(pts[pts.length-1].t), H); g.lineTo(X(pts[0].t), H); g.closePath();
+    g.globalAlpha = .12; g.fillStyle = col; g.fill(); g.globalAlpha = 1;
+    const lp = pts[pts.length-1]; g.beginPath(); g.arc(X(lp.t), Y(lp.p), 3, 0, 7); g.fillStyle = col; g.fill();
+    g.font = "10px " + css("--f-mono"); g.fillStyle = css("--muted"); g.textAlign = "left"; g.textBaseline = "top";
+    g.fillText(spanMin >= 1 ? `${spanMin} Min` : "seit gerade", 0, 0);
+  }
+  (function btcStream(){
+    let ws, retry = 1000;
+    const open = () => {
+      $("btc-dot").className = "dot";
+      try { ws = new WebSocket("wss://fstream.binance.com/stream?streams=btcusdt@aggTrade/btcusdt@ticker"); } catch(e){ return setTimeout(open, retry); }
+      ws.onopen = () => { retry = 1000; $("btc-dot").className = "dot ok"; };
+      ws.onmessage = ev => { try {
+        const m = JSON.parse(ev.data), d = m.data; if (!d) return;
+        if (d.e === "aggTrade"){ btcPrice(+d.p, d.T || d.E); scheduleBtc(); }
+        else if (d.e === "24hrTicker"){ btc.chg = +d.P; btc.h = +d.h; btc.l = +d.l; if (!btc.p){ btcPrice(+d.c, d.E); scheduleBtc(); } }
+      } catch(e){} };
+      ws.onclose = () => { $("btc-dot").className = "dot"; retry = Math.min(retry*2, 30000); setTimeout(open, retry); };
+      ws.onerror = () => { try{ ws.close(); }catch(e){} };
+    };
+    open();
+  })();
+
   // ---------- Ereignis aufnehmen ----------
   // side: "L" = Long liquidiert, "S" = Short liquidiert
   let pending = [];
@@ -286,7 +396,7 @@ footer b{color:var(--fg);font-weight:600}
     const e = {ex, c:coinOf(sym), side, p:price, v:usdVal, t:t||Date.now()};
     if (!firstSeen) firstSeen = e.t;
     const m = Math.floor(e.t/60000);
-    const b = buckets[m] || (buckets[m] = {L:0,S:0,n:0,c:{}});
+    const b = bucket(m);
     b[side] += usdVal; b.n++;
     const cc = b.c[e.c] || (b.c[e.c] = [0,0,0]);
     cc[side==="L"?0:1] += usdVal; cc[2]++;
@@ -485,11 +595,12 @@ footer b{color:var(--fg);font-weight:600}
   function chartData(){
     const N = win === 5 ? 30 : 60;
     const span = win*60000/N, end = Date.now(), start = end - win*60000;
-    const out = Array.from({length:N},(_,i)=>({t:start+i*span, L:0, S:0}));
+    const out = Array.from({length:N},(_,i)=>({t:start+i*span, L:0, S:0, px:0}));
     if (win === 5){
+      for (const q of btc.ticks){ if (q.t < start) continue; out[Math.min(N-1, Math.floor((q.t-start)/span))].px = q.p; }
       for (const e of events){ if (e.t < start) break; const i = Math.min(N-1, Math.floor((e.t-start)/span)); out[i][e.side] += e.v; }
     } else {
-      for (const m in buckets){ const t = +m*60000; if (t < start - 60000) continue; const i = Math.max(0, Math.min(N-1, Math.floor((t-start)/span))); out[i].L += buckets[m].L; out[i].S += buckets[m].S; }
+      for (const m in buckets){ const t = +m*60000; if (t < start - 60000) continue; const i = Math.max(0, Math.min(N-1, Math.floor((t-start)/span))); out[i].L += buckets[m].L; out[i].S += buckets[m].S; if (buckets[m].px && t >= start - 60000) out[i].px = buckets[m].px; }
     }
     $("c-sub").textContent = win === 5 ? "je 10 Sekunden" : win === 60 ? "je Minute" : `je ${win/60} Minuten`;
     return {out, span};
@@ -515,6 +626,20 @@ footer b{color:var(--fg);font-weight:600}
       g.fillStyle = colL; if (hl>0) roundBar(g, x+gap/2, mid, bw-gap, hl, false);
       bars.push({x, w:bw, b});
     });
+    const pp = bars.filter(b => b.b.px);
+    if (pp.length > 1){
+      let mn = Infinity, mx = -Infinity; for (const q of pp){ mn = Math.min(mn,q.b.px); mx = Math.max(mx,q.b.px); }
+      if (mx === mn){ mx += 1; mn -= 1; }
+      const Y = p => 10 + (1-(p-mn)/(mx-mn))*(H-padB-20);
+      g.beginPath(); pp.forEach((q,i)=>{ const x = q.x + q.w/2, y = Y(q.b.px); i ? g.lineTo(x,y) : g.moveTo(x,y); });
+      g.strokeStyle = css("--accent"); g.lineWidth = 2; g.lineJoin = "round"; g.stroke();
+      const lq = pp[pp.length-1], lbl = fmtBtc.format(lq.b.px).replace(/,\d$/,"") + " $";
+      g.font = "600 11px " + css("--f-mono"); g.textAlign = "right"; g.textBaseline = "middle";
+      const tw = g.measureText(lbl).width, ly = Math.min(H-padB-10, Math.max(10, Y(lq.b.px)));
+      g.fillStyle = css("--accent"); g.fillRect(W-tw-10, ly-8, tw+8, 16);
+      g.fillStyle = css("--surface"); g.fillText(lbl, W-6, ly);
+      g.font = "11px " + css("--f-mono");
+    }
     g.textBaseline = "middle"; g.textAlign = "left";
     [[13,"▲ "+usd(max)],[H-padB-13,"▼ "+usd(max)]].forEach(([y,l])=>{ const tw = g.measureText(l).width; g.fillStyle = css("--surface"); g.fillRect(padL,y-8,tw+8,16); g.fillStyle = mut; g.fillText(l,padL+4,y); });
     g.fillStyle = mut; g.textBaseline = "alphabetic";
@@ -533,13 +658,13 @@ footer b{color:var(--fg);font-weight:600}
     const hit = bars.find(b => x >= b.x && x < b.x + b.w);
     const tip = $("tip");
     if (!hit){ tip.style.opacity = 0; return; }
-    tip.innerHTML = `${hmF.format(hit.b.t)}<br>Shorts ${usd(hit.b.S)} · Longs ${usd(hit.b.L)}`;
+    tip.innerHTML = `${hmF.format(hit.b.t)}<br>Shorts ${usd(hit.b.S)} · Longs ${usd(hit.b.L)}${hit.b.px ? `<br>BTC ${fmtBtc.format(hit.b.px)} $` : ""}`;
     tip.style.opacity = 1;
     tip.style.left = Math.min(r.width - tip.offsetWidth, Math.max(0, x - tip.offsetWidth/2)) + "px";
     tip.style.top = "4px";
   });
   $("chartbox").addEventListener("pointerleave", () => $("tip").style.opacity = 0);
-  window.addEventListener("resize", drawChart);
+  window.addEventListener("resize", () => { drawChart(); drawSpark(); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawChart);
 
   // ---------- Ton ----------
@@ -575,7 +700,7 @@ footer b{color:var(--fg);font-weight:600}
   function renderAll(){ renderKpis(); renderCoins(); renderWhales(); drawChart(); renderFeedFull(); renderRate(); }
   renderAll();
   setInterval(flushFeed, 400);
-  setInterval(() => { renderKpis(); renderRate(); }, 1000);
+  setInterval(() => { renderKpis(); renderRate(); renderBtcStats(); }, 1000);
   setInterval(() => { renderCoins(); renderWhales(); drawChart(); }, 3000);
 })();
 </script>
