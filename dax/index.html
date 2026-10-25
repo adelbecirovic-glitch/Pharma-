@@ -1228,31 +1228,42 @@ $('jImport').onchange=e=>{
 };
 
 /* ---------- Wirtschaftskalender ---------- */
-// Termine der KW 44 laut finanznachrichten.de (Dow Jones Wochenvorschau) und LBBW; Fed-Termine laut federalreserve.gov
+// Termine der KW 44 laut dpa-AFX-Wochenvorschau (finanzen.net/finanznachrichten.de), Dow Jones Wochenvorschau und LBBW; Notenbanktermine laut federalreserve.gov und ecb.europa.eu
 const CAL=[
   ['2026-10-26T10:00','DE','ifo-Geschäftsklimaindex Oktober',3,'k'],
   ['2026-10-27T07:30','DE','Porsche AG – Zahlen 3. Quartal',1,'u'],
-  ['2026-10-27T08:00','DE','Beiersdorf – Zahlen 9 Monate',1,'u'],
+  ['2026-10-27T08:00','DE','Beiersdorf – Zahlen 3. Quartal',1,'u'],
   ['2026-10-27T13:30','US','Auftragseingang langlebiger Güter September',2,'k'],
   ['2026-10-27T15:00','US','Verbrauchervertrauen Oktober (Conference Board)',2,'k'],
-  ['2026-10-28T07:00','DE','Deutsche Bank, BASF, Mercedes-Benz – Zahlen 3. Quartal',2,'u'],
-  ['2026-10-28T07:30','DE','Symrise – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-28T07:00','DE','Deutsche Bank, BASF, Mercedes-Benz, DWS – Zahlen 3. Quartal',2,'u'],
+  ['2026-10-28T07:30','DE','Symrise, Traton, Delivery Hero – Zahlen 3. Quartal',1,'u'],
   ['2026-10-28T08:00','DE','GfK/NIM-Konsumklima November',1,'k'],
-  ['2026-10-28T19:00','US','Fed-Zinsentscheid (FOMC)',3,'z','Pressekonferenz meist 30 Min. später'],
-  ['2026-10-29T07:30','DE','Adidas, Volkswagen – Zahlen 9 Monate',2,'u'],
+  ['2026-10-28T17:45','EU','Airbus – Zahlen 3. Quartal',2,'u'],
+  ['2026-10-28T19:00','US','Fed-Zinsentscheid (FOMC)',3,'z','Pressekonferenz 19:30'],
+  ['2026-10-28T21:00','US','Microsoft, Alphabet – Quartalszahlen',2,'u'],
+  ['2026-10-29T06:55','DE','Kion – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-29T07:00','DE','Knorr-Bremse, Wacker Chemie – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-29T07:00','AT','OMV, Andritz – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-29T07:30','DE','Adidas, Volkswagen, Aixtron, Dräger – Zahlen 3. Quartal',2,'u'],
   ['2026-10-29T08:00','DE','MTU Aero Engines – Zahlen 3. Quartal',1,'u'],
   ['2026-10-29T11:00','EU','Wirtschaftsstimmung Eurozone Oktober',1,'k'],
-  ['2026-10-29T13:30','US','BIP 3. Quartal, erste Schätzung',3,'k'],
+  ['2026-10-29T13:30','US','BIP 3. Quartal, erste Schätzung',3,'k','inkl. PCE-Kernrate Q3 (vorab)'],
   ['2026-10-29T13:30','US','Persönliche Ausgaben und Einkommen September',2,'k'],
   ['2026-10-29T14:15','EU','EZB-Zinsentscheid',3,'z'],
   ['2026-10-29T14:45','EU','EZB-Pressekonferenz',3,'z'],
+  ['2026-10-29T21:05','US','Amazon – Zahlen 3. Quartal',2,'u','Intel um 21:00'],
+  ['2026-10-30T07:00','DE','Fuchs – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-30T07:30','AT','Erste Group – Zahlen 3. Quartal',1,'u'],
+  ['2026-10-30T08:00','DE','Puma – Quartalszahlen',1,'u'],
+  ['2026-10-30T09:00','AT','BIP 3. Quartal, erste Veröffentlichung',1,'k'],
   ['2026-10-30T09:55','DE','Arbeitsmarktdaten Oktober',2,'k'],
   ['2026-10-30T10:00','DE','BIP 3. Quartal, erste Veröffentlichung',3,'k'],
-  ['2026-10-30T11:00','EU','BIP Eurozone 3. Quartal',2,'k'],
+  ['2026-10-30T11:00','EU','BIP Eurozone 3. Quartal',3,'k','Arbeitslosenquote September ebenfalls 11:00'],
   ['2026-10-30T13:30','US','Arbeitskostenindex 3. Quartal',1,'k'],
   ['2026-10-30T14:00','DE','Verbraucherpreise Oktober (vorläufig)',3,'k'],
   ['2026-10-30T14:45','US','Einkaufsmanagerindex Chicago Oktober',1,'k'],
-  ['2026-12-09T20:00','US','Fed-Zinsentscheid (FOMC) mit Projektionen',3,'z','Sitzung 8.–9. Dezember']
+  ['2026-12-09T20:00','US','Fed-Zinsentscheid (FOMC) mit Projektionen',3,'z','Sitzung 8.–9. Dezember'],
+  ['2026-12-17T14:15','EU','EZB-Zinsentscheid',3,'z','Sitzung 16.–17. Dezember, Pressekonferenz üblicherweise 14:45']
 ];
 // Ortszeit Frankfurt/Wien (MEZ oder MESZ) in echten Zeitpunkt umrechnen
 function berlinToDate(d,t){const g=new Date(d+'T'+t+':00Z');let off=(tzMinutes('Europe/Berlin',g)-tzMinutes('UTC',g)+1440)%1440;if(off>720)off-=1440;return new Date(g.getTime()-off*60000);}
@@ -1299,7 +1310,7 @@ $('uAdd').onclick=()=>{
   uCal.push({d:real.toISOString(),cc:$('uCc').value,e,w:+$('uW').value}); store.set('calUser',uCal);
   $('uE').value=''; m.className='msg good'; m.textContent='Termin hinzugefügt.'; renderCal();
 };
-$('calSrc').innerHTML='Termine laut <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69858898-wochenvorschau-26-oktober-bis-1-november-44-kw-015.htm" target="_blank" rel="noopener">Wochenvorschau KW 44</a>, <a href="https://www.lbbw.de/artikel/maerkte-verstehen/termine-oktober-2026_anjnmvdjip_d.html" target="_blank" rel="noopener">LBBW</a> und <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">Federal Reserve</a>, Stand 22. Oktober 2026. Termine können sich kurzfristig ändern.';
+$('calSrc').innerHTML='Termine laut <a href="https://www.finanzen.net/nachricht/aktien/wochenvorschau-termine-bis-6-november-2026-16004697" target="_blank" rel="noopener">dpa-AFX-Wochenvorschau</a>, <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69923096-wochenvorschau-termine-bis-6-november-2026-016.htm" target="_blank" rel="noopener">finanznachrichten.de</a>, <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69858898-wochenvorschau-26-oktober-bis-1-november-44-kw-015.htm" target="_blank" rel="noopener">Wochenvorschau KW 44</a>, <a href="https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.de.html" target="_blank" rel="noopener">EZB</a> und <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">Federal Reserve</a>, Stand 25. Oktober 2026. Termine können sich kurzfristig ändern.';
 renderCal(); setInterval(renderCal,30000);
 
 
@@ -1686,7 +1697,7 @@ ddCalc();
 
 /* ---------- Wochenrückblick ---------- */
 // Wird jeden Sonntag automatisch aktualisiert. Format: {kw,zeitraum,schluss,veraenderung,hoch,tief,text,punkte:[...],quellen:[[Titel,URL],...]}
-const REVIEW=null;
+const REVIEW={kw:'KW 43',zeitraum:'19.–23. Oktober 2026',schluss:25182,veraenderung:-1.72,hoch:25706,tief:25014,text:'Der DAX hat die Woche mit einem Minus von rund 1,7 Prozent bei gut 25.180 Punkten beendet. Nach einem schwachen Wochenstart und einer kräftigen Erholung am Mittwoch zogen enttäuschende US-Techzahlen, Zweifel an den hohen KI-Investitionen und steigende Ölpreise den Index wieder nach unten. Zum Wochenschluss belasteten schwache Einkaufsmanagerdaten und die Proteste in Frankreich zusätzlich.',punkte:['Mittwoch +1,35 Prozent: Hoffnung auf eine Entspannung im Iran-Konflikt und starke SpaceX-Zahlen gaben KI-nahen Werten Auftrieb.','Donnerstag rund -1 Prozent: Zahlen von Tesla, Meta und IBM schürten Zweifel an der KI-Story, Siemens Energy und Infineon verloren deutlich.','SAP überzeugte mit dem dritten Quartal und stieg auf den höchsten Stand seit Januar, Qiagen profitierte von einem Übernahmeangebot von EQT.','Ein Angriff auf ein saudisches Ölfeld trieb die Ölpreise nach oben und verstärkte Inflationssorgen.','Am Freitag fielen die Einkaufsmanagerindizes der Eurozone überraschend schwach aus, Frankreich rutschte unter die Wachstumsschwelle.'],quellen:[['dpa-AFX: Frankreich-Sorgen lassen Dax weiter absacken (ariva.de)','https://www.ariva.de/news/roundup-aktien-frankfurt-schluss-frankreich-sorgen-lassen-12180188'],['dpa-AFX: US-Tech-Branche versetzt Dax neuen Dämpfer (finanzen.ch)','https://www.finanzen.ch/nachrichten/aktien/aktien-frankfurt-schluss-us-tech-branche-versetzt-dax-neuen-dampfer-1036655578'],['dpa-AFX: Dax schüttelt Verluste weitgehend ab (boerse.de)','https://www.boerse.de/nachrichten/Aktien-Frankfurt-Schluss-Dax-schuettelt-Verluste-weitgehend-ab/38679282'],['finanzen.net: DAX am Freitag','https://www.finanzen.net/nachricht/aktien/minuszeichen-in-frankfurt-dax-gibt-zum-ende-des-freitagshandels-nach-16004733'],['finanzen.net: DAX am Mittwoch','https://www.finanzen.net/nachricht/aktien/zuversicht-in-frankfurt-dax-zum-handelsende-fester-15999024'],['finanzen.ch: DAX am Montag (Vorwochenschluss)','https://www.finanzen.ch/nachrichten/aktien/verluste-in-frankfurt-dax-verbucht-am-montagnachmittag-abschlaege-1036639074']]};
 function renderReview(){
   const r=REVIEW, el=$('review');
   if(!r){el.innerHTML='<div class="msg">Der erste Rückblick erscheint am Sonntag, 25. Oktober, nach Handelsschluss der Woche. Ab dann steht hier jede Woche, wie sich der DAX bewegt hat und welche Ereignisse ihn bewegt haben.</div>';return;}
