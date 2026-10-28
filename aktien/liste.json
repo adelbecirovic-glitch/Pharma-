@@ -1,0 +1,22 @@
+[
+  {"name": "SAP", "yahoo": "SAP.DE", "tv": "XETR:SAP"},
+  {"name": "Siemens", "yahoo": "SIE.DE", "tv": "XETR:SIE"},
+  {"name": "Allianz", "yahoo": "ALV.DE", "tv": "XETR:ALV"},
+  {"name": "Rheinmetall", "yahoo": "RHM.DE", "tv": "XETR:RHM"},
+  {"name": "Deutsche Telekom", "yahoo": "DTE.DE", "tv": "XETR:DTE"},
+  {"name": "Mercedes-Benz", "yahoo": "MBG.DE", "tv": "XETR:MBG"},
+  {"name": "BASF", "yahoo": "BAS.DE", "tv": "XETR:BAS"},
+  {"name": "Infineon", "yahoo": "IFX.DE", "tv": "XETR:IFX"},
+  {"name": "Apple", "yahoo": "AAPL", "tv": "NASDAQ:AAPL"},
+  {"name": "Microsoft", "yahoo": "MSFT", "tv": "NASDAQ:MSFT"},
+  {"name": "Nvidia", "yahoo": "NVDA", "tv": "NASDAQ:NVDA"},
+  {"name": "Amazon", "yahoo": "AMZN", "tv": "NASDAQ:AMZN"},
+  {"name": "Alphabet", "yahoo": "GOOGL", "tv": "NASDAQ:GOOGL"},
+  {"name": "Meta", "yahoo": "META", "tv": "NASDAQ:META"},
+  {"name": "Tesla", "yahoo": "TSLA", "tv": "NASDAQ:TSLA"},
+  {"name": "Broadcom", "yahoo": "AVGO", "tv": "NASDAQ:AVGO"},
+  {"name": "Netflix", "yahoo": "NFLX", "tv": "NASDAQ:NFLX"},
+  {"name": "ASML", "yahoo": "ASML", "tv": "NASDAQ:ASML"},
+  {"name": "JPMorgan", "yahoo": "JPM", "tv": "NYSE:JPM"},
+  {"name": "Visa", "yahoo": "V", "tv": "NYSE:V"}
+]
