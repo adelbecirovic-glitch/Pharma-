@@ -106,10 +106,26 @@ def berechne_level(df, preis):
     return [fmt(k) for k in unten], [fmt(k) for k in oben]
 
 
+def bereinige(df):
+    """Entfernt einzelne Fehlkurse (Tage, deren Hoch/Tief extrem vom Umfeld abweicht)."""
+    df = df[(df["High"] > 0) & (df["Low"] > 0) & (df["Close"] > 0)]
+    umfeld = df["Close"].rolling(11, center=True, min_periods=3).median()
+    ok = (df["Low"] > umfeld * 0.5) & (df["High"] < umfeld * 2.0)
+    raus = int((~ok).sum())
+    if raus:
+        print(f"  {raus} Fehlkurs(e) entfernt")
+    return df[ok]
+
+
+# Kurse in Unterwährung (Pence, Cent) in die Hauptwährung umrechnen
+UNTERWAEHRUNG = {"GBp": ("GBP", 100), "GBX": ("GBP", 100), "ZAc": ("ZAR", 100), "ZAC": ("ZAR", 100), "ILA": ("ILS", 100)}
+
+
 def verarbeite(eintrag):
     t = yf.Ticker(eintrag["yahoo"])
     df = t.history(period="max", interval="1d", auto_adjust=False)
     df = df.dropna(subset=["High", "Low", "Close"])
+    df = bereinige(df)
     if df.empty:
         raise ValueError("keine Kursdaten")
     preis = None
@@ -126,6 +142,14 @@ def verarbeite(eintrag):
         preis = float(df["Close"].iloc[-1])
     if vortag is None and len(df) > 1:
         vortag = float(df["Close"].iloc[-2])
+    if waehrung in UNTERWAEHRUNG:
+        waehrung, teiler = UNTERWAEHRUNG[waehrung]
+        df = df.copy()
+        for spalte in ("High", "Low", "Close"):
+            df[spalte] = df[spalte] / teiler
+        preis /= teiler
+        if vortag:
+            vortag /= teiler
 
     ath_i = df["High"].idxmax()
     atl_i = df["Low"].idxmin()
@@ -136,6 +160,15 @@ def verarbeite(eintrag):
     j_tief = min(float(jahr["Low"].min()), preis)
 
     unten, oben = berechne_level(df.iloc[-252 * JAHRE:], preis)
+    # Zu wenige Zonen in den letzten Jahren (z. B. weit unter altem Hoch): ältere Historie ergänzen
+    if (len(unten) < ANZAHL or len(oben) < ANZAHL) and len(df) > 252 * JAHRE:
+        u2, o2 = berechne_level(df, preis)
+        if len(oben) < ANZAHL:
+            oben += [x for x in o2 if all(abs(x["k"] / y["k"] - 1) > 0.02 for y in oben)]
+            oben = sorted(oben, key=lambda x: x["k"])[:ANZAHL]
+        if len(unten) < ANZAHL:
+            unten += [x for x in u2 if all(abs(x["k"] / y["k"] - 1) > 0.02 for y in unten)]
+            unten = sorted(unten, key=lambda x: -x["k"])[:ANZAHL]
 
     e = {
         "name": eintrag["name"], "s": eintrag["yahoo"], "tv": eintrag.get("tv", ""),

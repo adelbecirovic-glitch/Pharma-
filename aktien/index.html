@@ -241,7 +241,7 @@ function leiter(a){
   const r=(a.r||[]).slice().reverse(), u=a.u||[];
   const li=(cls,lb,x)=>`<li class="${cls}"><span class="lb">${lb}</span><span class="lv">${fmt(x.k,a.w)}</span><span class="lm">${pct(x.a)} · ${x.b}×</span></li>`;
   let h=r.map((x,i)=>li('r','R'+(r.length-i),x)).join('');
-  if(!r.length)h+=`<li class="none">Kein Widerstand darüber – Kurs nahe Allzeithoch (${fmt(a.ath,a.w)}).</li>`;
+  if(!r.length)h+=`<li class="none">${athAbstand(a)>=-5?`Kein Widerstand darüber – Kurs nahe Allzeithoch (${fmt(a.ath,a.w)}).`:'Keine Widerstandszone gefunden.'}</li>`;
   h+=`<li class="p"><span class="lb">Kurs</span><span class="lv">${fmt(a.p,a.w)}</span><span class="lm"></span></li>`;
   h+=u.map((x,i)=>li('s','S'+(i+1),x)).join('');
   if(!u.length)h+=`<li class="none">Keine Unterstützung darunter gefunden.</li>`;
