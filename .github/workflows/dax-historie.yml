@@ -1,0 +1,41 @@
+name: DAX-Historie aktualisieren
+
+on:
+  schedule:
+    - cron: "47 6-21 * * 1-5"   # stündlich von 6 bis 21 Uhr UTC, Montag bis Freitag
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/scripts/dax_historie.py
+      - .github/workflows/dax-historie.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dax-historie
+  cancel-in-progress: false
+
+jobs:
+  dax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install yfinance
+      - run: python .github/scripts/dax_historie.py
+      # dax-historie.json landet auf dem eigenen Branch "dax-daten" (ein einziger Commit, wird jedes Mal ersetzt).
+      # Die Muster-Suche im DAX-Cockpit lädt die Datei über raw.githubusercontent.com.
+      - name: Auf Branch dax-daten veröffentlichen
+        run: |
+          mkdir /tmp/out && cp dax-historie.json /tmp/out/
+          cd /tmp/out
+          git init -q -b dax-daten
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dax-historie.json
+          git commit -q -m "DAX-Historie $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" dax-daten

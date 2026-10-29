@@ -281,6 +281,23 @@ table.ana tr.few td{color:var(--muted)}
 .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 @media (max-width:520px){.ev{grid-template-columns:46px 30px 1fr}.ev .imp{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Muster-Suche */
+.ms-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.ms-controls .chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink);font-weight:500;padding-bottom:8px}
+.ms-controls .chk input{width:18px;height:18px;flex:none;accent-color:var(--accent)}
+.ms-plot{width:100%;height:auto;display:block;overflow:visible}
+.ms-plot text{font:500 11px var(--mono);fill:var(--muted)}
+.ms-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+.ms-legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.ms-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.ms-card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:6px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.ms-card:hover{border-color:var(--accent)}
+.ms-card[aria-pressed="true"]{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn)}
+.ms-card .top{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.ms-card .top b{font:600 13px var(--mono);color:var(--ink)}
+.ms-card .bot{display:flex;justify-content:space-between;gap:8px;font:600 13px var(--mono);font-variant-numeric:tabular-nums}
+.ms-card svg{width:100%;height:70px;display:block}
+.ms-note{font-size:13px;color:var(--muted);margin:0;max-width:85ch}
 </style>
 </head>
 <body>
@@ -294,6 +311,7 @@ table.ana tr.few td{color:var(--muted)}
   <nav class="tabs" role="tablist" aria-label="Bereiche">
     <button role="tab" id="tb-cockpit" aria-selected="true" aria-controls="cockpit">Cockpit</button>
     <button role="tab" id="tb-chart" aria-selected="false" aria-controls="chart">Chart</button>
+    <button role="tab" id="tb-muster" aria-selected="false" aria-controls="muster">Muster-Suche</button>
     <button role="tab" id="tb-plan" aria-selected="false" aria-controls="plan">Mein Plan</button>
     <button role="tab" id="tb-wissen" aria-selected="false" aria-controls="wissen">Was bewegt den DAX</button>
     <button role="tab" id="tb-wyckoff" aria-selected="false" aria-controls="wyckoff">Wyckoff</button>
@@ -977,6 +995,63 @@ table.ana tr.few td{color:var(--muted)}
     <p class="src">Chart und Kurse von TradingView, je nach Quelle teilweise verzögert. Im Chart kannst du über die Symbolsuche oben links auch andere Werte aufrufen und mit den Werkzeugen links Linien und Zonen einzeichnen. Zeichnungen werden im eingebetteten Chart nicht gespeichert; dafür „In TradingView öffnen“ nutzen.</p>
   </div>
 
+
+  <div class="tabpane" id="muster" role="tabpanel" aria-labelledby="tb-muster" hidden>
+    <section class="panel">
+      <h2>Ähnliche Muster in der DAX-Historie <span id="msStand">Daten werden geladen …</span></h2>
+      <p class="ms-note">Nimmt die letzten Kerzen des DAX als Muster und sucht in der gesamten Historie die Stellen, deren Verlauf am ähnlichsten aussieht. Danach siehst du, wie es bei diesen Treffern weiterging.</p>
+      <div class="ms-controls">
+        <label>Zeitrahmen
+          <select id="msTf">
+            <option value="w">1 Woche (seit 1987)</option>
+            <option value="d" selected>1 Tag (seit 1987)</option>
+            <option value="h4">4 Stunden (9–13 / 13–17:30 Uhr, ca. 2 Jahre)</option>
+            <option value="h1">1 Stunde (ca. 2 Jahre)</option>
+          </select>
+        </label>
+        <label>Musterlänge (Kerzen)
+          <select id="msLen">
+            <option>10</option><option selected>20</option><option>30</option><option>40</option><option>60</option><option>90</option>
+          </select>
+        </label>
+        <label>Ausblick danach (Kerzen)
+          <select id="msFwd">
+            <option>5</option><option selected>10</option><option>20</option><option>40</option>
+          </select>
+        </label>
+        <label>Anzahl Treffer
+          <select id="msTop">
+            <option>5</option><option selected>10</option><option>15</option><option>20</option>
+          </select>
+        </label>
+        <label class="chk"><input type="checkbox" id="msAmp" checked> Ähnliche Schwankungsbreite</label>
+      </div>
+      <div class="msg" id="msMsg" hidden></div>
+    </section>
+
+    <section class="panel" id="msResult" hidden>
+      <h2>Was nach den Treffern passierte <span id="msSub"></span></h2>
+      <dl class="out" id="msStats"></dl>
+      <svg class="ms-plot" id="msPlot" viewBox="0 0 1000 380" role="img" aria-label="Aktuelles Muster und Verlauf der ähnlichsten historischen Stellen"></svg>
+      <div class="ms-legend">
+        <span><i style="background:var(--ink)"></i>Aktuelles Muster</span>
+        <span><i style="background:var(--muted);opacity:.5"></i>Historische Treffer</span>
+        <span><i style="background:var(--long)"></i>danach gestiegen</span>
+        <span><i style="background:var(--short)"></i>danach gefallen</span>
+        <span><i style="background:var(--accent)"></i>Median der Treffer</span>
+        <span><i style="background:var(--warn)"></i>ausgewählter Treffer</span>
+      </div>
+    </section>
+
+    <section class="panel" id="msListBox" hidden>
+      <h2>Die Treffer im Einzelnen <span>zum Hervorheben antippen</span></h2>
+      <div class="ms-cards" id="msCards"></div>
+      <p class="ms-note">Ähnlichkeit = Korrelation des Kursverlaufs (logarithmisch, also unabhängig vom Indexstand), 100 % wäre deckungsgleich. „Ähnliche Schwankungsbreite“ lässt nur Stellen zu, deren Auf und Ab höchstens halb bzw. doppelt so groß war wie beim aktuellen Muster. Überlappende Treffer werden zusammengefasst, damit nicht dieselbe Phase mehrfach zählt.</p>
+      <p class="ms-note"><b>Wichtig:</b> Ähnliche Muster in der Vergangenheit sind keine Prognose. Nutze die Treffer als zusätzlichen Blick auf mögliche Szenarien und für dein Risiko-Management, nicht als Signal.</p>
+    </section>
+    <p class="src">Kursdaten: DAX-Index (^GDAXI) über Yahoo Finance, werktags stündlich aktualisiert, die letzte Kerze kann noch laufen. Stundenkerzen gibt es nur für rund 2 Jahre.</p>
+  </div>
+
   <footer>Alle Kurse sind Beispielwerte zum Ausprobieren, keine Live-Daten. Hebelprodukte wie CFDs und Futures können zu Verlusten über den Einsatz hinaus führen. Dieses Werkzeug ist keine Anlageberatung.</footer>
 </div>
 
@@ -1314,21 +1389,171 @@ $('calSrc').innerHTML='Termine laut <a href="https://www.finanzen.net/nachricht/
 renderCal(); setInterval(renderCal,30000);
 
 
+/* ---------- Muster-Suche ---------- */
+const MS_URL='https://raw.githubusercontent.com/adelbecirovic-glitch/Pharma-/dax-daten/dax-historie.json';
+const ms={raw:null,loading:false,sel:-1,res:null};
+const msNum=(v,d=1)=>v.toLocaleString('de-AT',{minimumFractionDigits:d,maximumFractionDigits:d});
+const msPct=v=>(v>0?'+':v<0?'−':'')+msNum(Math.abs(v*100),1)+' %';
+function msMsg(t,cls){const m=$('msMsg');m.hidden=!t;m.className='msg'+(cls?' '+cls:'');m.textContent=t||'';}
+async function msStart(){
+  if(ms.raw){if(!ms.res)msRun();return;}
+  if(ms.loading)return; ms.loading=true; msMsg('Lade DAX-Historie …');
+  try{
+    const r=await fetch(MS_URL+'?t='+Math.floor(Date.now()/600000),{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    ms.raw=await r.json();
+    $('msStand').textContent='Stand '+new Date(ms.raw.stand).toLocaleString('de-AT',{dateStyle:'short',timeStyle:'short'});
+    msMsg(''); msRun();
+  }catch(e){
+    $('msStand').textContent='';
+    msMsg('Die DAX-Historie konnte nicht geladen werden ('+e.message+'). Die Daten werden auf GitHub werktags stündlich erzeugt; bitte später nochmal versuchen.','bad');
+  }finally{ms.loading=false;}
+}
+/* Kerzen zusammenfassen: key(t) liefert die Gruppe */
+function msGroup(src,key){
+  const o={t:[],o:[],h:[],l:[],c:[]};let k0=null;
+  for(let i=0;i<src.t.length;i++){
+    const k=key(src.t[i]);
+    if(k!==k0){o.t.push(src.t[i]);o.o.push(src.o[i]);o.h.push(src.h[i]);o.l.push(src.l[i]);o.c.push(src.c[i]);k0=k;}
+    else{const j=o.t.length-1;o.h[j]=Math.max(o.h[j],src.h[i]);o.l[j]=Math.min(o.l[j],src.l[i]);o.c[j]=src.c[i];}
+  }
+  return o;
+}
+function msSeries(tf){
+  const R=ms.raw;
+  if(tf==='d')return R.tag;
+  if(tf==='w')return msGroup(R.tag,t=>{const d=new Date((t+6*3600)*1000);return Math.floor(d.getTime()/86400000)-(d.getUTCDay()+6)%7;});
+  if(!R.stunde)return null;
+  if(tf==='h1')return R.stunde;
+  /* 2 Blöcke je Handelstag: 9–13 Uhr und 13–17:30 Uhr (deutsche Zeit) */
+  const f=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'});
+  return msGroup(R.stunde,t=>{const p=f.formatToParts(new Date(t*1000)),g=k=>p.find(x=>x.type===k).value;return g('year')+g('month')+g('day')+'|'+(+g('hour')>=13?1:0);});
+}
+function msFmtT(t,tf){
+  const d=new Date(t*1000);
+  return tf==='h1'||tf==='h4'
+    ?d.toLocaleString('de-AT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'})
+    :d.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Europe/Berlin'});
+}
+function msCorr(a,ma,sa,b,i0,N){
+  let mb=0;for(let k=0;k<N;k++)mb+=b[i0+k];mb/=N;
+  let sab=0,sbb=0;for(let k=0;k<N;k++){const db=b[i0+k]-mb;sab+=(a[k]-ma)*db;sbb+=db*db;}
+  return sbb>0?sab/Math.sqrt(sa*sbb):-1;
+}
+function msRun(){
+  if(!ms.raw)return;
+  const tf=$('msTf').value,N=+$('msLen').value,H=+$('msFwd').value,K=+$('msTop').value,amp=$('msAmp').checked;
+  const S=msSeries(tf);
+  ms.sel=-1;ms.res=null;
+  if(!S||S.c.length<N*3+H){msMsg('Für diesen Zeitrahmen gibt es zu wenige Kerzen. Wähle eine kürzere Musterlänge oder einen anderen Zeitrahmen.','mid');$('msResult').hidden=$('msListBox').hidden=true;return;}
+  const n=S.c.length,L=S.c.map(Math.log);
+  const q=L.slice(n-N);let mq=0;q.forEach(v=>mq+=v);mq/=N;let sq=0;q.forEach(v=>sq+=(v-mq)**2);
+  const qRange=Math.max(...q)-Math.min(...q);
+  const last=n-2*N; /* Treffer dürfen das aktuelle Muster nicht überlappen und brauchen H Kerzen danach */
+  const cand=[];
+  for(let i=0;i<=Math.min(last,n-N-H);i++){
+    if(amp){let mx=-1e9,mn=1e9;for(let k=0;k<N;k++){const v=L[i+k];if(v>mx)mx=v;if(v<mn)mn=v;}const r=(mx-mn)/(qRange||1e-9);if(r<.5||r>2)continue;}
+    cand.push([i,msCorr(q,mq,sq,L,i,N)]);
+  }
+  cand.sort((a,b)=>b[1]-a[1]);
+  const hits=[];
+  for(const [i,sc] of cand){
+    if(hits.length>=K)break;
+    if(hits.some(h=>Math.abs(h.i-i)<N))continue;
+    const e=i+N-1,c0=S.c[e];
+    let up=-1e9,dn=1e9;for(let k=e+1;k<=e+H;k++){up=Math.max(up,S.h[k]/c0-1);dn=Math.min(dn,S.l[k]/c0-1);}
+    const path=[];for(let k=i;k<=e+H;k++)path.push(S.c[k]/c0-1);
+    hits.push({i,sc,t0:S.t[i],t1:S.t[e],chg:S.c[e+H]/c0-1,inPat:c0/S.c[i]-1,up,dn,path});
+  }
+  if(!hits.length){msMsg('Keine passenden Stellen gefunden. Schalte „Ähnliche Schwankungsbreite“ aus oder ändere die Musterlänge.','mid');$('msResult').hidden=$('msListBox').hidden=true;return;}
+  const cur=[];const cN=S.c[n-1];for(let k=n-N;k<n;k++)cur.push(S.c[k]/cN-1);
+  ms.res={tf,N,H,hits,cur,S,n};
+  msMsg('');msRender();
+}
+function msQuant(arr,p){const a=[...arr].sort((x,y)=>x-y);const i=(a.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo);}
+function msRender(){
+  const {tf,N,H,hits,cur,S,n}=ms.res;
+  const tfName={w:'Wochen',d:'Tage',h4:'4-Std.-Kerzen',h1:'Stunden'}[tf];
+  $('msSub').textContent=N+' '+tfName+' Muster · '+H+' danach';
+  const chg=hits.map(h=>h.chg),ups=chg.filter(v=>v>0).length;
+  const avgSc=hits.reduce((s,h)=>s+h.sc,0)/hits.length;
+  const med=msQuant(chg,.5),avg=chg.reduce((s,v)=>s+v,0)/chg.length;
+  const cls=v=>v>0?'pos':v<0?'neg':'';
+  $('msStats').innerHTML=
+    `<div><dt>Aktuelles Muster</dt><dd class="${cls(cur[cur.length-1]-cur[0])}">${msPct(-cur[0]/(1+cur[0]))}</dd></div>`+
+    `<div><dt>Ø Ähnlichkeit</dt><dd>${msNum(avgSc*100,0)} %</dd></div>`+
+    `<div><dt>Danach gestiegen</dt><dd class="${ups*2>hits.length?'pos':ups*2<hits.length?'neg':''}">${ups} von ${hits.length}</dd></div>`+
+    `<div><dt>Median nach ${H}</dt><dd class="${cls(med)}">${msPct(med)}</dd></div>`+
+    `<div><dt>Durchschnitt</dt><dd class="${cls(avg)}">${msPct(avg)}</dd></div>`+
+    `<div><dt>Spanne</dt><dd style="font-size:14px;white-space:nowrap">${msPct(Math.min(...chg))} … ${msPct(Math.max(...chg))}</dd></div>`+
+    `<div><dt>Letzter Kurs</dt><dd>${msNum(S.c[n-1],0)}</dd></div>`;
+  msPlot();
+  $('msCards').innerHTML=hits.map((h,j)=>{
+    const w=220,ht=70,p=h.path,mn=Math.min(...p),mx=Math.max(...p),y=v=>ht-4-(v-mn)/((mx-mn)||1e-9)*(ht-8),x=k=>k/(p.length-1)*w;
+    const a=p.slice(0,N).map((v,k)=>(k?'L':'M')+x(k).toFixed(1)+' '+y(v).toFixed(1)).join('');
+    const b=p.slice(N-1).map((v,k)=>(k?'L':'M')+x(k+N-1).toFixed(1)+' '+y(v).toFixed(1)).join('');
+    const col=h.chg>=0?'var(--long)':'var(--short)';
+    return `<button type="button" class="ms-card" data-j="${j}" aria-pressed="${ms.sel===j}">
+      <div class="top"><span>${msFmtT(h.t0,tf)} – ${msFmtT(h.t1,tf)}</span><b>${msNum(h.sc*100,0)} %</b></div>
+      <svg viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none" aria-hidden="true"><line x1="${x(N-1)}" x2="${x(N-1)}" y1="0" y2="${ht}" stroke="var(--line)" stroke-dasharray="3 3"/><path d="${a}" fill="none" stroke="var(--muted)" stroke-width="1.6" vector-effect="non-scaling-stroke"/><path d="${b}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+      <div class="bot"><span title="Kursstand am Ende des Musters" style="color:var(--muted)">${msNum(S.c[h.i+N-1],0)}</span><span class="${cls(h.chg)}" title="Veränderung ${H} Kerzen danach">${msPct(h.chg)}</span></div>
+      <div class="top"><span>max. ${msPct(h.up)}</span><span>min. ${msPct(h.dn)}</span></div>
+    </button>`;}).join('');
+  $('msResult').hidden=$('msListBox').hidden=false;
+}
+function msPlot(){
+  const {N,H,hits,cur}=ms.res;
+  const el=$('msPlot'),W=Math.round(Math.min(1000,Math.max(320,el.clientWidth||1000))),Ht=W<600?280:380,pl=56,pr=14,pt=14,pb=28,T=N+H;
+  el.setAttribute('viewBox','0 0 '+W+' '+Ht);
+  const all=[...cur];hits.forEach(h=>all.push(...h.path));
+  let mn=Math.min(...all),mx=Math.max(...all);const pad=(mx-mn)*.06||.01;mn-=pad;mx+=pad;
+  const x=k=>pl+(k/(T-1))*(W-pl-pr),y=v=>pt+(mx-v)/(mx-mn)*(Ht-pt-pb);
+  const line=(p,off=0)=>p.map((v,k)=>(k?'L':'M')+x(k+off).toFixed(1)+' '+y(v).toFixed(1)).join('');
+  let g='';
+  /* Raster */
+  const step=[.005,.01,.02,.025,.05,.1,.2,.25,.5].find(s=>(mx-mn)/s<=7)||1;
+  for(let v=Math.ceil(mn/step)*step;v<=mx;v+=step){
+    g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" ${Math.abs(v)<1e-9?'':'stroke-dasharray="2 4"'}/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end">${msPct(Math.abs(v)<1e-9?0:v)}</text>`;
+  }
+  g+=`<line x1="${x(N-1)}" x2="${x(N-1)}" y1="${pt}" y2="${Ht-pb}" stroke="var(--ink)" stroke-dasharray="4 4" opacity=".5"/><text x="${x(N-1)}" y="${Ht-8}" text-anchor="middle">jetzt</text>`;
+  g+=`<text x="${x(0)}" y="${Ht-8}">−${N-1}</text><text x="${x(T-1)}" y="${Ht-8}" text-anchor="end">+${H}</text>`;
+  /* Band 25–75 % und Median der Fortsetzungen */
+  const q1=[],q3=[],md=[];
+  for(let k=0;k<=H;k++){const v=hits.map(h=>h.path[N-1+k]);q1.push(msQuant(v,.25));q3.push(msQuant(v,.75));md.push(msQuant(v,.5));}
+  const band=q3.map((v,k)=>(k?'L':'M')+x(N-1+k).toFixed(1)+' '+y(v).toFixed(1)).join('')+q1.slice().reverse().map((v,k)=>'L'+x(N-1+H-k).toFixed(1)+' '+y(v).toFixed(1)).join('')+'Z';
+  g+=`<path d="${band}" fill="var(--accent)" opacity=".12"/>`;
+  hits.forEach((h,j)=>{if(j===ms.sel)return;
+    g+=`<path d="${line(h.path.slice(0,N))}" fill="none" stroke="var(--muted)" stroke-width="1.2" opacity=".35"/>`;
+    g+=`<path d="${line(h.path.slice(N-1),N-1)}" fill="none" stroke="${h.chg>=0?'var(--long)':'var(--short)'}" stroke-width="1.4" opacity=".45"/>`;});
+  g+=`<path d="${line(md,N-1)}" fill="none" stroke="var(--accent)" stroke-width="3"/>`;
+  if(ms.sel>=0){const h=hits[ms.sel];g+=`<path d="${line(h.path)}" fill="none" stroke="var(--warn)" stroke-width="2.6"/>`;}
+  g+=`<path d="${line(cur)}" fill="none" stroke="var(--ink)" stroke-width="3"/><circle cx="${x(N-1)}" cy="${y(0)}" r="4" fill="var(--ink)"/>`;
+  $('msPlot').innerHTML=g;
+}
+['msTf','msLen','msFwd','msTop','msAmp'].forEach(id=>$(id).addEventListener('change',()=>{store.set('ms',{tf:$('msTf').value,len:$('msLen').value,fwd:$('msFwd').value,top:$('msTop').value,amp:$('msAmp').checked});msRun();}));
+$('msCards').addEventListener('click',e=>{const b=e.target.closest('.ms-card');if(!b)return;const j=+b.dataset.j;ms.sel=ms.sel===j?-1:j;
+  document.querySelectorAll('#msCards .ms-card').forEach(c=>c.setAttribute('aria-pressed',+c.dataset.j===ms.sel));msPlot();
+  if(ms.sel>=0)$('msPlot').scrollIntoView({behavior:'smooth',block:'center'});});
+let msRz;window.addEventListener('resize',()=>{clearTimeout(msRz);msRz=setTimeout(()=>{if(ms.res&&!$('muster').hidden)msPlot();},150);});
+(()=>{const s=store.get('ms',null);if(!s)return;try{$('msTf').value=s.tf;$('msLen').value=s.len;$('msFwd').value=s.fwd;$('msTop').value=s.top;$('msAmp').checked=!!s.amp;}catch(e){}})();
+
 /* ---------- Reiter ---------- */
 function showTab(id){
-  ['cockpit','chart','plan','wissen','wyckoff','vol','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
+  ['cockpit','chart','muster','plan','wissen','wyckoff','vol','tipps','psy'].forEach(t=>{$(t).hidden=t!==id;$('tb-'+t).setAttribute('aria-selected',t===id);});
   if(id==='chart'&&window.chReady)loadChart();
+  if(id==='muster')msStart();
   store.set('tab',id);
 }
 $('tb-cockpit').onclick=()=>showTab('cockpit');
 $('tb-chart').onclick=()=>showTab('chart');
+$('tb-muster').onclick=()=>showTab('muster');
 $('tb-plan').onclick=()=>showTab('plan');
 $('tb-wissen').onclick=()=>showTab('wissen');
 $('tb-wyckoff').onclick=()=>showTab('wyckoff');
 $('tb-vol').onclick=()=>showTab('vol');
 $('tb-tipps').onclick=()=>showTab('tipps');
 $('tb-psy').onclick=()=>showTab('psy');
-showTab(['#wissen','#cockpit','#chart','#plan','#wyckoff','#vol','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
+showTab(['#wissen','#cockpit','#chart','#muster','#plan','#wyckoff','#vol','#tipps','#psy'].includes(location.hash)?location.hash.slice(1):store.get('tab','cockpit'));
 
 /* ---------- Marktwissen ---------- */
 const TOPICS=[
