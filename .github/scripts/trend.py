@@ -49,6 +49,21 @@ def index_liste(url, index, endung="", boerse_tv=""):
         n = spalte(df, "Security", "Company", "Name")
         if t is not None and n is not None and len(df) >= 20:
             kandidaten.append((len(df), df, t, n))
+    if not kandidaten:
+        # Ausweichweg: Spalten am Inhalt erkennen (Ticker = kurze Großbuchstaben-Kürzel)
+        import re
+        for df in wiki_tabellen(url):
+            if len(df) < 20:
+                continue
+            t = n = None
+            for c in df.columns:
+                werte = df[c].astype(str).str.strip()
+                if t is None and werte.str.fullmatch(r"[A-Z]{1,5}(\.[A-Z])?").mean() > 0.8:
+                    t = c
+                elif n is None and werte.str.len().mean() > 6 and werte.str.contains(r"[a-z]").mean() > 0.8:
+                    n = c
+            if t is not None and n is not None:
+                kandidaten.append((len(df), df, t, n))
     for _, df, t, n in sorted(kandidaten, key=lambda k: -k[0])[:1]:
         aus = []
         for _, z in df.iterrows():
@@ -60,7 +75,7 @@ def index_liste(url, index, endung="", boerse_tv=""):
             tv = (boerse_tv + ":" + basis) if boerse_tv else sym.replace(".", "")
             aus.append({"name": str(z[n]).strip(), "yahoo": yahoo, "tv": tv, "index": index})
         return aus
-    koepfe = [" | ".join(map(str, df.columns))[:120] for df in wiki_tabellen(url)[:12]]
+    koepfe = [f"{len(df)} Zeilen: " + " | ".join(map(str, df.columns))[:80] for df in wiki_tabellen(url) if len(df) >= 20]
     raise ValueError("keine Tabelle gefunden; Tabellenköpfe: " + " || ".join(koepfe))
 
 
