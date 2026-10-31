@@ -1,5 +1,5 @@
-"""Berechnet für alle Aktien aus aktien/liste.json Allzeithoch/-tief, 52-Wochen-Spanne
-sowie Unterstützungen und Widerstände und schreibt aktien.json.
+"""Berechnet für alle Aktien aus aktien/liste.json Allzeithoch/-tief, 52-Wochen-Spanne,
+den gleitenden 150-Tage-Durchschnitt (SMA 150) sowie Unterstützungen und Widerstände und schreibt aktien.json.
 
 Wird von .github/workflows/aktien.yml ausgeführt.
 
@@ -17,6 +17,7 @@ import yfinance as yf
 FENSTER = 8          # Tage links/rechts, die ein Wendepunkt überragen muss
 JAHRE = 3            # Zeitraum für Wendepunkte
 ANZAHL = 3           # Anzahl Unterstützungen bzw. Widerstände je Aktie
+SMA_TAGE = 150       # gleitender Durchschnitt der Schlusskurse über so viele Handelstage
 
 
 def num(x):
@@ -159,6 +160,9 @@ def verarbeite(eintrag):
     j_hoch = max(float(jahr["High"].max()), preis)
     j_tief = min(float(jahr["Low"].min()), preis)
 
+    # SMA 150: Durchschnitt der letzten 150 Tagesschlusskurse
+    sma = float(df["Close"].iloc[-SMA_TAGE:].mean()) if len(df) >= SMA_TAGE else None
+
     unten, oben = berechne_level(df.iloc[-252 * JAHRE:], preis)
     # Zu wenige Zonen in den letzten Jahren (z. B. weit unter altem Hoch): ältere Historie ergänzen
     if (len(unten) < ANZAHL or len(oben) < ANZAHL) and len(df) > 252 * JAHRE:
@@ -179,6 +183,9 @@ def verarbeite(eintrag):
         "jh": round(j_hoch, 2), "jt": round(j_tief, 2),
         "u": unten, "r": oben,
     }
+    if sma:
+        e["sma"] = round(sma, 2)
+        e["sa"] = round((preis / sma - 1) * 100, 1)
     if vortag:
         e["c"] = round((preis / vortag - 1) * 100, 2)
     return e
