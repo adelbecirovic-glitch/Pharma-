@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trend-Rücksetzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Liste: Aktien im Aufwärtstrend, die knapp unter den SMA 50 zurückgesetzt haben. Zeile antippen = Chart darunter. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#14202b; --muted:#5d6b78; --line:#dde3e9;
+  --accent:#1f6f8b; --accent-soft:#e1eef3;
+  --sup:#13804f; --sup-soft:#dcf2e6; --res:#c0392b; --res-soft:#fbe3e0;
+  --warn:#a86200; --warn-soft:#fbeed8; --price:#1f6f8b;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e151c; --surface:#151f28; --fg:#e6edf3; --muted:#8fa0af; --line:#25323e;
+  --accent:#5cb8d6; --accent-soft:#16303b;
+  --sup:#3fcf8a; --sup-soft:#123326; --res:#ff7a6b; --res-soft:#3a1a17;
+  --warn:#f0b45a; --warn-soft:#3a2a12; --price:#5cb8d6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151c; --surface:#151f28; --fg:#e6edf3; --muted:#8fa0af; --line:#25323e;
+  --accent:#5cb8d6; --accent-soft:#16303b;
+  --sup:#3fcf8a; --sup-soft:#123326; --res:#ff7a6b; --res-soft:#3a1a17;
+  --warn:#f0b45a; --warn-soft:#3a2a12; --price:#5cb8d6; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:32px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:22px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px 24px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1.05;margin:0;letter-spacing:-.01em}
+.lede{margin:6px 0 0;color:var(--muted);max-width:64ch}
+.live{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.live.on .dot{background:var(--sup);box-shadow:0 0 0 3px var(--sup-soft)}
+button,select,input{font:inherit}
+.btn{font-family:var(--f-body);font-size:13px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.notice{background:var(--warn-soft);color:var(--fg);border-radius:10px;padding:12px 16px;font-size:14px}
+.notice[hidden]{display:none}
+
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tools input{flex:1 1 220px;min-width:0;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tools label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.tools select{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+
+/* Übersicht */
+.tablebox{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1}
+tbody tr:hover td:first-child{background:var(--accent-soft)}
+tbody tr:last-child td{border-bottom:none}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+th button{all:unset;cursor:pointer}
+th button[data-dir]::after{content:attr(data-dir);margin-left:4px}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--accent-soft)}
+td a{color:inherit;text-decoration:none;font-weight:600}
+.sub{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.up{color:var(--sup)} .down{color:var(--res)}
+
+.crit{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.crit div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px}
+.crit b{display:block;font-family:var(--f-mono);font-size:12px;color:var(--accent);margin-bottom:2px}
+.count{font-size:14px;color:var(--muted)}
+.count strong{color:var(--fg)}
+td.chartcell{padding:0;text-align:left;position:static;background:var(--bg)}
+tr.chartrow:hover{background:none}
+.chartbox{height:440px;position:relative}
+.chartbox .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px}
+.tradingview-widget-container,.tradingview-widget-container__widget{height:100%;width:100%}
+.chartfoot{padding:6px 14px;font-size:12px;display:flex;justify-content:flex-end;border-top:1px solid var(--line)}
+.chartfoot a{color:var(--accent)}
+.bar50{display:inline-block;width:60px;height:6px;border-radius:3px;background:var(--line);position:relative;vertical-align:middle;margin-left:8px}
+.bar50 i{position:absolute;top:0;bottom:0;right:0;border-radius:3px;background:var(--warn)}
+footer{font-size:12px;color:var(--muted);max-width:80ch}
+footer p{margin:0 0 6px}
+@media (max-width:820px){.chartbox{height:360px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Trend-Rücksetzer</h1>
+      <p class="lede">Aktien im Aufwärtstrend, die gerade knapp unter ihren 50-Tage-Durchschnitt gefallen sind. Zeile antippen für den Chart mit SMA 50 und SMA 150.</p>
+    </div>
+    <div class="live" id="live"><span class="dot"></span><span id="stand">Lade Daten …</span><button class="btn" id="reload" type="button">Neu laden</button></div>
+  </header>
+
+  <div class="crit">
+    <div><b>Aufwärtstrend</b>Kurs über SMA 150, SMA 50 über SMA 150, SMA 150 steigt seit 20 Tagen</div>
+    <div><b>Knapp unter SMA 50</b>Kurs 0 bis <span id="knapp">5</span> % unter dem 50-Tage-Durchschnitt</div>
+    <div><b>Bestand</b>S&amp;P 500, Nasdaq 100, DAX 40 und deine Aktienliste</div>
+  </div>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="Aktie suchen …" aria-label="Aktie suchen">
+    <div class="chips" role="group" aria-label="Index">
+      <button class="chip" data-f="alle" aria-pressed="true">Alle</button>
+      <button class="chip" data-f="S&amp;P 500">S&amp;P 500</button>
+      <button class="chip" data-f="Nasdaq 100">Nasdaq 100</button>
+      <button class="chip" data-f="DAX">DAX</button>
+      <button class="chip" data-f="Eigene Liste">Eigene Liste</button>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr>
+        <th><button data-sort="name">Aktie</button></th>
+        <th><button data-sort="p">Kurs</button></th>
+        <th><button data-sort="c">Heute</button></th>
+        <th><button data-sort="sa50">Abstand SMA 50</button></th>
+        <th><button data-sort="sa150">Abstand SMA 150</button></th>
+        <th><button data-sort="st150">SMA 150 (20 T.)</button></th>
+        <th><button data-sort="h52">Vom 52-W-Hoch</button></th>
+      </tr></thead>
+      <tbody id="rows"><tr><td colspan="7" style="text-align:center;color:var(--muted)">Lade Daten …</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <p>Die Idee: In einem intakten Aufwärtstrend wirkt der 50-Tage-Durchschnitt oft wie eine Unterstützung. Ein kurzer Rücksetzer knapp darunter kann ein Einstieg sein, kann aber auch der Anfang einer Trendwende sein. Prüf den Chart und setz dir einen Stopp.</p>
+    <p>„SMA 150 (20 T.)“ zeigt, wie stark der 150-Tage-Durchschnitt in den letzten 20 Handelstagen gestiegen ist. Die Liste wird werktags sechsmal täglich neu berechnet, Kurse um Splits und Dividenden bereinigt. Keine Anlageberatung.</p>
+  </footer>
+</div>
+
+<script>
+const DATA_URL='https://raw.githubusercontent.com/adelbecirovic-glitch/Pharma-/trend-daten/trend.json';
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem('trend_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+             set(k,v){try{localStorage.setItem('trend_'+k,JSON.stringify(v))}catch(e){}}};
+const CUR={EUR:'€',USD:'$'};
+let data=null, filter='alle', sortKey=store.get('sort','sa50'), sortDir=store.get('dir',-1), offen=null;
+
+function fmt(v,w){if(v==null||isNaN(v))return '–';const d=Math.abs(v)>=1000?0:2;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d})+' '+(CUR[w||'USD']||w);}
+function pct(v){if(v==null||isNaN(v))return '–';return (v>0?'+':'')+v.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function sichtbar(a){
+  const q=$('q').value.trim().toLowerCase();
+  if(q&&!(a.name.toLowerCase().includes(q)||a.s.toLowerCase().includes(q)))return false;
+  if(filter!=='alle'&&!(a.i||'').split(', ').includes(filter))return false;
+  return true;
+}
+function sortWert(a,k){return k==='name'?a.name.toLowerCase():a[k];}
+
+function render(){
+  document.querySelectorAll('th button').forEach(b=>{if(b.dataset.sort===sortKey)b.dataset.dir=sortDir>0?'▲':'▼';else delete b.dataset.dir;});
+  const knapp=data?.knapp||5;
+  const rows=(data?.aktien||[]).filter(sichtbar).sort((x,y)=>{const a=sortWert(x,sortKey),b=sortWert(y,sortKey);
+    if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return (a>b?1:a<b?-1:0)*sortDir;});
+  $('count').innerHTML=data?`<strong>${rows.length}</strong> Treffer${filter!=='alle'||$('q').value?'':' aus '+data.geprueft+' geprüften Aktien'}`:'';
+  $('rows').innerHTML=rows.map(a=>{
+    const tiefe=Math.min(100,Math.abs(a.sa50)/knapp*100);
+    let h=`<tr data-s="${esc(a.s)}" aria-expanded="${offen===a.s}">
+      <td><a href="#" onclick="return false">${esc(a.name)}</a><span class="sub">${esc(a.s)} · ${esc(a.i)}</span></td>
+      <td class="num">${fmt(a.p,a.w)}</td>
+      <td class="num ${a.c>0?'up':a.c<0?'down':''}">${pct(a.c)}</td>
+      <td class="num">${pct(a.sa50)}<span class="bar50" title="Je voller, desto tiefer unter dem SMA 50"><i style="width:${tiefe}%"></i></span><span class="sub">SMA ${fmt(a.sma50,a.w)}</span></td>
+      <td class="num up">${pct(a.sa150)}<span class="sub">SMA ${fmt(a.sma150,a.w)}</span></td>
+      <td class="num up">${pct(a.st150)}</td>
+      <td class="num">${pct(a.h52)}</td>
+    </tr>`;
+    if(offen===a.s)h+=`<tr class="chartrow"><td class="chartcell" colspan="7"><div class="chartbox" id="cb"><div class="ph">Chart lädt …</div></div><div class="chartfoot"><a target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(a.tv)}">Auf TradingView öffnen ↗</a></div></td></tr>`;
+    return h;}).join('')||`<tr><td colspan="7" style="text-align:center;color:var(--muted)">${data?'Aktuell erfüllt keine Aktie beide Bedingungen.':'Lade Daten …'}</td></tr>`;
+  if(offen){const a=(data?.aktien||[]).find(x=>x.s===offen);if(a&&$('cb'))ladeChart(a);}
+}
+
+function isDark(){const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;}
+function ladeChart(a){
+  const box=$('cb'); box.innerHTML='';
+  const wrap=document.createElement('div');wrap.className='tradingview-widget-container';
+  const inner=document.createElement('div');inner.className='tradingview-widget-container__widget';wrap.appendChild(inner);
+  const sc=document.createElement('script');sc.type='text/javascript';sc.async=true;
+  sc.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.innerHTML=JSON.stringify({autosize:true,symbol:a.tv,interval:'D',timezone:'Europe/Vienna',
+    theme:isDark()?'dark':'light',style:'1',locale:'de_DE',allow_symbol_change:false,hide_side_toolbar:false,
+    save_image:false,calendar:false,support_host:'https://www.tradingview.com',
+    studies:[{id:'MASimple@tv-basicstudies',inputs:{length:50}},{id:'MASimple@tv-basicstudies',inputs:{length:150}}]});
+  wrap.appendChild(sc); box.appendChild(wrap);
+}
+
+async function laden(){
+  $('live').classList.remove('on'); $('stand').textContent='Lade Daten …';
+  try{
+    const r=await fetch(DATA_URL+'?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    data=await r.json(); $('notice').hidden=true;
+    $('knapp').textContent=String(data.knapp||5).replace('.',',');
+    const d=new Date(data.stand);
+    $('stand').textContent='Stand '+d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    $('live').classList.add('on');
+  }catch(e){
+    $('stand').textContent='Keine Daten';
+    $('notice').hidden=false;
+    $('notice').textContent='Die Daten konnten nicht geladen werden. Beim allerersten Mal dauert die Berechnung einige Minuten, danach einfach neu laden.';
+  }
+  render();
+}
+
+$('rows').addEventListener('click',e=>{const tr=e.target.closest('tr[data-s]');if(!tr)return;
+  offen=offen===tr.dataset.s?null:tr.dataset.s;render();});
+document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.f;
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===b));render();}));
+document.querySelectorAll('th button').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.sort;
+  if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=k==='name'?1:-1;}store.set('sort',sortKey);store.set('dir',sortDir);render();}));
+$('q').addEventListener('input',render);
+$('reload').addEventListener('click',laden);
+laden();
+</script>
+</body>
+</html>

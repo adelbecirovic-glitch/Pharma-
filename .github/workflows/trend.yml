@@ -1,0 +1,41 @@
+name: Trend-Seite aktualisieren
+
+on:
+  schedule:
+    - cron: "41 7,10,13,16,19,21 * * 1-5"   # sechsmal pro Handelstag (UTC), Montag bis Freitag
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/scripts/trend.py
+      - .github/workflows/trend.yml
+      - aktien/liste.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trend
+  cancel-in-progress: false
+
+jobs:
+  trend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install yfinance pandas lxml requests
+      - run: python .github/scripts/trend.py
+      # trend.json landet auf dem eigenen Branch "trend-daten" (ein einziger Commit, wird jedes Mal ersetzt).
+      - name: Auf Branch trend-daten veröffentlichen
+        run: |
+          mkdir /tmp/out && cp trend.json /tmp/out/
+          cd /tmp/out
+          git init -q -b trend-daten
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trend.json
+          git commit -q -m "Trend $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" trend-daten
