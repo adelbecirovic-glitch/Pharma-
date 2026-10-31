@@ -45,8 +45,8 @@ def index_liste(url, index, endung="", boerse_tv=""):
     # die größte Tabelle mit Ticker- und Namensspalte ist die Bestandsliste
     kandidaten = []
     for df in wiki_tabellen(url):
-        t = spalte(df, "Symbol", "Ticker")
-        n = spalte(df, "Security", "Company", "Name")
+        t = spalte(df, "Symbol", "Ticker", "Kürzel")
+        n = spalte(df, "Security", "Company", "Name", "Unternehmen")
         if t is not None and n is not None and len(df) >= 20:
             kandidaten.append((len(df), df, t, n))
     if not kandidaten:
@@ -84,21 +84,35 @@ FEHLER = {}
 
 
 def nasdaq100():
-    """Bestandsliste direkt von nasdaq.com (Wikipedia führt sie nicht mehr als Tabelle)."""
-    h = dict(UA, Accept="application/json, text/plain, */*", Origin="https://www.nasdaq.com",
-             Referer="https://www.nasdaq.com/")
-    r = requests.get("https://api.nasdaq.com/api/quote/list-type/nasdaq100", headers=h, timeout=30)
-    r.raise_for_status()
-    zeilen = r.json()["data"]["data"]["rows"]
-    aus = []
-    for z in zeilen:
-        sym = str(z.get("symbol", "")).strip()
-        if sym:
-            aus.append({"name": str(z.get("companyName", sym)).strip(), "yahoo": sym.replace(".", "-"),
-                        "tv": sym.replace(".", ""), "index": "Nasdaq 100"})
-    if len(aus) < 90:
-        raise ValueError(f"nur {len(aus)} Werte erhalten")
-    return aus
+    """Nasdaq-100-Bestand. Der englische Wikipedia-Artikel führt keine Tabelle mehr,
+    daher mehrere Quellen nacheinander; die erste mit mindestens 90 Werten gewinnt."""
+    gruende = []
+    for url in ("https://stockanalysis.com/list/nasdaq-100-stocks/",
+                "https://de.wikipedia.org/wiki/NASDAQ-100"):
+        try:
+            aus = index_liste(url, "Nasdaq 100")
+            if len(aus) >= 90:
+                return aus
+            gruende.append(f"{url}: nur {len(aus)} Werte")
+        except Exception as ex:
+            gruende.append(f"{url}: {str(ex)[:80]}")
+    try:
+        h = dict(UA, Accept="application/json, text/plain, */*", Origin="https://www.nasdaq.com",
+                 Referer="https://www.nasdaq.com/")
+        r = requests.get("https://api.nasdaq.com/api/quote/list-type/nasdaq100", headers=h, timeout=15)
+        r.raise_for_status()
+        aus = []
+        for z in r.json()["data"]["data"]["rows"]:
+            sym = str(z.get("symbol", "")).strip()
+            if sym:
+                aus.append({"name": str(z.get("companyName", sym)).strip(), "yahoo": sym.replace(".", "-"),
+                            "tv": sym.replace(".", ""), "index": "Nasdaq 100"})
+        if len(aus) >= 90:
+            return aus
+        gruende.append(f"nasdaq.com: nur {len(aus)} Werte")
+    except Exception as ex:
+        gruende.append(f"nasdaq.com: {str(ex)[:80]}")
+    raise ValueError(" / ".join(gruende))
 
 
 def bestand():
