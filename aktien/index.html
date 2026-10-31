@@ -74,7 +74,7 @@ td a{color:inherit;text-decoration:none;font-weight:600}
 .up{color:var(--sup)} .down{color:var(--res)}
 .tag{display:inline-block;font-size:11px;font-weight:600;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
 .tag.s{background:var(--sup-soft);color:var(--sup)} .tag.r{background:var(--res-soft);color:var(--res)} .tag.h{background:var(--warn-soft);color:var(--warn)}
-.tag.mo{background:var(--sup-soft);color:var(--sup)} .tag.mu{background:var(--res-soft);color:var(--res)}
+.tag.k{background:var(--warn-soft);color:var(--warn)} .tag.mo{background:var(--sup-soft);color:var(--sup)} .tag.mu{background:var(--res-soft);color:var(--res)}
 
 /* Karten */
 .cards{display:flex;flex-direction:column;gap:18px}
@@ -129,7 +129,7 @@ footer p{margin:0 0 6px}
   <header>
     <div>
       <h1>Aktien-Level</h1>
-      <p class="lede">Allzeithoch, Allzeittief, 150-Tage-Durchschnitt, Unterstützungen und Widerstände je Aktie, dazu ein aktueller Chart.</p>
+      <p class="lede">Allzeithoch, Allzeittief, 50- und 150-Tage-Durchschnitt, Unterstützungen und Widerstände je Aktie, dazu ein aktueller Chart.</p>
     </div>
     <div class="live" id="live"><span class="dot"></span><span id="stand">Lade Daten …</span><button class="btn" id="reload" type="button">Neu laden</button></div>
   </header>
@@ -144,6 +144,7 @@ footer p{margin:0 0 6px}
       <button class="chip" data-f="r">Nahe Widerstand</button>
       <button class="chip" data-f="h">Nahe Allzeithoch</button>
       <button class="chip" data-f="m">Über SMA 150</button>
+      <button class="chip" data-f="k">Knapp unter SMA 50</button>
     </div>
     <label>Chart <select id="iv">
       <option value="D">Tage</option>
@@ -161,6 +162,7 @@ footer p{margin:0 0 6px}
         <th><button data-sort="c">Heute</button></th>
         <th><button data-sort="ath">Allzeithoch</button></th>
         <th><button data-sort="atl">Allzeittief</button></th>
+        <th><button data-sort="sma50">SMA 50</button></th>
         <th><button data-sort="sma">SMA 150</button></th>
         <th><button data-sort="u">Nächste Unterstützung</button></th>
         <th><button data-sort="r">Nächster Widerstand</button></th>
@@ -174,7 +176,7 @@ footer p{margin:0 0 6px}
   <footer>
     <p>Allzeithoch und -tief beziehen sich auf die gesamte verfügbare Kurshistorie (bereinigt um Aktiensplits). Unterstützungen und Widerstände werden aus Wendepunkten der letzten drei Jahre berechnet: Kurse, an denen die Aktie mehrfach gedreht hat, ergeben eine Zone. „2×“ heißt, die Zone wurde zweimal berührt.</p>
     <p>„Nahe“ bedeutet höchstens 3 % Abstand (Allzeithoch: 5 %). Die Werte aktualisieren sich werktags stündlich. Keine Anlageberatung.</p>
-    <p>SMA 150 ist der Durchschnitt der letzten 150 Tagesschlusskurse. „Über SMA 150“ zeigt Aktien, deren aktueller Kurs darüber liegt (gilt als intakter mittelfristiger Aufwärtstrend). Aktien mit weniger als 150 Handelstagen haben keinen Wert.</p>
+    <p>SMA 50 und SMA 150 sind die Durchschnitte der letzten 50 bzw. 150 Tagesschlusskurse. „Knapp unter SMA 50“ zeigt Aktien, die höchstens 5 % unter ihrem 50-Tage-Durchschnitt liegen. „Über SMA 150“ zeigt Aktien, deren aktueller Kurs darüber liegt (gilt als intakter mittelfristiger Aufwärtstrend). Aktien mit weniger als 150 Handelstagen haben keinen Wert.</p>
   </footer>
 </div>
 
@@ -199,8 +201,10 @@ function flags(a){const f=new Set();
   if(a.r&&a.r[0]&&a.r[0].a<=3)f.add('r');
   const h=athAbstand(a); if(h!=null&&h>=-5)f.add('h');
   if(a.sa!=null&&a.sa>0)f.add('m');
+  if(a.sa50!=null&&a.sa50<=0&&a.sa50>=-KNAPP)f.add('k');
   return f;}
 
+const KNAPP=5; // Prozent: so weit darf der Kurs unter dem SMA 50 liegen, um als "knapp drunter" zu gelten
 function smaTag(a){if(a.sa==null)return '';return a.sa>0?'<span class="tag mo">über</span>':'<span class="tag mu">unter</span>';}
 
 function eintraege(){
@@ -222,6 +226,7 @@ function sortWert(a,k){
   if(k==='ath')return athAbstand(a);
   if(k==='atl')return a.atl?(a.p/a.atl-1)*100:null;
   if(k==='sma')return a.sa;
+  if(k==='sma50')return a.sa50;
   if(k==='u')return a.u&&a.u[0]?Math.abs(a.u[0].a):null;
   if(k==='r')return a.r&&a.r[0]?a.r[0].a:null;
   return a[k];
@@ -232,7 +237,7 @@ function renderTabelle(liste){
   const rows=[...liste].sort((x,y)=>{const a=sortWert(x,sortKey),b=sortWert(y,sortKey);
     if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return (a>b?1:a<b?-1:0)*sortDir;});
   $('rows').innerHTML=rows.filter(sichtbar).map(a=>{
-    if(a.offen||a.fehler)return `<tr data-id="${slug(a.s)}"><td><a href="#${slug(a.s)}">${esc(a.name)}</a><span class="sub">${esc(a.s)}</span></td><td colspan="7" style="text-align:left;color:var(--muted)">${a.fehler?'Keine Daten':'Wird berechnet …'}</td></tr>`;
+    if(a.offen||a.fehler)return `<tr data-id="${slug(a.s)}"><td><a href="#${slug(a.s)}">${esc(a.name)}</a><span class="sub">${esc(a.s)}</span></td><td colspan="8" style="text-align:left;color:var(--muted)">${a.fehler?'Keine Daten':'Wird berechnet …'}</td></tr>`;
     const f=flags(a), u=a.u&&a.u[0], r=a.r&&a.r[0], h=athAbstand(a);
     return `<tr data-id="${slug(a.s)}">
       <td><a href="#${slug(a.s)}">${esc(a.name)}</a><span class="sub">${esc(a.s)}</span></td>
@@ -240,10 +245,11 @@ function renderTabelle(liste){
       <td class="num ${a.c>0?'up':a.c<0?'down':''}">${pct(a.c)}</td>
       <td class="num">${fmt(a.ath)}<span class="sub">${pct(h)}${f.has('h')?'<span class="tag h">nah</span>':''}</span></td>
       <td class="num">${fmt(a.atl)}<span class="sub">${pct(a.atl?(a.p/a.atl-1)*100:null)}</span></td>
+      <td class="num">${fmt(a.sma50)}<span class="sub">${pct(a.sa50)}${f.has('k')?'<span class="tag k">knapp drunter</span>':''}</span></td>
       <td class="num">${fmt(a.sma)}<span class="sub">${pct(a.sa)}${smaTag(a)}</span></td>
       <td class="num">${u?fmt(u.k):'–'}<span class="sub">${u?pct(u.a):''}${f.has('s')?'<span class="tag s">nah</span>':''}</span></td>
       <td class="num">${r?fmt(r.k):'–'}<span class="sub">${r?pct(r.a):''}${f.has('r')?'<span class="tag r">nah</span>':''}</span></td>
-    </tr>`;}).join('')||`<tr><td colspan="8" style="text-align:center;color:var(--muted)">Keine Aktie passt zum Filter.</td></tr>`;
+    </tr>`;}).join('')||`<tr><td colspan="9" style="text-align:center;color:var(--muted)">Keine Aktie passt zum Filter.</td></tr>`;
 }
 
 function leiter(a){
@@ -276,6 +282,7 @@ function renderKarten(alle){
       <div class="kv">
         <div><div class="k">Allzeithoch</div><div class="v">${fmt(a.ath,a.w)}</div><div class="d">${datum(a.ath_d)} · ${pct(athAbstand(a))}</div></div>
         <div><div class="k">Allzeittief</div><div class="v">${fmt(a.atl,a.w)}</div><div class="d">${datum(a.atl_d)} · ${pct((a.p/a.atl-1)*100)}</div></div>
+        <div><div class="k">SMA 50</div><div class="v">${fmt(a.sma50,a.w)}</div><div class="d">${a.sa50==null?'zu wenig Historie':'Kurs '+pct(a.sa50)+(a.sa50>0?' darüber':' darunter')}</div></div>
         <div><div class="k">SMA 150</div><div class="v">${fmt(a.sma,a.w)}</div><div class="d">${a.sa==null?'zu wenig Historie':'Kurs '+pct(a.sa)+(a.sa>0?' darüber':' darunter')}</div></div>
       </div>
       <div class="range"><div class="k">52 Wochen</div><div class="bar"><i style="left:${pos}%"></i></div>

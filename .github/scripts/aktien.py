@@ -1,5 +1,5 @@
 """Berechnet für alle Aktien aus aktien/liste.json Allzeithoch/-tief, 52-Wochen-Spanne,
-den gleitenden 150-Tage-Durchschnitt (SMA 150) sowie Unterstützungen und Widerstände und schreibt aktien.json.
+die gleitenden 50- und 150-Tage-Durchschnitte (SMA 50, SMA 150) sowie Unterstützungen und Widerstände und schreibt aktien.json.
 
 Wird von .github/workflows/aktien.yml ausgeführt.
 
@@ -18,6 +18,7 @@ FENSTER = 8          # Tage links/rechts, die ein Wendepunkt überragen muss
 JAHRE = 3            # Zeitraum für Wendepunkte
 ANZAHL = 3           # Anzahl Unterstützungen bzw. Widerstände je Aktie
 SMA_TAGE = 150       # gleitender Durchschnitt der Schlusskurse über so viele Handelstage
+SMA_KURZ = 50        # kurzer gleitender Durchschnitt
 
 
 def num(x):
@@ -162,6 +163,7 @@ def verarbeite(eintrag):
 
     # SMA 150: Durchschnitt der letzten 150 Tagesschlusskurse
     sma = float(df["Close"].iloc[-SMA_TAGE:].mean()) if len(df) >= SMA_TAGE else None
+    sma50 = float(df["Close"].iloc[-SMA_KURZ:].mean()) if len(df) >= SMA_KURZ else None
 
     unten, oben = berechne_level(df.iloc[-252 * JAHRE:], preis)
     # Zu wenige Zonen in den letzten Jahren (z. B. weit unter altem Hoch): ältere Historie ergänzen
@@ -186,6 +188,9 @@ def verarbeite(eintrag):
     if sma:
         e["sma"] = round(sma, 2)
         e["sa"] = round((preis / sma - 1) * 100, 1)
+    if sma50:
+        e["sma50"] = round(sma50, 2)
+        e["sa50"] = round((preis / sma50 - 1) * 100, 1)
     if vortag:
         e["c"] = round((preis / vortag - 1) * 100, 2)
     return e
