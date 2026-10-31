@@ -83,16 +83,34 @@ QUELLEN = {}
 FEHLER = {}
 
 
+def nasdaq100():
+    """Bestandsliste direkt von nasdaq.com (Wikipedia führt sie nicht mehr als Tabelle)."""
+    h = dict(UA, Accept="application/json, text/plain, */*", Origin="https://www.nasdaq.com",
+             Referer="https://www.nasdaq.com/")
+    r = requests.get("https://api.nasdaq.com/api/quote/list-type/nasdaq100", headers=h, timeout=30)
+    r.raise_for_status()
+    zeilen = r.json()["data"]["data"]["rows"]
+    aus = []
+    for z in zeilen:
+        sym = str(z.get("symbol", "")).strip()
+        if sym:
+            aus.append({"name": str(z.get("companyName", sym)).strip(), "yahoo": sym.replace(".", "-"),
+                        "tv": sym.replace(".", ""), "index": "Nasdaq 100"})
+    if len(aus) < 90:
+        raise ValueError(f"nur {len(aus)} Werte erhalten")
+    return aus
+
+
 def bestand():
     quellen = [
         ("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies", "S&P 500", "", ""),
-        ("https://en.wikipedia.org/wiki/Nasdaq-100", "Nasdaq 100", "", ""),
+        ("nasdaq", "Nasdaq 100", "", ""),
         ("https://en.wikipedia.org/wiki/DAX", "DAX", ".DE", "XETR"),
     ]
     alle = {}
     for url, idx, endung, tv in quellen:
         try:
-            liste = index_liste(url, idx, endung, tv)
+            liste = nasdaq100() if url == "nasdaq" else index_liste(url, idx, endung, tv)
             print(f"{idx}: {len(liste)} Werte")
             QUELLEN[idx] = len(liste)
             for e in liste:
