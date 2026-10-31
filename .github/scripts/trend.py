@@ -60,10 +60,12 @@ def index_liste(url, index, endung="", boerse_tv=""):
             tv = (boerse_tv + ":" + basis) if boerse_tv else sym.replace(".", "")
             aus.append({"name": str(z[n]).strip(), "yahoo": yahoo, "tv": tv, "index": index})
         return aus
-    raise ValueError("keine Tabelle gefunden")
+    koepfe = [" | ".join(map(str, df.columns))[:120] for df in wiki_tabellen(url)[:12]]
+    raise ValueError("keine Tabelle gefunden; Tabellenköpfe: " + " || ".join(koepfe))
 
 
 QUELLEN = {}
+FEHLER = {}
 
 
 def bestand():
@@ -86,6 +88,7 @@ def bestand():
         except Exception as ex:
             print(f"Hinweis: {idx} nicht geladen ({ex})")
             QUELLEN[idx] = 0
+            FEHLER[idx] = str(ex)[:300]
     try:
         with open("aktien/liste.json", encoding="utf-8") as f:
             for e in json.load(f):
@@ -153,7 +156,7 @@ def main():
         sys.exit("Zu wenige Kurse geladen, trend.json wird nicht überschrieben")
     treffer.sort(key=lambda t: -t["sa50"])
     aus = {"stand": datetime.now(timezone.utc).isoformat(timespec="minutes"),
-           "geprueft": geladen, "quellen": QUELLEN, "knapp": KNAPP, "aktien": treffer}
+           "geprueft": geladen, "quellen": QUELLEN, "fehler": FEHLER, "knapp": KNAPP, "aktien": treffer}
     with open("trend.json", "w", encoding="utf-8") as f:
         json.dump(aus, f, ensure_ascii=False, separators=(",", ":"))
 
