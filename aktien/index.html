@@ -176,7 +176,7 @@ footer p{margin:0 0 6px}
   <footer>
     <p>Allzeithoch und -tief beziehen sich auf die gesamte verfügbare Kurshistorie (bereinigt um Aktiensplits). Unterstützungen und Widerstände werden aus Wendepunkten der letzten drei Jahre berechnet: Kurse, an denen die Aktie mehrfach gedreht hat, ergeben eine Zone. „2×“ heißt, die Zone wurde zweimal berührt.</p>
     <p>„Nahe“ bedeutet höchstens 3 % Abstand (Allzeithoch: 5 %). Die Werte aktualisieren sich werktags stündlich. Keine Anlageberatung.</p>
-    <p>SMA 50 und SMA 150 sind die Durchschnitte der letzten 50 bzw. 150 Tagesschlusskurse. „Knapp unter SMA 50“ zeigt Aktien, die höchstens 5 % unter ihrem 50-Tage-Durchschnitt liegen. „Über SMA 150“ zeigt Aktien, deren aktueller Kurs darüber liegt (gilt als intakter mittelfristiger Aufwärtstrend). Aktien mit weniger als 150 Handelstagen haben keinen Wert.</p>
+    <p>Die Charts zeigen beide Durchschnitte als Linien (in der Tagesansicht entsprechen sie genau den Werten der Tabelle; in der Wochen- oder Stundenansicht beziehen sie sich auf 50 bzw. 150 Kerzen dieses Zeitraums). SMA 50 und SMA 150 sind die Durchschnitte der letzten 50 bzw. 150 Tagesschlusskurse. „Knapp unter SMA 50“ zeigt Aktien, die höchstens 5 % unter ihrem 50-Tage-Durchschnitt liegen. „Über SMA 150“ zeigt Aktien, deren aktueller Kurs darüber liegt (gilt als intakter mittelfristiger Aufwärtstrend). Aktien mit weniger als 150 Handelstagen haben keinen Wert.</p>
   </footer>
 </div>
 
@@ -305,7 +305,9 @@ function ladeChart(c,force){
   sc.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
   sc.innerHTML=JSON.stringify({autosize:true,symbol:c.dataset.tv,interval:$('iv').value,timezone:'Europe/Vienna',
     theme:isDark()?'dark':'light',style:'1',locale:'de_DE',allow_symbol_change:false,hide_side_toolbar:false,
-    save_image:false,calendar:false,support_host:'https://www.tradingview.com'});
+    save_image:false,calendar:false,support_host:'https://www.tradingview.com',
+    // gleitende Durchschnitte wie in der Tabelle (SMA 50 und SMA 150)
+    studies:[{id:'MASimple@tv-basicstudies',inputs:{length:50}},{id:'MASimple@tv-basicstudies',inputs:{length:150}}]});
   wrap.appendChild(sc); box.appendChild(wrap);
 }
 const beobachter=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.dataset.sichtbar='1';ladeChart(e.target);}}),{rootMargin:'300px'});
