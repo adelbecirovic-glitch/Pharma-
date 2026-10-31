@@ -31,20 +31,25 @@ def wiki_tabellen(url):
 
 
 def spalte(df, *namen):
+    """Findet eine Spalte, deren Überschrift einen der Namen enthält (auch bei mehrzeiligen Köpfen)."""
     for n in namen:
         for c in df.columns:
-            if str(c).strip().lower() == n.lower():
+            text = " ".join(map(str, c)) if isinstance(c, tuple) else str(c)
+            if n.lower() in text.strip().lower():
                 return c
     return None
 
 
 def index_liste(url, index, endung="", boerse_tv=""):
     """Liest die Bestandteile eines Index. Gibt Liste von dicts (name, yahoo, tv, index)."""
+    # die größte Tabelle mit Ticker- und Namensspalte ist die Bestandsliste
+    kandidaten = []
     for df in wiki_tabellen(url):
         t = spalte(df, "Symbol", "Ticker")
         n = spalte(df, "Security", "Company", "Name")
-        if t is None or n is None or len(df) < 20:
-            continue
+        if t is not None and n is not None and len(df) >= 20:
+            kandidaten.append((len(df), df, t, n))
+    for _, df, t, n in sorted(kandidaten, key=lambda k: -k[0])[:1]:
         aus = []
         for _, z in df.iterrows():
             sym = str(z[t]).strip()
@@ -58,6 +63,9 @@ def index_liste(url, index, endung="", boerse_tv=""):
     raise ValueError("keine Tabelle gefunden")
 
 
+QUELLEN = {}
+
+
 def bestand():
     quellen = [
         ("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies", "S&P 500", "", ""),
@@ -69,6 +77,7 @@ def bestand():
         try:
             liste = index_liste(url, idx, endung, tv)
             print(f"{idx}: {len(liste)} Werte")
+            QUELLEN[idx] = len(liste)
             for e in liste:
                 if e["yahoo"] in alle:
                     alle[e["yahoo"]]["index"] += ", " + idx
@@ -76,6 +85,7 @@ def bestand():
                     alle[e["yahoo"]] = e
         except Exception as ex:
             print(f"Hinweis: {idx} nicht geladen ({ex})")
+            QUELLEN[idx] = 0
     try:
         with open("aktien/liste.json", encoding="utf-8") as f:
             for e in json.load(f):
@@ -143,7 +153,7 @@ def main():
         sys.exit("Zu wenige Kurse geladen, trend.json wird nicht überschrieben")
     treffer.sort(key=lambda t: -t["sa50"])
     aus = {"stand": datetime.now(timezone.utc).isoformat(timespec="minutes"),
-           "geprueft": geladen, "knapp": KNAPP, "aktien": treffer}
+           "geprueft": geladen, "quellen": QUELLEN, "knapp": KNAPP, "aktien": treffer}
     with open("trend.json", "w", encoding="utf-8") as f:
         json.dump(aus, f, ensure_ascii=False, separators=(",", ":"))
 
