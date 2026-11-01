@@ -1337,6 +1337,43 @@ const CAL=[
   ['2026-10-30T13:30','US','Arbeitskostenindex 3. Quartal',1,'k'],
   ['2026-10-30T14:00','DE','Verbraucherpreise Oktober (vorläufig)',3,'k'],
   ['2026-10-30T14:45','US','Einkaufsmanagerindex Chicago Oktober',1,'k'],
+  ['2026-11-02T08:00','DE','Einzelhandelsumsatz September',1,'k'],
+  ['2026-11-02T09:55','DE','Einkaufsmanagerindex Industrie Oktober (2. Veröffentlichung)',2,'k'],
+  ['2026-11-02T10:00','EU','Einkaufsmanagerindex Industrie Eurozone Oktober (2. Veröffentlichung)',2,'k'],
+  ['2026-11-02T16:00','US','ISM-Index Industrie Oktober',3,'k','Bauausgaben September ebenfalls 16:00'],
+  ['2026-11-02T22:30','US','Apple – Quartalszahlen',2,'u','Palantir bereits gegen 22:00'],
+  ['2026-11-03T00:00','US','Zwischenwahlen zum Kongress (Midterms)',2,'k','ganztägig'],
+  ['2026-11-03T07:00','DE','Lufthansa, Evonik, FMC, Zalando, Teamviewer – Zahlen 3. Quartal',2,'u'],
+  ['2026-11-03T07:30','DE','Bayer, Hugo Boss – Zahlen 3. Quartal',2,'u'],
+  ['2026-11-03T07:30','AT','Raiffeisen Bank International – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-03T08:00','DE','Schaeffler – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-03T12:45','DE','BioNTech – Zahlen 3. Quartal',1,'u','Pfizer ebenfalls 12:45'],
+  ['2026-11-03T16:00','US','Offene Stellen (JOLTS) September',2,'k','Auftragseingang Industrie September ebenfalls 16:00'],
+  ['2026-11-03T22:15','US','AMD – Zahlen 3. Quartal',1,'u','Amgen und Booking um 22:00'],
+  ['2026-11-04T06:45','DE','Fresenius – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-04T07:00','DE','Heidelberg Materials, Vonovia, Fraport, Siltronic – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-04T07:30','DE','BMW, Continental, Scout24, Auto1 – Zahlen 3. Quartal',2,'u'],
+  ['2026-11-04T09:00','AT','Verbraucherpreise Oktober (vorläufig)',1,'k'],
+  ['2026-11-04T09:55','DE','Einkaufsmanagerindex Dienstleistungen Oktober (2. Veröffentlichung)',1,'k'],
+  ['2026-11-04T10:00','EU','Einkaufsmanagerindex Dienstleistungen Eurozone Oktober (2. Veröffentlichung)',1,'k'],
+  ['2026-11-04T11:00','EU','Verbraucherpreise Eurozone Oktober (Vorabschätzung)',3,'k'],
+  ['2026-11-04T14:15','US','ADP-Arbeitsmarktbericht Oktober',2,'k'],
+  ['2026-11-04T14:30','US','Handelsbilanz September',1,'k'],
+  ['2026-11-04T16:00','US','ISM-Index Dienstleistungen Oktober',3,'k'],
+  ['2026-11-04T22:05','US','Qualcomm – Quartalszahlen',1,'u'],
+  ['2026-11-05T07:00','DE','Deutsche Telekom, Commerzbank, DHL, Siemens Healthineers – Quartalszahlen',2,'u','außerdem Lanxess, Nemetschek, Nordex, Rational, HelloFresh'],
+  ['2026-11-05T07:00','AT','Kontron, AT&S – Quartalszahlen',1,'u'],
+  ['2026-11-05T07:30','DE','Rheinmetall, Renk, Deutz, Fielmann – Zahlen 3. Quartal',2,'u'],
+  ['2026-11-05T08:00','DE','Auftragseingang Industrie September',2,'k'],
+  ['2026-11-05T08:00','AT','Verbund – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-05T13:00','UK','Bank of England – Zinsentscheid',2,'z'],
+  ['2026-11-05T14:00','DE','Hochtief – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-05T14:30','US','Erstanträge Arbeitslosenhilfe, Produktivität 3. Quartal',1,'k'],
+  ['2026-11-06T07:00','DE','Daimler Truck – Zahlen 3. Quartal',1,'u'],
+  ['2026-11-06T08:00','DE','Industrieproduktion September',2,'k'],
+  ['2026-11-06T11:00','EU','Einzelhandelsumsatz Eurozone September',1,'k'],
+  ['2026-11-06T14:30','US','Arbeitsmarktbericht Oktober',3,'k'],
+  ['2026-11-06T16:00','US','Verbraucherstimmung Uni Michigan November (1. Umfrage)',2,'k'],
   ['2026-12-09T20:00','US','Fed-Zinsentscheid (FOMC) mit Projektionen',3,'z','Sitzung 8.–9. Dezember'],
   ['2026-12-17T14:15','EU','EZB-Zinsentscheid',3,'z','Sitzung 16.–17. Dezember, Pressekonferenz üblicherweise 14:45']
 ];
@@ -1385,7 +1422,7 @@ $('uAdd').onclick=()=>{
   uCal.push({d:real.toISOString(),cc:$('uCc').value,e,w:+$('uW').value}); store.set('calUser',uCal);
   $('uE').value=''; m.className='msg good'; m.textContent='Termin hinzugefügt.'; renderCal();
 };
-$('calSrc').innerHTML='Termine laut <a href="https://www.finanzen.net/nachricht/aktien/wochenvorschau-termine-bis-6-november-2026-16004697" target="_blank" rel="noopener">dpa-AFX-Wochenvorschau</a>, <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69923096-wochenvorschau-termine-bis-6-november-2026-016.htm" target="_blank" rel="noopener">finanznachrichten.de</a>, <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69858898-wochenvorschau-26-oktober-bis-1-november-44-kw-015.htm" target="_blank" rel="noopener">Wochenvorschau KW 44</a>, <a href="https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.de.html" target="_blank" rel="noopener">EZB</a> und <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">Federal Reserve</a>, Stand 25. Oktober 2026. Termine können sich kurzfristig ändern.';
+$('calSrc').innerHTML='Termine laut <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69990682-wochenvorschau-2-bis-8-november-45-kw-015.htm" target="_blank" rel="noopener">Dow-Jones-Wochenvorschau KW 45</a>, <a href="https://www.finanzen.net/nachricht/aktien/wochenvorschau-termine-bis-13-november-2026-16023796" target="_blank" rel="noopener">dpa-AFX-Wochenvorschau</a>, <a href="https://www.finanznachrichten.de/nachrichten-2026-10/69858898-wochenvorschau-26-oktober-bis-1-november-44-kw-015.htm" target="_blank" rel="noopener">Wochenvorschau KW 44</a>, <a href="https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.de.html" target="_blank" rel="noopener">EZB</a> und <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">Federal Reserve</a>, Stand 1. November 2026. Termine können sich kurzfristig ändern.';
 renderCal(); setInterval(renderCal,30000);
 
 
@@ -1922,7 +1959,7 @@ ddCalc();
 
 /* ---------- Wochenrückblick ---------- */
 // Wird jeden Sonntag automatisch aktualisiert. Format: {kw,zeitraum,schluss,veraenderung,hoch,tief,text,punkte:[...],quellen:[[Titel,URL],...]}
-const REVIEW={kw:'KW 43',zeitraum:'19.–23. Oktober 2026',schluss:25182,veraenderung:-1.72,hoch:25706,tief:25014,text:'Der DAX hat die Woche mit einem Minus von rund 1,7 Prozent bei gut 25.180 Punkten beendet. Nach einem schwachen Wochenstart und einer kräftigen Erholung am Mittwoch zogen enttäuschende US-Techzahlen, Zweifel an den hohen KI-Investitionen und steigende Ölpreise den Index wieder nach unten. Zum Wochenschluss belasteten schwache Einkaufsmanagerdaten und die Proteste in Frankreich zusätzlich.',punkte:['Mittwoch +1,35 Prozent: Hoffnung auf eine Entspannung im Iran-Konflikt und starke SpaceX-Zahlen gaben KI-nahen Werten Auftrieb.','Donnerstag rund -1 Prozent: Zahlen von Tesla, Meta und IBM schürten Zweifel an der KI-Story, Siemens Energy und Infineon verloren deutlich.','SAP überzeugte mit dem dritten Quartal und stieg auf den höchsten Stand seit Januar, Qiagen profitierte von einem Übernahmeangebot von EQT.','Ein Angriff auf ein saudisches Ölfeld trieb die Ölpreise nach oben und verstärkte Inflationssorgen.','Am Freitag fielen die Einkaufsmanagerindizes der Eurozone überraschend schwach aus, Frankreich rutschte unter die Wachstumsschwelle.'],quellen:[['dpa-AFX: Frankreich-Sorgen lassen Dax weiter absacken (ariva.de)','https://www.ariva.de/news/roundup-aktien-frankfurt-schluss-frankreich-sorgen-lassen-12180188'],['dpa-AFX: US-Tech-Branche versetzt Dax neuen Dämpfer (finanzen.ch)','https://www.finanzen.ch/nachrichten/aktien/aktien-frankfurt-schluss-us-tech-branche-versetzt-dax-neuen-dampfer-1036655578'],['dpa-AFX: Dax schüttelt Verluste weitgehend ab (boerse.de)','https://www.boerse.de/nachrichten/Aktien-Frankfurt-Schluss-Dax-schuettelt-Verluste-weitgehend-ab/38679282'],['finanzen.net: DAX am Freitag','https://www.finanzen.net/nachricht/aktien/minuszeichen-in-frankfurt-dax-gibt-zum-ende-des-freitagshandels-nach-16004733'],['finanzen.net: DAX am Mittwoch','https://www.finanzen.net/nachricht/aktien/zuversicht-in-frankfurt-dax-zum-handelsende-fester-15999024'],['finanzen.ch: DAX am Montag (Vorwochenschluss)','https://www.finanzen.ch/nachrichten/aktien/verluste-in-frankfurt-dax-verbucht-am-montagnachmittag-abschlaege-1036639074']]};
+const REVIEW={kw:'KW 44',zeitraum:'26.–30. Oktober 2026',schluss:25818,veraenderung:2.53,hoch:26106,tief:25217,text:'Der DAX hat eine starke Woche mit einem Plus von gut 2,5 Prozent bei rund 25.820 Punkten abgeschlossen und auch den Oktober insgesamt mit 2,5 Prozent im Plus beendet. Ein überraschend guter ifo-Index, solide Quartalszahlen und Zinspausen von Fed und EZB trieben den Index am Donnerstag erstmals seit Anfang September wieder über 26.000 Punkte. Zum Wochenschluss sorgten enttäuschende Zahlen von Amazon und Intel sowie steigende Ölpreise für Gewinnmitnahmen.',punkte:['Montag gut 1 Prozent im Plus: Das ifo-Geschäftsklima stimmte die Anleger zuversichtlich.','Fed und EZB ließen die Leitzinsen unverändert, Lagarde deutete jedoch eine mögliche Zinserhöhung im Dezember an, auch bei der Fed rechnen Analysten damit. Zudem kündigte Lagarde ihren Rückzug für Februar 2027 an.','Deutsche Bank, BASF und Adidas überzeugten mit Quartalszahlen, Mercedes-Benz rechnet dagegen nicht mehr mit dem Erreichen seiner Jahresziele.','Die deutsche Inflation sank im Oktober überraschend deutlich auf 2,8 Prozent, vor allem wegen des Tankrabatts.','Freitag -0,85 Prozent: Amazon und Intel belasteten Chipwerte wie Infineon, während Bayer nach einem gewonnenen Glyphosat-Prozess zulegte.'],quellen:[['dpa-AFX: Schwächeres Ende einer starken Börsenwoche (finanzen.at)','https://www.finanzen.at/nachrichten/aktien/roundup-aktien-frankfurt-schluss-schwacheres-ende-einer-starken-boersenwoche-1036693430'],['finanzen.net: DAX am Freitag','https://www.finanzen.net/nachricht/aktien/schwacher-wochentag-in-frankfurt-dax-verbucht-zum-handelsende-verluste-16023857'],['finanzen.net: DAX nach EZB-Zinsentscheid über 26.000 Punkten','https://www.finanzen.net/nachricht/aktien/dax-aktuell-dax-schliesst-nach-zinsentscheid-ueber-26-000-punkte-marke-ist-das-der-startschuss-zur-jahresendrally-16018484'],['finanzen.net: Heute im Fokus 29.10. (Fed-Entscheid)','https://www.finanzen.net/nachricht/aktien/heute-im-fokus-29-10-2026-16017997'],['Handelsblatt: DAX am Mittwoch','https://www.handelsblatt.com/finanzen/maerkte/marktberichte/dax-aktuell-dax-schliesst-im-plus-symrise-verliert-fast-zehn-prozent/100265482.html'],['finanzen.at: DAX am Dienstag','https://www.finanzen.at/nachrichten/aktien/dax-handel-aktuell-dax-zum-ende-des-dienstagshandels-auf-gruenem-terrain-1036672039'],['finanzen.net: DAX am Montag','https://www.finanzen.net/nachricht/aktien/montagshandel-in-frankfurt-dax-zum-ende-des-montagshandels-im-plus-16009074']]};
 function renderReview(){
   const r=REVIEW, el=$('review');
   if(!r){el.innerHTML='<div class="msg">Der erste Rückblick erscheint am Sonntag, 25. Oktober, nach Handelsschluss der Woche. Ab dann steht hier jede Woche, wie sich der DAX bewegt hat und welche Ereignisse ihn bewegt haben.</div>';return;}
